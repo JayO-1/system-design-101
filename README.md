@@ -232,14 +232,18 @@ You can use the following steps to guide the discussion.  To help solidify this 
 Gather requirements and scope the problem.  Ask questions to clarify use cases and constraints.  Discuss assumptions.
 Fundamentally we want to list the **Functional** and **Non-Functional** Requirements
 
-* Who is going to use it?
-* How are they going to use it?
-* How many users are there?
-* What does the system do?
-* What are the inputs and outputs of the system?
-* How much data do we expect to handle?
-* How many requests per second do we expect?
-* What is the expected read to write ratio?
+|          Functional       |                                   |          Non-Functional              |                                                  |
+|            :---:          |                  :----:           |               :---:                  |                         :---:                    |
+|         **Users**         |       **Scale (Read/Write)**      |             **Performance**          |                       **Cost**                   |
+| Who is going to use it?   |   How many read/write qps?        |       Availability vs Consistency    |    Should we minimise the cost of development?   |
+| What does the system do?  |   How much data per query/total?  |  Can we tolerate read/write latency? |    Should we minimise the cost of maintenance?   |
+| How many users are there? |   Can there be spikes in either?  |                                      |                                                  |
+
+[Source](https://www.youtube.com/watch?v=bUHFg8CZFws&pp=ygUXU3lzdGVtIERlc2lnbiBJbnRlcnZpZXc%3D)
+
+#### Cost
+- **_Minimising Development Cost:_** Rely more on open source frameworks
+- **_Minimising Maintenance Cost:_** Rely more on public cloud services
 
 ### Step 2: Create a high level design
 
