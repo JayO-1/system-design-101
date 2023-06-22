@@ -226,6 +226,7 @@ You can use the following steps to guide the discussion.  To help solidify this 
 ### Step 1: Outline use cases, constraints, and assumptions
 
 Gather requirements and scope the problem.  Ask questions to clarify use cases and constraints.  Discuss assumptions.
+Fundamentally we want to list the Functional and Non-Functional Requirements
 
 * Who is going to use it?
 * How are they going to use it?
