@@ -97,6 +97,9 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
   <br/>
 </p>
 
+* [Low-Level Design](#low-level-design)
+    * [SOLID, DRY and KISS](#solid-dry-and-kiss)
+    * [Design Patterns](#design-patterns)
 * [System design topics: start here](#system-design-topics-start-here)
     * [Step 1: Review the scalability video lecture](#step-1-review-the-scalability-video-lecture)
     * [Step 2: Review the scalability article](#step-2-review-the-scalability-article)
@@ -167,6 +170,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Remote procedure call (RPC)](#remote-procedure-call-rpc)
     * [Representational state transfer (REST)](#representational-state-transfer-rest)
 * [Security](#security)
+* [Containerization (Docker and Kubernetes)](#containerization-docker-and-kubernetes)
 * [Appendix](#appendix)
     * [Powers of two table](#powers-of-two-table)
     * [Latency numbers every programmer should know](#latency-numbers-every-programmer-should-know)
@@ -369,6 +373,16 @@ Check out the following links to get a better idea of what to expect:
 | Design a chat server | [Solution](solutions/object_oriented_design/online_chat/online_chat.ipynb)  |
 | Design a circular array | [Contribute](#contributing)  |
 | Add an object-oriented design question | [Contribute](#contributing) |
+
+## Low-Level Design
+
+### SOLID, DRY and KISS
+
+This section needs to be updated...
+
+### Design Patterns
+
+This section needs to be updated...
 
 ## System design topics: start here
 
@@ -1568,6 +1582,10 @@ Security is a broad topic.  Unless you have considerable experience, a security 
 * Sanitize all user inputs or any input parameters exposed to user to prevent [XSS](https://en.wikipedia.org/wiki/Cross-site_scripting) and [SQL injection](https://en.wikipedia.org/wiki/SQL_injection).
 * Use parameterized queries to prevent SQL injection.
 * Use the principle of [least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege).
+
+## Containerization (Docker and Kubernetes)
+
+This section needs to be updated...
 
 ### Source(s) and further reading
 
