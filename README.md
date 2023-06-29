@@ -1418,7 +1418,7 @@ HTTP is an application layer protocol relying on lower-level protocols such as *
 * [Difference between HTTP and TCP](https://www.quora.com/What-is-the-difference-between-HTTP-protocol-and-TCP-protocol)
 * [Difference between PUT and PATCH](https://laracasts.com/discuss/channels/general-discussion/whats-the-differences-between-put-and-patch?page=1)
 
-### WebSockets
+### WebSockets (WSS)
 
 Another application layer protocol that runs over TCP. Useful in cases where we need bidirectional communication via a persistent connection between client and server. HTTP only supports client -> server.
 
