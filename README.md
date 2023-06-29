@@ -1420,7 +1420,7 @@ HTTP is an application layer protocol relying on lower-level protocols such as *
 
 ### WebSockets (WSS)
 
-Another application layer protocol that runs over TCP. Useful in cases where we need bidirectional communication via a persistent connection between client and server. HTTP only supports client -> server.
+Another application layer protocol that runs over TCP. Useful in cases where we need bidirectional communication via a persistent connection between client and server. HTTP only supports client -> server, so for server -> client we would need to implement http long polling.
 
 This section needs to be filled out...
 
