@@ -662,7 +662,7 @@ Pull CDNs grab new content from your server when the first user requests the con
 
 A [time-to-live (TTL)](https://en.wikipedia.org/wiki/Time_to_live) determines how long content is cached.  Pull CDNs minimize storage space on the CDN, but can create redundant traffic if files expire and are pulled before they have actually changed.
 
-Sites with heavy traffic work well with pull CDNs, as traffic is spread out more evenly with only recently-requested content remaining on the CDN.
+Sites with heavy traffic work well with pull CDNs, as traffic is spread out more evenly with only recently requested content remaining on the CDN.
 
 ### Disadvantage(s): CDN
 
@@ -672,6 +672,7 @@ Sites with heavy traffic work well with pull CDNs, as traffic is spread out more
 
 ### Source(s) and further reading
 
+* [Video By Exponent](https://www.youtube.com/watch?v=rwBv7FqZ77g) -> Pull CDNs are much more widely used due to the ease of maintenance
 * [Globally distributed content delivery](https://figshare.com/articles/Globally_distributed_content_delivery/6605972)
 * [The differences between push and pull CDNs](http://www.travelblogadvice.com/technical/the-differences-between-push-and-pull-cdns/)
 * [Wikipedia](https://en.wikipedia.org/wiki/Content_delivery_network)
