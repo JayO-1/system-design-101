@@ -822,7 +822,7 @@ Systems such as [Consul](https://www.consul.io/docs/index.html), [Etcd](https://
 * [Intro to architecting systems for scale](http://lethain.com/introduction-to-architecting-systems-for-scale)
 * [Crack the system design interview](http://www.puncsky.com/blog/2016-02-13-crack-the-system-design-interview)
 * [Service oriented architecture](https://en.wikipedia.org/wiki/Service-oriented_architecture)
-* [Introduction to Zookeeper](http://www.slideshare.net/sauravhaloi/introduction-to-apache-zookeeper)
+* [Introduction to Zookeeper](http://www.slideshare.net/sauravhaloi/introduction-to-apache-zookeeper) -> Very useful resource. The importance of distributed coordination software is highlighted in this [video](https://www.youtube.com/watch?v=TzwiGTbUSHg) on leader election
 * [Here's what you need to know about building microservices](https://cloudncode.wordpress.com/2016/07/22/msa-getting-started/)
 
 ## Database
