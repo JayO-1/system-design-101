@@ -551,6 +551,12 @@ This topic is further discussed in the [Database](#database) section:
 * [Master-slave replication](#master-slave-replication)
 * [Master-master replication](#master-master-replication)
 
+### Failover vs Replication
+
+Failover mechanisms are typically associated with ensuring continuous availability and reliability of active, running services by automatically redirecting traffic or operations in case of failures. 
+
+On the other hand, replication is more about maintaining redundant copies of data across multiple systems or locations to ensure data availability, consistency, and scalability. Both concepts are essential components of designing resilient and reliable systems.
+
 ### Availability in numbers
 
 Availability is often quantified by uptime (or downtime) as a percentage of time the service is available.  Availability is generally measured in number of 9s--a service with 99.99% availability is described as having four 9s.
