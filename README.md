@@ -959,7 +959,9 @@ In most systems, reads can heavily outnumber writes 100:1 or even 1000:1.  A rea
 
 * Data is duplicated.
 * Constraints can help redundant copies of information stay in sync, which increases complexity of the database design.
-* A denormalized database under heavy write load might perform worse than its normalized counterpart.
+* A denormalized database under heavy write load might perform worse than its normalized counterpart as:
+  * A given write may need to be repeated in different parts of the database
+  * We need to maintain the [index](https://www.youtube.com/watch?v=YuRO9-rOgv4)/add additional indexes to account for the duplicated data
 
 ###### Source(s) and further reading: denormalization
 
