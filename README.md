@@ -1128,6 +1128,7 @@ Reasons for **SQL**:
 
 * Structured data
 * Strict schema
+  * We must define schema upfront, including all data types
 * Relational data
 * Need for complex joins
 * Transactions
@@ -1142,7 +1143,9 @@ Reasons for **NoSQL**:
 * Non-relational data
 * No need for complex joins
 * Store many TB (or PB) of data
-* Very data intensive workload
+* Very data-intensive workload
+* Much easier to horizontally scale
+  * If SQL databases are read-heavy, then scaling is relatively simple as we just need more read-replicas. However, if they are write-heavy, then we either make the sacrifice of consistency to facilitate horizontal scaling or block writes to ensure strong consistency, and focus on vertical scaling
 * Very high throughput for IOPS
 
 Sample data well-suited for NoSQL:
