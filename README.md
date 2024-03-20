@@ -1144,6 +1144,7 @@ Reasons for **NoSQL**:
 * Dynamic or flexible schema
 * Non-relational data
 * No need for complex joins
+* Clarity on our use case (how we will query data)
 * Store many TB (or PB) of data
 * Very data-intensive workload
 * Much easier to horizontally scale
