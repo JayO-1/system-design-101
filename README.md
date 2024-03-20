@@ -1132,6 +1132,8 @@ Reasons for **SQL**:
 * Relational data
 * Need for complex joins
 * Transactions
+* Flexible
+  * We may not know how our use case will evolve, so it can be useful to default to SQL 
 * Clear patterns for scaling
 * More established: developers, community, code, tools, etc
 * Lookups by index are very fast
@@ -1159,6 +1161,8 @@ Sample data well-suited for NoSQL:
 ##### Source(s) and further reading: SQL or NoSQL
 
 * [Scaling up to your first 10 million users](https://www.youtube.com/watch?v=kKjm4ehYiMs)
+* [Exponent: SQL vs NoSQL](https://www.youtube.com/watch?v=_Ss42Vb1SU4)
+* [Be a Better Dev: SQL vs NoSQL](https://www.youtube.com/watch?v=ruz-vK8IesE)
 * [SQL vs NoSQL differences](https://www.sitepoint.com/sql-vs-nosql-differences/)
 
 ## Cache
