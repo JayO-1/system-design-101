@@ -232,12 +232,12 @@ You can use the following steps to guide the discussion.  To help solidify this 
 Gather requirements and scope the problem.  Ask questions to clarify use cases and constraints.  Discuss assumptions.
 Fundamentally we want to list the **Functional** and **Non-Functional** Requirements
 
-|          Functional       |                                   |          Non-Functional              |                                                  |
-|            :---:          |                  :----:           |               :---:                  |                         :---:                    |
-|         **Users**         |       **Scale (Read/Write)**      |             **Performance**          |                       **Cost**                   |
-| Who is going to use it?   |   How many read/write qps?        |       Availability vs Consistency    |    Should we minimise the cost of development?   |
-| What does the system do?  |   How much data per query/total?  |  Can we tolerate read/write latency? |    Should we minimise the cost of maintenance?   |
-| How many users are there? |   Can there be spikes in either?  |                                      |                                                  |
+|               Functional               |                                                            |              Non-Functional          |                                                  |
+|                 :---:                  |                         :----:                             |                  :---:               |                         :---:                    |
+|               **Users**                |                 **Scale (Read/Write)**                     |             **Performance**          |                       **Cost**                   |
+|  Who is going to use it and for what?  |   Read heavy or write heavy (in qps)?                      |       Availability vs Consistency    |    Should we minimise the cost of development?   |
+|      How many users are there?         |   How much data per query/total?                           |  Can we tolerate read/write latency? |    Should we minimise the cost of maintenance?   |
+|                                        |   Can there be spikes in either? (special events?)         |                                      |                                                  |
 
 [Source](https://www.youtube.com/watch?v=bUHFg8CZFws&pp=ygUXU3lzdGVtIERlc2lnbiBJbnRlcnZpZXc%3D)
 
