@@ -1306,7 +1306,7 @@ Write-through is a slow overall operation due to the write operation, but subseq
 
 ##### Disadvantage(s): write through
 
-* When a new node is created due to failure or scaling, the new node will not cache entries until the entry is updated in the database.  Cache-aside in conjunction with write through can mitigate this issue.
+* When a new node is created due to failure or scaling, the new node will not cache entries until the entry is updated in the database.  Cache-aside in conjunction with write-through can mitigate this issue.
 * Most data written might never be read, which can be minimized with a TTL.
 
 #### Write-behind (write-back)
@@ -1351,6 +1351,7 @@ Refresh-ahead can result in reduced latency vs read-through if the cache can acc
 
 ### Source(s) and further reading
 
+* [Caching Overview: Exponent](https://www.youtube.com/watch?v=6GY1akbxyEo)
 * [From cache to in-memory data grid](http://www.slideshare.net/tmatyashovsky/from-cache-to-in-memory-data-grid-introduction-to-hazelcast)
 * [Scalable system design patterns](http://horicky.blogspot.com/2010/10/scalable-system-design-patterns.html)
 * [Introduction to architecting systems for scale](http://lethain.com/introduction-to-architecting-systems-for-scale/)
