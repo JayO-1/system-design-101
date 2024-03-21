@@ -292,6 +292,7 @@ Check out the following links to get a better idea of what to expect:
 * [The system design interview](http://www.hiredintech.com/system-design)
 * [Intro to Architecture and Systems Design Interviews](https://www.youtube.com/watch?v=ZgdS0EUmn70)
 * [System design template](https://leetcode.com/discuss/career/229177/My-System-Design-Template)
+* [What is a Web Server?](https://www.youtube.com/watch?v=9J1nJOivdyw)
 
 ## System design interview questions with solutions
 
