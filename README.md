@@ -160,6 +160,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
         * [Write-through](#write-through)
         * [Write-behind (write-back)](#write-behind-write-back)
         * [Refresh-ahead](#refresh-ahead)
+        * [Caching: In a Nutshell](#caching-in-a-nutshell)
 * [Asynchronism](#asynchronism)
     * [Message queues](#message-queues)
     * [Task queues](#task-queues)
@@ -1343,11 +1344,48 @@ Refresh-ahead can result in reduced latency vs read-through if the cache can acc
 
 * Not accurately predicting which items are likely to be needed in the future can result in reduced performance than without refresh-ahead.
 
-### Disadvantage(s): cache
+### Caching: In A Nutshell
 
-* Need to maintain consistency between caches and the source of truth such as the database through [cache invalidation](https://en.wikipedia.org/wiki/Cache_algorithms).
-* Cache invalidation is a difficult problem, there is additional complexity associated with when to update the cache.
-* Need to make application changes such as adding Redis or memcached.
+There are three main disadvantages of caches in general:
+1. Need to maintain consistency between caches and the source of truth such as the database through [cache invalidation](https://en.wikipedia.org/wiki/Cache_algorithms)
+  * We usually use TTL (Time-To-Live) but cache invalidation is a difficult problem and there is additional complexity associated with when to update the cache.
+  * Some architectures involve refreshing this TTL periodically using various mechanisms
+2. If a cache node goes down, subsequent reads will be slow until it can be repopulated
+
+#### Cache Aside: +Ives and -Ives
+
+##### +Ives
+
+* Minimal storage - the cache will only contain what's needed
+* Simple to implement
+
+##### -Ives
+
+* Writes can be slow as we make three requests in the worst case: 1. A cache check, 2. A DB query, 3. A cache write
+
+#### Write Through
+
+##### +Ives
+
+* The cache will naturally be more consistent with the DB
+* Simple to implement
+
+##### -Ives
+
+* The cache may fail before the write goes through, leading to data loss
+* We don't take advantage of locality, that is, the cache may contain many irrelevant items
+* If the cache node fails, then it will only be repopulated on new writes (although we can mitigate this by blending cache aside and write through)
+
+#### Write Behind
+
+##### +Ives
+
+* Writes are fast as they happen asynchronously
+
+##### -Ives
+
+* We increase the risk of data loss in the case of failure, due to having more degrees of separation between the service and the DB
+* Due to this, it is more complex to implement
 
 ### Source(s) and further reading
 
