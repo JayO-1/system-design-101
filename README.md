@@ -162,7 +162,8 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
         * [Refresh-ahead](#refresh-ahead)
         * [Caching: In a Nutshell](#caching-in-a-nutshell)
 * [Asynchronism](#asynchronism)
-    * [Message queues](#message-queues)
+    * [In-Memory Message Brokers (Message Queues)](#in-memory-message-brokers-message-queues)
+    * [Log-Based Message Brokers](#log-based-message-brokers)
     * [Task queues](#task-queues)
     * [Back pressure](#back-pressure)
 * [Communication](#communication)
@@ -1408,26 +1409,66 @@ There are three main disadvantages of caches in general:
 
 Asynchronous workflows help reduce request times for expensive operations that would otherwise be performed in-line.  They can also help by doing time-consuming work in advance, such as periodic aggregation of data.
 
-### Message queues
-
-Message queues receive, hold, and deliver messages.  If an operation is too slow to perform inline, you can use a message queue with the following workflow:
+Message queues facilitate the producer-subscriber pattern via their ability to receive, hold, and deliver messages.  If an operation is too slow to perform inline, you can use a message queue with the following workflow:
 
 * An application publishes a job to the queue, then notifies the user of job status
 * A worker picks up the job from the queue, processes it, then signals the job is complete
 
 The user is not blocked and the job is processed in the background.  During this time, the client might optionally do a small amount of processing to make it seem like the task has completed.  For example, if posting a tweet, the tweet could be instantly posted to your timeline, but it could take some time before your tweet is actually delivered to all of your followers.
 
-**[Redis](https://redis.io/)** is useful as a simple message broker but messages can be lost.
+### In-Memory Message Brokers (Message Queues)
 
-**[RabbitMQ](https://www.rabbitmq.com/)** is popular but requires you to adapt to the 'AMQP' protocol and manage your own nodes.
+<p align="center">
+  <img src="images/In-Memory Message Broker.png">
+</p>
+<br>
+
+In-memory message brokers rely on an in-memory data structure (e.g. LinkedList, Array) to queue and dequeue items. When a job is dequeued, it is deleted from the queue once the message broker receives acknowledgement (ACK).
+
+The benefit of this system is that we can **maximise throughput** as messages are processed in parallel (round-robin style), with subscribers polling the next item once available.
+
+However, this is also a drawback, as items are processed **out of order** and since items aren't persisted the system is **fault intolerant** and **lacks replayability**.
+
+We can minimise these issues by using a **write-ahead log** to persist the contents of the queue, however, this will **slow down writes** as _writes to memory are always faster than writes to disk_
+
+We can also **"fan out"** our queue - duplicating the queue across different partitions and _locking subscribers to their own queue_ to enforce in-order processing. However, this **minimises "throughput"**.
+
+**[RabbitMQ](https://www.rabbitmq.com/)** is popular but requires you to adapt to the 'AMQP' protocol and manage your own nodes. _Also provides a log-based message broker_
 
 **[Amazon SQS](https://aws.amazon.com/sqs/)** is hosted but can have high latency and has the possibility of messages being delivered twice.
+
+**[Redis](https://redis.io/)** is useful as a simple message broker but messages can be lost.
+
+### Log-Based Message Brokers
+
+<p align="center">
+  <img src="images/Log-Based Message Broker.png">
+</p>
+
+Log-based message brokers write message items to disk in sequential order. When a subscriber attempts to read from the queue, the broker will manage the order of reads for each subscriber to ensure they are **in order**.
+
+Since all message items are persisted, log-based brokers are **fault tolerant** and **support replayability**.
+
+However, since items must be read in order, _difficult to process items act as bottlenecks_ for a given subscriber, **reducing throughput**. The speed at which we can clear the queue is proportional to the slowest item.
+
+We can mitigate this by **"fanning out"** our queue, duplicating it across many partitions and assigning subscribers to each duplicate.
+
+**Kafka** is a very common message broker
+* Messages are published to "topics" which are persisted in memory across various "partitions" for some time
+
+**Amazon Kinesis**
+
+### When Should We Use In-Memory vs Log-Based Message Brokers?
+
+**In-Memory:** Ideal when we _don't care about ordering_ and we need _maximum throughput_ e.g posting content online -> all we care about is the end result
+
+**Log-Based:** Ideal when ordering is essential for our use case e.g. asynchronously performing DB writes, and processing time-series data like from sensors
 
 ### Task queues
 
 Tasks queues receive tasks and their related data, runs them, then delivers their results.  They can support scheduling and can be used to run computationally-intensive jobs in the background.
 
-**[Celery](https://docs.celeryproject.org/en/stable/)** has support for scheduling and primarily has python support.
+**[Celery](https://docs.celeryproject.org/en/stable/)** has support for scheduling and primarily has Python support.
 
 ### Back pressure
 
@@ -1439,6 +1480,8 @@ If queues start to grow significantly, the queue size can become larger than mem
 
 ### Source(s) and further reading
 
+* [What is a Message Queue?](https://www.youtube.com/watch?v=W4_aGb_MOls)
+* [In-Memory Brokers vs Log-Based Brokers](https://www.youtube.com/watch?v=_5mu7lZz5X4)
 * [It's all a numbers game](https://www.youtube.com/watch?v=1KRYH75wgy4)
 * [Applying back pressure when overloaded](http://mechanical-sympathy.blogspot.com/2012/05/apply-back-pressure-when-overloaded.html)
 * [Little's law](https://en.wikipedia.org/wiki/Little%27s_law)
