@@ -1472,16 +1472,24 @@ Tasks queues receive tasks and their related data, runs them, then delivers thei
 
 ### Back pressure
 
-If queues start to grow significantly, the queue size can become larger than memory, resulting in cache misses, disk reads, and even slower performance.  [Back pressure](http://mechanical-sympathy.blogspot.com/2012/05/apply-back-pressure-when-overloaded.html) can help by limiting the queue size, thereby maintaining a high throughput rate and good response times for jobs already in the queue.  Once the queue fills up, clients get a server busy or HTTP 503 status code to try again later.  Clients can retry the request at a later time, perhaps with [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff).
+The major issue with the producer-consumer pattern is that if queues start to grow significantly, there can be too many items in the queue for downstream consumers to be able to handle. This is because we spin up a thread for each task as rapidly as we can ([watch backpressure explained](https://www.youtube.com/watch?v=0KYoIvrM9VY)), and there is a limit on how many threads we can spin up on a given server before performance starts to degrade due to running out of memory. Threads may also start experiencing cache misses as the CPU cache fills up - leading to (slow) disk reads.
+
+In the case of message brokers, [back pressure](http://mechanical-sympathy.blogspot.com/2012/05/apply-back-pressure-when-overloaded.html) can help by setting a limit on the number of requests we can consume, thereby maintaining a high throughput rate and good response times for jobs already in the queue, and avoiding the issues outlined previously.  Once our threshold is reached we tell the producer to throttle our consumption until an item has finished being processed.
+
+In the case of handling web requests, we can view the request-response pattern as being another form of producer-consumer, except we cannot talk to the producer! Instead, we use [Disintermediate Processing](https://www.youtube.com/watch?v=0KYoIvrM9VY) where we use a fixed-size queue in memory on the server to buffer requests. Load is then managed by:
+* Clients get a server busy or HTTP 503 status code to try again later if the queue is full.  Clients can retry the request at a later time, perhaps with [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff).
+* Request Aggregation: We handle requests in batches where possible, reducing the number of requests to process (this can happen before the request reaches the server, or after)
+* Debouncing: We merge similar messages (think of a search bar.. we don't perform a request for every keystroke, but rather once the search term is complete)
 
 ### Disadvantage(s): asynchronism
 
-* Use cases such as inexpensive calculations and realtime workflows might be better suited for synchronous operations, as introducing queues can add delays and complexity.
+* Use cases such as inexpensive calculations and real-time workflows might be better suited for synchronous operations, as introducing queues can add delays and complexity.
 
 ### Source(s) and further reading
 
 * [What is a Message Queue?](https://www.youtube.com/watch?v=W4_aGb_MOls)
 * [In-Memory Brokers vs Log-Based Brokers](https://www.youtube.com/watch?v=_5mu7lZz5X4)
+* [Back Pressure Explained](https://www.youtube.com/watch?v=0KYoIvrM9VY)
 * [It's all a numbers game](https://www.youtube.com/watch?v=1KRYH75wgy4)
 * [Applying back pressure when overloaded](http://mechanical-sympathy.blogspot.com/2012/05/apply-back-pressure-when-overloaded.html)
 * [Little's law](https://en.wikipedia.org/wiki/Little%27s_law)
@@ -1694,15 +1702,15 @@ Security is a broad topic.  Unless you have considerable experience, a security 
 * Use parameterized queries to prevent SQL injection.
 * Use the principle of [least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege).
 
-## Containerization (Docker and Kubernetes)
-
-This section needs to be updated...
-
 ### Source(s) and further reading
 
 * [API security checklist](https://github.com/shieldfy/API-Security-Checklist)
 * [Security guide for developers](https://github.com/FallibleInc/security-guide-for-developers)
 * [OWASP top ten](https://www.owasp.org/index.php/OWASP_Top_Ten_Cheat_Sheet)
+
+## Containerization (Docker and Kubernetes)
+
+This section needs to be updated...
 
 ## Appendix
 
