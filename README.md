@@ -1479,7 +1479,7 @@ In the case of message brokers, [back pressure](http://mechanical-sympathy.blogs
 In the case of handling web requests, we can view the request-response pattern as being another form of producer-consumer, except we cannot talk to the producer! Instead, we use [Disintermediate Processing](https://www.youtube.com/watch?v=0KYoIvrM9VY) where we use a fixed-size queue in memory on the server to buffer requests. Load is then managed by:
 * **Request Rejection:** Clients get a server busy or HTTP 503 status code to try again later if the queue is full.  Clients can retry the request at a later time, perhaps with [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff).
 * **Request Aggregation:** We handle requests in batches where possible, reducing the number of requests to process (this can happen before the request reaches the server, or after). An example of where this is used is in [OpenTelemetry](https://cloud.google.com/learn/what-is-opentelemetry#:~:text=OpenTelemetry%20provides%20a%20single%2C%20open,export%20of%20telemetry%20data%20complicated.), which preprocesses metric data in batches, to reduce the amount of data shared with downstream clients
-* **Debouncing:** We merge similar messages (think of a search bar.. we don't perform a request for every keystroke, but rather once the search term is complete)
+* **Debouncing:** Particularly useful in user-facing applications, we merge similar requests (think of a search bar.. we don't perform a request for every keystroke, but rather once the search term is complete)
 
 ### Disadvantage(s): asynchronism
 
