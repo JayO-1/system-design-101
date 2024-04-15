@@ -953,6 +953,7 @@ In the all-to-all topology, any write received by a node, whether that be from a
 * [Distributed Systems Lecture on Logical Clocks (Version Vectors)](https://www.youtube.com/watch?v=x-D8iFU1d-o)
 * [Intro to CRDTs](https://www.youtube.com/watch?v=gZP2VUmH05A)
 * [Jordan Has No Life: CRDTs](https://www.youtube.com/watch?v=FG5Varj1Ows&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=21)
+* [Building a collaborative text-editor case-study](https://www.youtube.com/watch?v=hy0ePbpna5Y)
 * [Scalability, availability, stability, patterns](http://www.slideshare.net/jboner/scalability-availability-stability-patterns/)
 * [Multi-master replication](https://en.wikipedia.org/wiki/Multi-master_replication)
 
