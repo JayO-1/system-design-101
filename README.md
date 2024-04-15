@@ -890,12 +890,11 @@ Both masters serve reads and writes and coordinate with each other on writes.  I
 
 A key decision that we make up front is the topology of the node 'network' i.e. how do we distribute writes to all the nodes? The three main options used in practice are the circle, star and all-to-all topology. In the circle topology, writes are passed from node to node in a circle, making every node a single point of failure, while in the star topology, the central node manages the distribution of writes - again becoming a single point of failure. Thus, the all-to-all topology is the standard.
 
-In the all-to-all topology, any write received by a node, whether that be from a client or another node, is broadcasted to every other node. When a node broadcasts a write, it also logs its ID alongside the broadcast to ensure that writes aren't infinitely repeated among the nodes in the network.
+In the all-to-all topology, any write received by a node, whether that be from a client or another node, is broadcasted to every other node. The replication log for each node is modified to ensure that alongside the DB update that occurred, we also log which nodes we have successfully sent the write to. The idea is that each node that then receives the write will communicate the write to any node that didn't receive.
 
 <p align="center">
   <img src="images/master-master topologies.png">
   <br/>
-  <i><a href=http://www.slideshare.net/jboner/scalability-availability-stability-patterns/>Source: Scalability, availability, stability, patterns</a></i>
 </p>
 
 ##### Disadvantage(s): master-master replication
@@ -904,7 +903,11 @@ In the all-to-all topology, any write received by a node, whether that be from a
   * Conflict Avoidance: Shard the dataset and assign each shard its own master-slave system.
     * This introduces other problems as we need to consider what happens if a set of causal writes (writes that must be read in order) are stored across multiple partitions.
     * In this case, we would need to assign the writes some kind of timestamp to ensure we are able to reassemble them later OR store causal data on the same partition!
-  * Last Write Wins: 
+  * Last Write Wins: We use the write's timestamp to choose the most recent write.
+    * We are then left with the problem of deciding which timestamp to use - the client's or the server's?
+    * Using the client's timestamp makes fraud prevention difficult, while using the server's timestamp introduces the issue of time synchronisation across servers - they will always be slightly out of sync
+    * We can mitigate the issue of server time sync by pinging a designated time server over NTP (Network Time Protocol) to periodically sync up server times - however, it is impossible to do this perfectly due to network delay
+    * With this approach we _always_ lose writes
 * Most master-master systems are either loosely consistent (violating ACID) or have increased write latency due to synchronization.
 * You'll need a load balancer or you'll need to make changes to your application logic to determine where to write.
 * See [Disadvantage(s): replication](#disadvantages-replication) for points related to **both** master-slave and master-master.
