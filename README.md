@@ -900,14 +900,26 @@ In the all-to-all topology, any write received by a node, whether that be from a
 ##### Disadvantage(s): master-master replication
 
 * Conflict resolution comes more into play as more write nodes are added and as latency increases. We can deal with this via:
-  * Conflict Avoidance: Shard the dataset and assign each shard its own master-slave system.
+  * **Conflict Avoidance:** Shard the dataset and assign each shard its own master-slave system.
     * This introduces other problems as we need to consider what happens if a set of causal writes (writes that must be read in order) are stored across multiple partitions.
     * In this case, we would need to assign the writes some kind of timestamp to ensure we are able to reassemble them later OR store causal data on the same partition!
-  * Last Write Wins: We use the write's timestamp to choose the most recent write.
+  * **Last Write Wins:** We use the write's timestamp to choose the most recent write.
     * We are then left with the problem of deciding which timestamp to use - the client's or the server's?
-    * Using the client's timestamp makes fraud prevention difficult, while using the server's timestamp introduces the issue of time synchronisation across servers - they will always be slightly out of sync
+    * Using the client's timestamp makes fraud prevention difficult while using the server's timestamp introduces the issue of time synchronisation across servers - they will always be slightly out of sync
     * We can mitigate the issue of server time sync by pinging a designated time server over NTP (Network Time Protocol) to periodically sync up server times - however, it is impossible to do this perfectly due to network delay
     * With this approach we _always_ lose writes
+  * **Version Vectors (Vector Clocks):** Each node maintains a 'version vector' for each entry in the DB. Each entry V[i] in the vector stores the number of writes that have been handled by node i for that entry.
+    * The idea is that if we send the version vector alongside the data for each write, we can compare the version vector stored at the recipient node and the version vector attached to the message to determine causality! (see diagram below)
+    * If the incoming vector is <= our stored vector, we do nothing as we know we already have the most up-to-date write. If it is >= our stored vector, we perform the write and merge the vectors (taking the max value at each dimension). Meanwhile, if it is != our stored vector, then there is a write conflict! Conflict resolution can happen on the client side or the DB side (automatically) using CRDTs.
+    * If we choose to resolve the conflict on the client side, we simply store both writes in the DB and get the user to confirm which write is correct on the next read. Whichever write is kept becomes the new version vector
+
+<p align="center">
+  <img src="images/version vectors.png">
+  <br/>
+</p>
+
+  * **Conflict-Free Replicated Data Types (CRDTs):**  
+
 * Most master-master systems are either loosely consistent (violating ACID) or have increased write latency due to synchronization.
 * You'll need a load balancer or you'll need to make changes to your application logic to determine where to write.
 * See [Disadvantage(s): replication](#disadvantages-replication) for points related to **both** master-slave and master-master.
@@ -925,6 +937,7 @@ In the all-to-all topology, any write received by a node, whether that be from a
 * [Jordan Has No Life: Single-Master Replication (Original)](https://www.youtube.com/watch?v=X687PvgOWzQ&list=PLjTveVh7FakKjb4UYzUazqBNNF-WGurXp&index=2)
 * [Joradan Has No Life: Multi-Master Replication (NEW)](https://www.youtube.com/watch?v=tffuvQtiTwY&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=19)
 * [Jordan Has No Life: Multi-Master Replication (Original)](https://www.youtube.com/watch?v=1BXCxpcsmzc&list=PLjTveVh7FakKjb4UYzUazqBNNF-WGurXp&index=3)
+* [Distributed Systems Lecture on Logical Clocks (Version Vectors)](https://www.youtube.com/watch?v=x-D8iFU1d-o)
 * [Scalability, availability, stability, patterns](http://www.slideshare.net/jboner/scalability-availability-stability-patterns/)
 * [Multi-master replication](https://en.wikipedia.org/wiki/Multi-master_replication)
 
