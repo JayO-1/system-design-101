@@ -911,7 +911,7 @@ In the all-to-all topology, any write received by a node, whether that be from a
   * **Version Vectors (Vector Clocks):** Each node maintains a 'version vector' for each entry in the DB. Each entry V[i] in the vector stores the number of writes that have been handled by node i for that entry.
     * The idea is that if we send the version vector alongside the data for each write, we can compare the version vector stored at the recipient node and the version vector attached to the message to determine causality! (see diagram below)
     * If the incoming vector is <= our stored vector, we do nothing as we know we already have the most up-to-date write. If it is >= our stored vector, we perform the write and merge the vectors (taking the max value at each dimension). Meanwhile, if it is != our stored vector, then there is a write conflict! Conflict resolution can happen on the client side or the DB side (automatically) using CRDTs.
-    * If we choose to resolve the conflict on the client side, we simply store both writes in the DB and get the user to confirm which write is correct on the next read. Whichever write is kept becomes the new version vector
+    * If we choose to resolve the conflict on the client side, we simply store both writes in the DB and get the user to confirm which write is correct on the next read. Once the merge is resolved, we can merge the vectors and propagate the write
 
 <p align="center">
   <img src="images/version vectors.png">
