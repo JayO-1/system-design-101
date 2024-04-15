@@ -910,15 +910,28 @@ In the all-to-all topology, any write received by a node, whether that be from a
     * With this approach we _always_ lose writes
   * **Version Vectors (Vector Clocks):** Each node maintains a 'version vector' for each entry in the DB. Each entry V[i] in the vector stores the number of writes that have been handled by node i for that entry.
     * The idea is that if we send the version vector alongside the data for each write, we can compare the version vector stored at the recipient node and the version vector attached to the message to determine causality! (see diagram below)
-    * If the incoming vector is <= our stored vector, we do nothing as we know we already have the most up-to-date write. If it is >= our stored vector, we perform the write and merge the vectors (taking the max value at each dimension). Meanwhile, if it is != our stored vector, then there is a write conflict! Conflict resolution can happen on the client side or the DB side (automatically) using CRDTs.
-    * If we choose to resolve the conflict on the client side, we simply store both writes in the DB and get the user to confirm which write is correct on the next read. Once the merge is resolved, we can merge the vectors and propagate the write
+    * If the incoming vector is <= our stored vector, we do nothing as we know we already have the most up-to-date write. If it is >= our stored vector, we perform the write and merge the vectors (taking the max value at each dimension). Meanwhile, if it is != our stored vector, then there is a write conflict!
+    * Conflict resolution can happen on the client side or the DB side (automatically) using CRDTs. If we choose to resolve the conflict on the client side, we simply store both writes in the DB and get the user to confirm which write is correct on the next read. Once the merge is resolved, we can merge the vectors and propagate the write
+    * Version Vectors are also useful for _distributed counters_ (e.g. imagine a column which is a count of how many items have been seen, we will need to distribute the count!) as we can get the counter value by merging and then summing the contents of the vector
+  * **Conflict-Free Replicated Data Types (CRDTs):** We use a data type that is optimised for use in distributed systems. The idea is that this data type encapsulates our data, and is implemented such that it can safely distribute state.
+    * There are three main types of CRDTs:
+      1. _Operational CRDTs:_ Instead of sending \[write, version vector] we simply distribute a singular operation (e.g. increment(1), add("A")) and manage the state in each node, minimising payload size. This state variable will contain state info not just for that node, but also for all the other nodes in the network, and we will aggregate them to get our final answer.
+        - This type of CRDT is great for simple data fields, like a counter. In the case of a counter, in each node, we maintain a vector/map containing the counts/number of increment operations for all the other nodes in the network. To get the final count we just need to sum the values, and to allow for deletes, we can have a separate vector/map that is solely for deletes!
+        - We can use a similar logic to build distributed sets, where we have an add state (containing items to be added) and a remove state. We update the add state and remove state using operational CRDTs, and use state-based CRDTs to manage these sets. The idea is that if we can keep the add and remove states consistent across a cluster of nodes, the final set will be whatever is left after all the removes are applied.
+        - The major downside to this approach is that since our merge operation, in this case, will involve a union of the respective sets between any two nodes, so we lose the ability to reinsert items to the set (the removes set will always be removed from the add set). This can be mitigated by tagging each item in both the add and remove sets with an ID, allowing adds and removes to be item-specific.
+        - These messages are not idempotent, so to make them work for fields that require causally consistent (in order) updates, we need to ensure order is maintained and there are no duplicate/dropped messages!
+      2. _State-based CRDTs:_ Instead of sending the operation, we send the entire state through the network. The idea is that we design a merge operation that is commutative, associative and idempotent, and use it to merge new states into the state on a given node. These properties are important, as they allow us to deal with duplicate messages and different orderings of messages by design. A major downside is that if state is large, we may have difficulty sending it over the network quickly!
+        - _Gossip Protocol:_ This is something we use to propagate state-based CRDTs through a network, where we treat messages as an infection. Every infected node infects n random other nodes, and we repeat until every node has received the message! It is useful as it requires no additional middleware to manage messages
+      3. _Sequence CRDTs:_ CRDTs that are optimised for building an eventually consistent list. It is the underlying technology behind many collaborative text editors, like Google Docs!
+    * Examples include:
+      * Riak
+      * Redis (Sets in Redis enterprise)
 
 <p align="center">
-  <img src="images/version vectors.png">
+  <img src="images/version vectors.png" width=700>
   <br/>
-</p>
-
-  * **Conflict-Free Replicated Data Types (CRDTs):**  
+  <i>Version Vectors</i>
+</p> 
 
 * Most master-master systems are either loosely consistent (violating ACID) or have increased write latency due to synchronization.
 * You'll need a load balancer or you'll need to make changes to your application logic to determine where to write.
@@ -938,6 +951,8 @@ In the all-to-all topology, any write received by a node, whether that be from a
 * [Joradan Has No Life: Multi-Master Replication (NEW)](https://www.youtube.com/watch?v=tffuvQtiTwY&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=19)
 * [Jordan Has No Life: Multi-Master Replication (Original)](https://www.youtube.com/watch?v=1BXCxpcsmzc&list=PLjTveVh7FakKjb4UYzUazqBNNF-WGurXp&index=3)
 * [Distributed Systems Lecture on Logical Clocks (Version Vectors)](https://www.youtube.com/watch?v=x-D8iFU1d-o)
+* [Intro to CRDTs](https://www.youtube.com/watch?v=gZP2VUmH05A)
+* [Jordan Has No Life: CRDTs](https://www.youtube.com/watch?v=FG5Varj1Ows&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=21)
 * [Scalability, availability, stability, patterns](http://www.slideshare.net/jboner/scalability-availability-stability-patterns/)
 * [Multi-master replication](https://en.wikipedia.org/wiki/Multi-master_replication)
 
