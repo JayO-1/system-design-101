@@ -869,9 +869,7 @@ If the slave goes down, we can make use of the master's _replication log_ to bri
 
 ##### Disadvantage(s): master-slave replication
 
-* Minimal write throughput. However, we can mitigate this by:
-  * Sharding the dataset and assigning each shard its own master-slave system. This introduces other problems as we need to consider what happens if a set of causal writes (writes that must be read in order) are stored across multiple partitions.
-  * In this case, we would need to assign the writes some kind of timestamp to ensure we are able to reassemble them later OR store causal data on the same partition
+* Minimal write throughput. However, we can mitigate this by adding additional masters and transitioning to a master-master replication system
 * Detecting whether a master has actually gone down, or there is just network delay is difficult
 * If a master goes down for a short period and then comes back up, we could end up with two masters! (split-brain)
 * There is a potential for loss of data if the master fails before any newly written data can be replicated to other nodes.
@@ -890,11 +888,25 @@ Both masters serve reads and writes and coordinate with each other on writes.  I
   <i><a href=http://www.slideshare.net/jboner/scalability-availability-stability-patterns/>Source: Scalability, availability, stability, patterns</a></i>
 </p>
 
+A key decision that we make up front is the topology of the node 'network' i.e. how do we distribute writes to all the nodes? The three main options used in practice are the circle, star and all-to-all topology. In the circle topology, writes are passed from node to node in a circle, making every node a single point of failure, while in the star topology, the central node manages the distribution of writes - again becoming a single point of failure. Thus, the all-to-all topology is the standard.
+
+In the all-to-all topology, any write received by a node, whether that be from a client or another node, is broadcasted to every other node. When a node broadcasts a write, it also logs its ID alongside the broadcast to ensure that writes aren't infinitely repeated among the nodes in the network.
+
+<p align="center">
+  <img src="images/master-master topologies.png">
+  <br/>
+  <i><a href=http://www.slideshare.net/jboner/scalability-availability-stability-patterns/>Source: Scalability, availability, stability, patterns</a></i>
+</p>
+
 ##### Disadvantage(s): master-master replication
 
-* You'll need a load balancer or you'll need to make changes to your application logic to determine where to write.
+* Conflict resolution comes more into play as more write nodes are added and as latency increases. We can deal with this via:
+  * Conflict Avoidance: Shard the dataset and assign each shard its own master-slave system.
+    * This introduces other problems as we need to consider what happens if a set of causal writes (writes that must be read in order) are stored across multiple partitions.
+    * In this case, we would need to assign the writes some kind of timestamp to ensure we are able to reassemble them later OR store causal data on the same partition!
+  * Last Write Wins: 
 * Most master-master systems are either loosely consistent (violating ACID) or have increased write latency due to synchronization.
-* Conflict resolution comes more into play as more write nodes are added and as latency increases.
+* You'll need a load balancer or you'll need to make changes to your application logic to determine where to write.
 * See [Disadvantage(s): replication](#disadvantages-replication) for points related to **both** master-slave and master-master.
 
 ##### Disadvantage(s): replication
@@ -906,8 +918,10 @@ Both masters serve reads and writes and coordinate with each other on writes.  I
 
 ##### Source(s) and further reading: replication
 
-* [Jordan Has No Life: Single-Master Replication (NEW)](https://www.youtube.com/watch?v=8h-a7TsXw28&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=19)
+* [Jordan Has No Life: Single-Master Replication (NEW)](https://www.youtube.com/watch?v=8h-a7TsXw28&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=18)
 * [Jordan Has No Life: Single-Master Replication (Original)](https://www.youtube.com/watch?v=X687PvgOWzQ&list=PLjTveVh7FakKjb4UYzUazqBNNF-WGurXp&index=2)
+* [Joradan Has No Life: Multi-Master Replication (NEW)](https://www.youtube.com/watch?v=tffuvQtiTwY&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=19)
+* [Jordan Has No Life: Multi-Master Replication (Original)](https://www.youtube.com/watch?v=1BXCxpcsmzc&list=PLjTveVh7FakKjb4UYzUazqBNNF-WGurXp&index=3)
 * [Scalability, availability, stability, patterns](http://www.slideshare.net/jboner/scalability-availability-stability-patterns/)
 * [Multi-master replication](https://en.wikipedia.org/wiki/Multi-master_replication)
 
