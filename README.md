@@ -238,7 +238,7 @@ Fundamentally we want to list the **Functional** and **Non-Functional** Requirem
 |                 :---:                  |                         :----:                             |                  :---:               |                         :---:                    |
 |               **Users**                |                 **Scale (Read/Write)**                     |             **Performance**          |                       **Cost**                   |
 |  Who is going to use it and for what?  |   Read heavy or write heavy (in qps)?                      |       Availability vs Consistency    |    Should we minimise the cost of development?   |
-|      How many users are there?         |   How much data per query/total?                           |  Can we tolerate read/write latency? |    Should we minimise the cost of maintenance?   |
+|      How many users are there?         |   How much data per query/total?                           |                                      |    Should we minimise the cost of maintenance?   |
 |                                        |   Can there be spikes in either? (special events?)         |                                      |                                                  |
 
 [Source](https://www.youtube.com/watch?v=bUHFg8CZFws&pp=ygUXU3lzdGVtIERlc2lnbiBJbnRlcnZpZXc%3D)
@@ -857,7 +857,9 @@ There are many techniques to scale a relational database: **master-slave replica
 
 #### Master-slave replication
 
-The master serves reads and writes, replicating writes to one or more slaves, which serve only reads.  Slaves can also replicate to additional slaves in a tree-like fashion.  If the master goes offline, the system can continue to operate in read-only mode until a slave is promoted to a master or a new master is provisioned.
+A simple system where a single designated 'master' serves reads and writes, replicating writes to one or more slaves, which serve only reads.  Slaves can also replicate to additional slaves in a tree-like fashion, maximising read throughput. If the master goes offline, the system can continue to operate in read-only mode until a slave is promoted to a master or a new master is provisioned.
+
+If the slave goes down, we can make use of the master's _replication log_ to bring it back up to speed. The replication log is a record of all of the write operations that have occurred on the master, and each of the slaves maintains a pointer to where they are in the log. The idea is that if a slave goes down, the master only needs to send the missing changes downstream.
 
 <p align="center">
   <img src="images/C9ioGtn.png">
@@ -867,7 +869,15 @@ The master serves reads and writes, replicating writes to one or more slaves, wh
 
 ##### Disadvantage(s): master-slave replication
 
-* Additional logic is needed to promote a slave to a master.
+* Minimal write throughput. However, we can mitigate this by:
+  * Sharding the dataset and assigning each shard its own master-slave system. This introduces other problems as we need to consider what happens if a set of causal writes (writes that must be read in order) are stored across multiple partitions.
+  * In this case, we would need to assign the writes some kind of timestamp to ensure we are able to reassemble them later OR store causal data on the same partition
+* Detecting whether a master has actually gone down, or there is just network delay is difficult
+* If a master goes down for a short period and then comes back up, we could end up with two masters! (split-brain)
+* There is a potential for loss of data if the master fails before any newly written data can be replicated to other nodes.
+* Maintaining consistent reads is difficult due to replication lag -> you will see different things if you query different nodes. We can mitigate this by either:
+  * a) Synchronously restricting reads until the data has fully propagated (very bad, as this will make reads slow!) or,
+  * b) Force users to read from the same replicas via consistent hashing on userID
 * See [Disadvantage(s): replication](#disadvantages-replication) for points related to **both** master-slave and master-master.
 
 #### Master-master replication
@@ -889,14 +899,15 @@ Both masters serve reads and writes and coordinate with each other on writes.  I
 
 ##### Disadvantage(s): replication
 
-* There is a potential for loss of data if the master fails before any newly written data can be replicated to other nodes.
+* Replication adds more hardware and additional complexity.
 * Writes are replayed to the read replicas.  If there are a lot of writes, the read replicas can get bogged down with replaying writes and can't do as many reads.
 * The more read slaves, the more you have to replicate, which leads to greater replication lag.
 * On some systems, writing to the master can spawn multiple threads to write in parallel, whereas read replicas only support writing sequentially with a single thread.
-* Replication adds more hardware and additional complexity.
 
 ##### Source(s) and further reading: replication
 
+* [Jordan Has No Life: Single-Master Replication (NEW)](https://www.youtube.com/watch?v=8h-a7TsXw28&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=19)
+* [Jordan Has No Life: Single-Master Replication (Original)](https://www.youtube.com/watch?v=X687PvgOWzQ&list=PLjTveVh7FakKjb4UYzUazqBNNF-WGurXp&index=2)
 * [Scalability, availability, stability, patterns](http://www.slideshare.net/jboner/scalability-availability-stability-patterns/)
 * [Multi-master replication](https://en.wikipedia.org/wiki/Multi-master_replication)
 
