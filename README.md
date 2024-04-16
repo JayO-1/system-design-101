@@ -921,12 +921,12 @@ In the all-to-all topology, any write received by a node, whether that be from a
         - The major downside to this approach is that since our merge operation, in this case, will involve a union of the respective sets between any two nodes, we lose the ability to reinsert items to the set (the removes set will always be removed from the add set). This can be mitigated by tagging each item in both the add and remove sets with an ID, allowing adds and removes to be instance-specific and not permanent.
         - These messages are not idempotent, so to make them work for fields that require causally consistent (in order) updates, we need to ensure order is maintained and there are no duplicate/dropped messages!
       2. _State-based CRDTs:_ Instead of sending the operation, we send the entire state through the network. The idea is that we design a merge operation that is commutative, associative and idempotent, and use it to merge new states into the state on a given node. These properties are important, as they allow us to deal with duplicate messages and different orderings of messages by design. A major downside is that if state is large, we may have difficulty sending it over the network quickly!
-        - _Gossip Protocol:_ This is something we use to propagate state-based CRDTs through a network, where we treat messages as an infection. Every infected node infects n random other nodes, and we repeat until every node has received the message! It is useful as it requires no additional middleware to manage messages
       3. _Sequence CRDTs:_ CRDTs that are optimised for building an eventually consistent list. It is the underlying technology behind many collaborative text editors, like Google Docs!
+    * _Gossip Protocol:_ This is something we use to propagate messages through a decentralised system e.g. CRDTs, where we treat messages as an infection. Every infected node infects n random other nodes, and we repeat until every node has received the message! It is useful as it requires no additional middleware/centralised server to manage messages
     * Examples include:
       * Riak
       * Redis (Sets in Redis enterprise)
-
+  
 <p align="center">
   <img src="images/version vectors.png" width=700>
   <br/>
