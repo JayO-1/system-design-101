@@ -918,14 +918,14 @@ In the all-to-all topology, any write received by a node, whether that be from a
     * If the incoming vector is <= our stored vector, we do nothing as we know we already have the most up-to-date write. If it is >= our stored vector, we perform the write and merge the vectors (taking the max value at each dimension). Meanwhile, if it is != our stored vector, then there is a write conflict!
     * Conflict resolution can happen on the client side or the DB side (automatically) using CRDTs. If we choose to resolve the conflict on the client side, we simply store both writes in the DB and get the user to confirm which write is correct on the next read. Once the merge is resolved, we can merge the vectors and propagate the write
     * Version Vectors are also useful for _distributed counters_ (e.g. imagine a column which is a count of how many items have been seen, we will need to distribute the count!) as we can get the counter value by merging and then summing the contents of the vector
-  * **Conflict-Free Replicated Data Types (CRDTs):** We use a data type that is optimised for use in distributed systems. The idea is that by making our data type more complex, we simplify the algorithms required to resolve conflicts!
+  * **Conflict-Free Replicated Data Types (CRDTs):** We use a data type that is optimised for use in distributed systems to encapsulate information in our application. The idea is that by making our data type more complex, we simplify the algorithms required to resolve conflicts and solve them automatically!
     * There are three main types of CRDTs:
-      1. _Operational CRDTs:_ Instead of sending \[write, version vector] we simply distribute a singular operation (e.g. increment(1), add("A")) and manage the state in each node, minimising payload size. This state variable will contain state info not just for that node, but also for all the other nodes in the network, and we will aggregate them to get our final answer.
+      1. _Operational CRDTs:_ Instead of sending \[write, version vector] we simply distribute a singular operation (e.g. increment(sender id), add("A")) and manage the state in each node, minimising payload size. This state variable will contain state info not just for that node, but also for all the other nodes in the network, and we will aggregate them to get our final answer (refer to Jordan Has No Life Videos).
         - This type of CRDT is great for simple data fields, like a counter. In the case of a counter, in each node, we maintain a vector/map containing the counts/number of increment operations for all the other nodes in the network. To get the final count we just need to sum the values, and to allow for deletes, we can have a separate vector/map that is solely for deletes!
-        - We can use a similar logic to build distributed sets, where we have an add state (containing items to be added) and a remove state. We update the add state and remove state using operational CRDTs, and use state-based CRDTs to manage these sets. The idea is that if we can keep the add and remove states consistent across a cluster of nodes, the final set will be whatever is left after all the removes are applied.
-        - The major downside to this approach is that since our merge operation, in this case, will involve a union of the respective sets between any two nodes, we lose the ability to reinsert items to the set (the removes set will always be removed from the add set). This can be mitigated by tagging each item in both the add and remove sets with an ID, allowing adds and removes to be instance-specific and not permanent.
+        - We can use a similar logic to build distributed sets, where we have an add state (containing items to be added) and a remove state. We update the add state and remove state using operational CRDTs, and make use of a state-based CRDT to manage state locally. This gives us access to a merge function with the same properties as those used by state-based CRDTs to merge new operations into the local state (simply the set union operation). The idea is that if we can keep the add and remove states consistent across a cluster of nodes, the final set will be whatever is left after all the removes are applied.
+        - The major downside to this approach is that since our merge operation, in this case, will involve a union of the respective sets between any two nodes, we lose the ability to reinsert items to the set (the removes set will always be removed from the add set). This can be mitigated by tagging each item in both the add and remove sets with a unique ID, allowing adds and removes to be instance-specific and not permanent.
         - These messages are not idempotent, so to make them work for fields that require causally consistent (in order) updates, we need to ensure order is maintained and there are no duplicate/dropped messages!
-      2. _State-based CRDTs:_ Instead of sending the operation, we send the entire state through the network. The idea is that we design a merge operation that is commutative, associative and idempotent, and use it to merge new states into the state on a given node. These properties are important, as they allow us to deal with duplicate messages and different orderings of messages by design. A major downside is that if state is large, we may have difficulty sending it over the network quickly!
+      2. _State-based CRDTs:_ Instead of sending the operation, we can send the entire state through the network. The idea is that we design a merge operation that is commutative, associative and idempotent, and use it to merge new states into the state on a given node. These properties are important, as they allow us to deal with duplicate messages and different orderings of messages by design. A major downside is that if state is large, we may have difficulty sending it over the network quickly!
       3. _Sequence CRDTs:_ CRDTs that are optimised for building an eventually consistent list. It is the underlying technology behind many collaborative text editors, like Google Docs!
     * _Gossip Protocol:_ This is something we use to propagate messages through a decentralised system e.g. CRDTs, where we treat messages as an infection. Every infected node infects n random other nodes, and we repeat until every node has received the message! It is useful as it requires no additional middleware/centralised server to manage messages
     * Examples include:
@@ -1619,6 +1619,12 @@ Something that makes the above process more complex is Network Address Translati
 
 There is a standard for navigating this issue known as the Interactive Connectivity Establishment (ICE), which allows peers to coordinate the discovery of their public-facing IP addresses. It is implemented by forcing peers to generate a list of potential public IP/Port candidates (known as ICE Candidates) and storing them. When an inbound connection needs to find the right IP, it can simply use an algorithm to determine the most likely candidates for initiating the connection. WebRTC does this in the background, querying a 'STUN' server to generate all the ICE candidates and store them on the signalling server.
 
+#### Some things to consider when designing peer-to-peer systems
+
+WebRTC facilitates peer-to-peer communication, however, in scenarios where we want more than two users to be able to connect e.g. multiple users collaborating in the same text editor, there are some edge cases we need to think about. For one, we will need to manually implement a Gossip Protocol to ensure that messages are propagated throughout the system. 
+
+Additionally, we will need to ensure that when a peer leaves, no user is left isolated. We can mitigate this by firstly ensuring each node stores a list of all the other peers in the network and secondly ensuring that when new nodes join the network we avoid connecting them to nodes that already have a high in-degree (essentially steering the network towards having fewer centrally clustered regions of nodes).
+
 ### Transmission control protocol (TCP)
 
 <p align="center">
@@ -1804,6 +1810,10 @@ They serve to decouple authentication and authorization, where authentication is
 ## Containerization (Docker and Kubernetes)
 
 This section needs to be updated...
+
+## Geospatial Indexes
+
+TBC
 
 ## Appendix
 
