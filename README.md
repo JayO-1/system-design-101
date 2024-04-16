@@ -1584,11 +1584,35 @@ HTTP is an application layer protocol relying on lower-level protocols such as *
 * [Difference between HTTP and TCP](https://www.quora.com/What-is-the-difference-between-HTTP-protocol-and-TCP-protocol)
 * [Difference between PUT and PATCH](https://laracasts.com/discuss/channels/general-discussion/whats-the-differences-between-put-and-patch?page=1)
 
+### HTTP Long & Short Polling
+
+TBC
+
 ### WebSockets (WSS)
 
 Another application layer protocol that runs over TCP. Useful in cases where we need bidirectional communication via a persistent connection between client and server. HTTP only supports client -> server, so for server -> client we would need to implement http long polling.
 
 This section needs to be filled out...
+
+### Server-Sent Events
+
+TBC
+
+### WebHooks
+
+TBC
+
+### WebRTC
+
+WebRTC is a peer-to-peer protocol designed for facilitating real-time connections directly between browsers, rather than using a centralised intermediary, unlike web-sockets. It is generally used for transmitting audio/video data, however, it can be used for any application that requires real-time data transmission between users like collaborative text editors. WebRTC can be a good alternative to the options previously mentioned as peer-to-peer networks can take greater advantage of geographic locality and increase fault tolerance by eliminating the single-source of failure. We can also use WebRTC in conjunction with the other methods mentioned, where we treat the other methods as fallbacks for when WebRTC fails e.g. the signalling server goes down. 
+
+To communicate via WebRTC, the user:
+1. Queries a 'signalling server', whose job is to allow users to find each other and establish the initial connection. When the user opens up a connection, the server will store some data about the user e.g. ID, video codec etc in a 'session description protocol'
+2. Receives inbound connections. When another user attempts to join an existing connection (using the ID stored), the server stores a 'session description protocol' for the new user and connects them to the open connection they have requested to join
+
+Something that makes the above process more complex is Network Address Translation (NAT). Network Address Translation is a commonly used process that is used to allow devices on a private network to have one unified public-facing IP. It manages the translation between the private local IP and the public-facing IP, and this means that the public-facing IP can periodically change if the ISP changes its configuration.
+
+There is a standard for navigating this issue known as the Interactive Connectivity Establishment (ICE), which allows peers to coordinate the discovery of their public-facing IP addresses. It is implemented by forcing peers to generate a list of potential public IP/Port candidates (known as ICE Candidates) and storing them. When an inbound connection needs to find the right IP, it can simply use an algorithm to determine the most likely candidates for initiating the connection. WebRTC does this in the background, querying a 'STUN' server to generate all the ICE candidates and store them on the signalling server.
 
 ### Transmission control protocol (TCP)
 
@@ -1634,8 +1658,9 @@ Use UDP over TCP when:
 * Late data is worse than loss of data
 * You want to implement your own error correction
 
-#### Source(s) and further reading: TCP and UDP
+#### Source(s) and further reading
 
+* [Fireship: WebRTC Explained](https://www.youtube.com/watch?v=WmR9IMUD_CY)
 * [Networking for game programming](http://gafferongames.com/networking-for-game-programmers/udp-vs-tcp/)
 * [Key differences between TCP and UDP protocols](http://www.cyberciti.biz/faq/key-differences-between-tcp-and-udp-protocols/)
 * [Difference between TCP and UDP](http://stackoverflow.com/questions/5970383/difference-between-tcp-and-udp)
@@ -1758,6 +1783,12 @@ Security is a broad topic.  Unless you have considerable experience, a security 
 * Sanitize all user inputs or any input parameters exposed to user to prevent [XSS](https://en.wikipedia.org/wiki/Cross-site_scripting) and [SQL injection](https://en.wikipedia.org/wiki/SQL_injection).
 * Use parameterized queries to prevent SQL injection.
 * Use the principle of [least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege).
+
+### JSON Web Tokens (JWT)
+
+JSON Web Tokens are tokens that... 
+
+They serve to decouple authentication and authorization, where authentication is the determination of whether a user can access a service, while authorization is about determining what a user can actually do with the service. 
 
 ### Source(s) and further reading
 
