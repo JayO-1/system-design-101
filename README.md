@@ -167,6 +167,11 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Task queues](#task-queues)
     * [Back pressure](#back-pressure)
 * [Communication](#communication)
+    * [Hypertext transfer protocol (HTTP)](#hypertext-transfer-protocol-http)
+    * [HTTP Long and Short Polling](#http-long-and-short-polling)
+    * [WebSockets (WSS)](#websockets-wss)
+    * [Server-Sent Events](#server-sent-events)
+    * [WebRTC](#webrtc)
     * [Transmission control protocol (TCP)](#transmission-control-protocol-tcp)
     * [User datagram protocol (UDP)](#user-datagram-protocol-udp)
     * [Remote procedure call (RPC)](#remote-procedure-call-rpc)
@@ -1584,7 +1589,7 @@ HTTP is an application layer protocol relying on lower-level protocols such as *
 * [Difference between HTTP and TCP](https://www.quora.com/What-is-the-difference-between-HTTP-protocol-and-TCP-protocol)
 * [Difference between PUT and PATCH](https://laracasts.com/discuss/channels/general-discussion/whats-the-differences-between-put-and-patch?page=1)
 
-### HTTP Long & Short Polling
+### HTTP Long and Short Polling
 
 TBC
 
@@ -1596,7 +1601,7 @@ This section needs to be filled out...
 
 ### Server-Sent Events
 
-TBC
+Server-sent events run over TCP and are useful in cases where we only need a unidirectional connection from the server to the client.
 
 ### WebHooks
 
@@ -1604,11 +1609,11 @@ TBC
 
 ### WebRTC
 
-WebRTC is a peer-to-peer protocol designed for facilitating real-time connections directly between browsers, rather than using a centralised intermediary, unlike web-sockets. It is generally used for transmitting audio/video data, however, it can be used for any application that requires real-time data transmission between users like collaborative text editors. WebRTC can be a good alternative to the options previously mentioned as peer-to-peer networks can take greater advantage of geographic locality and increase fault tolerance by eliminating the single-source of failure. We can also use WebRTC in conjunction with the other methods mentioned, where we treat the other methods as fallbacks for when WebRTC fails e.g. the signalling server goes down. 
+WebRTC is a peer-to-peer protocol designed for facilitating real-time connections directly between browsers, rather than using a centralised intermediary, unlike web-sockets. It runs over UDP and is generally used for transmitting audio/video data, however, it can be used for any application that requires real-time data transmission between users like collaborative text editors. WebRTC can be a good alternative to the options previously mentioned as peer-to-peer networks can take greater advantage of geographic locality and increase fault tolerance by eliminating the single-source of failure. We can also use WebRTC in conjunction with the other methods mentioned, where we treat the other methods as fallbacks for when WebRTC fails e.g. the signalling server goes down. 
 
 To communicate via WebRTC, the user:
-1. Queries a 'signalling server', whose job is to allow users to find each other and establish the initial connection. When the user opens up a connection, the server will store some data about the user e.g. ID, video codec etc in a 'session description protocol'
-2. Receives inbound connections. When another user attempts to join an existing connection (using the ID stored), the server stores a 'session description protocol' for the new user and connects them to the open connection they have requested to join
+1. Queries a 'signalling server', whose job is to allow users to find each other and establish the initial connection. When the user opens up a connection, the server will store some data about the user e.g. ID, video codec etc in a 'session description protocol' file
+2. Receives inbound connections. When another user attempts to join an existing connection (using the ID stored), the server stores a session description protocol file for the new user and connects them to the open connection they have requested to join
 
 Something that makes the above process more complex is Network Address Translation (NAT). Network Address Translation is a commonly used process that is used to allow devices on a private network to have one unified public-facing IP. It manages the translation between the private local IP and the public-facing IP, and this means that the public-facing IP can periodically change if the ISP changes its configuration.
 
