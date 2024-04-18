@@ -1629,7 +1629,7 @@ Something that makes the above process more complex is Network Address Translati
 
 There is a standard for navigating this issue known as the Interactive Connectivity Establishment (ICE), which allows peers to coordinate the discovery of their public-facing IP addresses. It is implemented by forcing peers to generate a list of potential public IP/Port candidates (known as ICE Candidates) and storing them. When an inbound connection needs to find the right IP, it can simply use an algorithm to determine the most likely candidates for initiating the connection. WebRTC does this in the background, querying a 'STUN' server to generate all the ICE candidates and store them on the signalling server.
 
-#### Some things to consider when designing peer-to-peer systems
+#### Some things to consider when designing peer-to-peer systems (Collaborative Text Editor Case Study)
 
 WebRTC facilitates peer-to-peer communication, however, in scenarios where we want more than two users to be able to connect e.g. multiple users collaborating in the same text editor, there are some edge cases we need to think about. For one, we will need to manually implement a Gossip Protocol to ensure that messages are propagated throughout the system. 
 
