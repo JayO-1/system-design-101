@@ -859,7 +859,7 @@ A relational database like SQL is a collection of data items organized in tables
 * **Isolation** - Executing transactions concurrently has the same results as if the transactions were executed serially
 * **Durability** - Once a transaction has been committed, it will remain so
 
-There are many techniques to scale a relational database: **master-slave replication**, **master-master replication**, **federation**, **sharding**, **denormalization**, and **SQL tuning**.
+There are many techniques to scale a relational database in terms of _durability_, _throughput_ and _geography_: **master-slave replication**, **master-master replication**, **federation**, **sharding**, **denormalization**, and **SQL tuning**.
 
 #### Master-slave replication
 
@@ -876,9 +876,10 @@ If the slave goes down, we can make use of the master's _replication log_ to bri
 ##### Disadvantage(s): master-slave replication
 
 * Minimal write throughput. However, we can mitigate this by adding additional masters and transitioning to a master-master replication system
-* Detecting whether a master has actually gone down, or there is just network delay is difficult
-* If a master goes down for a short period and then comes back up, we could end up with two masters! (split-brain)
-* There is a potential for loss of data if the master fails before any newly written data can be replicated to other nodes.
+* The master is a _single point of failure_:
+  * Detecting whether a master has actually gone down, or there is just network delay is difficult
+  * If a master goes down for a short period and then comes back up, we could end up with two masters! (split-brain)
+  * There is a potential for loss of data if the master fails before any newly written data can be replicated to other nodes.
 * Maintaining consistent reads is difficult due to replication lag -> you will see different things if you query different nodes. We can mitigate this by either:
   * a) Synchronously restricting reads until the data has fully propagated (very bad, as this will make reads slow!) or,
   * b) Force users to read from the same replicas via consistent hashing on userID
