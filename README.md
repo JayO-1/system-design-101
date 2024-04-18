@@ -137,6 +137,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Relational database management system (RDBMS)](#relational-database-management-system-rdbms)
         * [Master-slave replication](#master-slave-replication)
         * [Master-master replication](#master-master-replication)
+        * [Leaderless replication](#leaderless-replication)
         * [Federation](#federation)
         * [Sharding](#sharding)
         * [Denormalization](#denormalization)
@@ -927,7 +928,8 @@ In the all-to-all topology, any write received by a node, whether that be from a
         - These messages are not idempotent, so to make them work for fields that require causally consistent (in order) updates, we need to ensure order is maintained and there are no duplicate/dropped messages!
       2. _State-based CRDTs:_ Instead of sending the operation, we can send the entire state through the network. The idea is that we design a merge operation that is commutative, associative and idempotent, and use it to merge new states into the state on a given node. These properties are important, as they allow us to deal with duplicate messages and different orderings of messages by design. A major downside is that if state is large, we may have difficulty sending it over the network quickly!
       3. _Sequence CRDTs:_ CRDTs that are optimised for building an eventually consistent list. It is the underlying technology behind many collaborative text editors, like Google Docs! Refer to the [collaborative text editor case study](https://www.youtube.com/watch?v=hy0ePbpna5Y) to understand how they work
-    * _Gossip Protocol:_ This is something we use to propagate messages through a decentralised system e.g. CRDTs, where we treat messages as an infection. Every infected node infects n random other nodes, and we repeat until every node has received the message! It is useful as it requires no additional middleware/centralised server to manage messages
+    * _Gossip Protocol:_ This is something we use to propagate messages through a decentralised system e.g. CRDTs, where we treat messages as an infection. Every infected node infects n random other nodes, and if a non-infected node is hit, it repeats - ensuring every node has received the message! It is useful as it requires no additional middleware/centralised server to manage messages
+      1. Apache Cassandra, a wide-column NoSQL database, makes use of the Gossip protocol not only to pass information between nodes, but also to ensure every node receives regular heartbeats from every other node. When a node goes down, the other nodes will eventually find out and stop sending writes to it. 
     * Examples include:
       * Riak
       * Redis (Sets in Redis enterprise)
@@ -941,6 +943,10 @@ In the all-to-all topology, any write received by a node, whether that be from a
 * Most master-master systems are either loosely consistent (violating ACID) or have increased write latency due to synchronization.
 * You'll need a load balancer or you'll need to make changes to your application logic to determine where to write.
 * See [Disadvantage(s): replication](#disadvantages-replication) for points related to **both** master-slave and master-master.
+
+#### Leaderless Replication
+
+
 
 ##### Disadvantage(s): replication
 
