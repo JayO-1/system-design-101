@@ -179,6 +179,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Representational state transfer (REST)](#representational-state-transfer-rest)
 * [Security](#security)
 * [Containerization (Docker and Kubernetes)](#containerization-docker-and-kubernetes)
+* [GeoSpatial Databases](#geospatial-databases)
 * [Appendix](#appendix)
     * [Powers of two table](#powers-of-two-table)
     * [Latency numbers every programmer should know](#latency-numbers-every-programmer-should-know)
@@ -1895,14 +1896,18 @@ There are two main techniques employed with Hash-based Geoindexes:
   <i>Geohashing - we assign a unique binary number to each region/subregion</i>
 </p>
 
-We then hash this value to a base32 string representation of the cell. This approach is very powerful, as it ensures that cells that are next to each other will have the same prefix, and that since longer hash values = a deeper sub-region, there is a relationship between the length of the hash value and the size of the cell! The beauty of this is that since each cell is represented by a string, we can use a normal database and build an index on top of the hash values - thus facilitating efficient 2D search.
+We then hash this value to a base32 string representation of the cell. This approach is very powerful, as it ensures that cells that are next to each other will have the same prefix, and that since longer hash values = a deeper sub-region, there is a relationship between the length of the hash value and the size of the cell!
 
 <p align="center">
   <img src="images/geohashing hash len to size.png">
   <br/>
   <i>Hash Length to Grid Size Conversion Table</i>
+  <br/>
+  <i>Note: Grid sizes are not completely correct. Should be: 7 -> 152.9m × 152.4m, 8 -> 38.2m × 19m, 9 -> 4.8m × 4.8m, 10 -> 1.2m × 59.5cm</i>
 </p>
 
+The beauty of this is that since each cell is represented by a string, we can use a normal database and build an index on top of the hash values - thus facilitating efficient 2D search.
+ 
 This means when we perform queries, we simply need to:
 a. 
 
