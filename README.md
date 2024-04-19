@@ -1913,10 +1913,16 @@ We then hash this value to a base32 string representation of the cell. This appr
   <i>Corrected grid sizes: 7 -> 152.9m × 152.4m, 8 -> 38.2m × 19m, 9 -> 4.8m × 4.8m, 10 -> 1.2m × 59.5cm</i>
 </p>
 
-The beauty of this is that since each cell is represented by a string, we can use a normal database and build an index on top of the hash values - thus facilitating efficient 2D search.
+The beauty of this is that since each cell is represented by a string, 
  
-This means when we perform queries, we simply need to:
-a. 
+When we perform queries, we simply need to:
+1. Determine the length of hash we need. This will be proportional to cell size and will be influenced by our search radius
+2. Lookup the geohash for the user's location using the user's lat-lon
+3. Get the geohashes for the user's 8 neighbours. This is to avoid issues when the user is located at a cell boundary and can be done in O(1) time
+4. Get the lat-lon data for all the data points that are within these geohashes. Since geohashes are strings, we can use a normal database and build an index on top of the hash values - thus facilitating efficient 2D search.
+5. Rank the results by proximity to the user
+
+This flow highlights the key innovation of geospatial indexes - we can efficiently shortlist potential areas before performing the distance ranking.
 
 #### Tree-based GeoIndexes
 
