@@ -1855,7 +1855,11 @@ This section needs to be updated...
 
 ## Geospatial Indexes
 
-TBC
+
+
+### Source(s) and further reading
+
+* [Jordan Has No Life: Geospatial Indexes](https://www.youtube.com/watch?v=9BewOp5Gaw8)
 
 ## Appendix
 
