@@ -952,10 +952,10 @@ In the all-to-all topology, any write received by a node, whether that be from a
 In leaderless replication, we do away with the idea of 'masters' and instead perform writes to multiple nodes at once. The idea is that using the Gossip protocol writes can be propagated through the network and provide eventual consistency.
 
 However, this approach leads to some issues. The Gossip protocol makes no guarantees about whether or not a reader will see the most up-to-date ver. of the data instantly. This is because the reader may make a query to a node that has not received all the changes yet! Thus, we employ a variety of techniques to minimise this problem:
-1. Quorums: A 'Quorum' is the idea that if when performing writes we write to W nodes, we can maximise the likelihood of an instantaneous read if we read from R nodes, where W + R > N and N is the total number of nodes. This works because by satisfying W + R > N, we ensure that there is always overlap in the nodes we read and write from
-2. Read Repair: Clients use the version/timestamp data that is stored alongside the data points in our database, to choose the most up-to-date response on read. This response is then sent back to the stale nodes so that they can propagate the change to the rest of the cluster
-3. Anti-Entropy: In the background, we periodically get nodes to compare the data they have stored on them with the data stored on surrounding nodes. The idea is each node can send data that is missing from surrounding nodes to them, with the same happening in reverse - maximising the spread of data. We run into one issue with this though - how do we compute the diffs in faster than O(n) (linear scan) time? The answer: _Merkle Trees_
-  * 
+1. **Quorums:** A 'Quorum' is the idea that if when performing writes we write to W nodes, we can maximise the likelihood of an instantaneous read if we read from R nodes, where W + R > N and N is the total number of nodes. This works because by satisfying W + R > N, we ensure that there is always overlap in the nodes we read and write from
+2. **Read Repair:** Clients use the version/timestamp data that is stored alongside the data points in our database, to choose the most up-to-date response on read. This response is then sent back to the stale nodes so that they can propagate the change to the rest of the cluster
+3. **Anti-Entropy:** In the background, we periodically get nodes to compare the data they have stored on them with the data stored on surrounding nodes. The idea is each node can send data that is missing from surrounding nodes to them, with the same happening in reverse - maximising the spread of data. We run into one issue with this though - how do we compute the diffs in faster than O(n) (linear scan) time? The answer: _Merkle Trees_
+  * Merkle Trees: 
 
 <p align="center">
   <img src="images/merkle trees.png" width=700>
@@ -972,8 +972,8 @@ However, this approach leads to some issues. The Gossip protocol makes no guaran
 ##### Disadvantage(s): Leaderless replication
 
 * It's impossible to achieve strong consistency with this paradigm, as due to network effects writes can arrive out of order at a given node or be lost altogether
-* Sloppy Quorums: Quorums aren't perfect - if a user writes to a different Quorum than usual, we will need to back channel writes to the appropriate Quorum
-* Quorums mean reads can be slow since we query multiple nodes
+* Quorum reads can be slow since we query multiple nodes
+* **Hinted Handoff:** Quorums aren't perfect - if an issue forces the user to write to a different Quorum than usual, we will need to back channel writes to the appropriate Quorum
 
 ##### Disadvantage(s): replication
 
