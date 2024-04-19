@@ -1660,7 +1660,9 @@ TBC
 
 ### WebRTC
 
-WebRTC is a peer-to-peer protocol designed for facilitating real-time connections directly between browsers, rather than using a centralised intermediary, unlike web-sockets. It runs over UDP and is generally used for transmitting audio/video data, however, it can be used for any application that requires real-time data transmission between users like collaborative text editors. WebRTC can be a good alternative to the options previously mentioned as peer-to-peer networks can take greater advantage of geographic locality and increase fault tolerance by eliminating the single-source of failure. We can also use WebRTC in conjunction with the other methods mentioned, where we treat the other methods as fallbacks for when WebRTC fails e.g. the signalling server goes down. 
+WebRTC is a peer-to-peer protocol designed for facilitating real-time connections directly between browsers, rather than using a centralised intermediary, unlike web-sockets. It runs over UDP and is generally used for transmitting audio/video data, however, it can be used for any application that requires real-time data transmission between users like collaborative text editors. 
+
+WebRTC can be a good alternative to the options previously mentioned as peer-to-peer networks can take greater advantage of geographic locality and increase fault tolerance by eliminating the single source of failure. We can also use WebRTC in conjunction with the other methods mentioned, where we treat the other methods as fallbacks for when WebRTC fails e.g. the signalling server goes down. 
 
 To communicate via WebRTC, the user:
 1. Queries a 'signalling server', whose job is to allow users to find each other and establish the initial connection. When the user opens up a connection, the server will store some data about the user e.g. ID, video codec etc in a 'session description protocol' file
@@ -1926,9 +1928,11 @@ This flow highlights the key innovation of geospatial indexes - we can efficient
 
 #### Tree-based GeoIndexes
 
-There are two main techniques employed with Tree-based Geoindexes:
-1. Quadtree: 
-2. Google S2: 
+The core idea behind tree-based geoindexes is to recursively subdivide a region using a tree data structure until each region meets some pre-determined criterion. This criterion can be area size, the number of data points covered by a given cell, etc.
+
+Something to note is that with Tree-based GeoIndexes, the data structure is maintained in memory, rather than being a database solution. This means the index is built by our code, and runs on our servers.
+
+A common implementation is the Quadtree, which subdivides a region into four regions each time. 
 
 ### Source(s) and further reading
 
