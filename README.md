@@ -1861,7 +1861,23 @@ They serve to decouple authentication and authorization, where authentication is
 
 This section needs to be updated...
 
-## Geospatial Indexes
+## Geospatial Databases
+
+Geospatial databases are a form of database optimised for storing and querying data in geometric space, like location data. We will typically use a Geospatial database for any use case involving location data management. Some examples of popular implementations are Redis Geohash and PostgreSQL (with Post-GIS extension).
+
+### Geospatial Indexes
+
+When attempting to perform queries on geospatial data, we run into some issues with traditional databases. Geospatial data (i.e. latitude and longitude) is comprised of pairs of data points, however, normal databases are only capable of indexing on one column, or, data attribute at a time. That is if we wished to, say, find all of the restaurants within 1 mile of the user, the underlying SQL query would require finding all the restaurants with a latitude that is within the user's radius, finding all the restaurants with a longitude within the user's radius then find the intersection between the values.
+
+<p align="center">
+  <img src="images/normal lat-lon sql query.png">
+  <br/>
+  <i>Example SQL query in a normal database to find all the businesses within a radius of the user</i>
+</p>
+
+Both of these searches would require a separate parse of the database, which will either be done in O(n) time via a linear scan or O(log n) time using an index on the latitude and longitude columns. For large datasets, this is very inefficient as we will have to parse the database twice. In an ideal world, we would encode the 2D information into a singular value, thus allowing for more efficient DB queries by minimising the proportion of the database we examine with each search.
+
+This is where Geospatial Indexes come in.
 
 
 
