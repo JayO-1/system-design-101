@@ -957,13 +957,20 @@ However, this approach leads to some issues. The Gossip protocol makes no guaran
 3. **Anti-Entropy:** In the background, we periodically get nodes to compare the data they have stored on them with the data stored on surrounding nodes. The idea is each node can send data that is missing from surrounding nodes to them, with the same happening in reverse - maximising the spread of data. We run into one issue with this though - how do we compute the diffs in faster than O(n) (linear scan) time? The answer: _Merkle Trees_
      * _Merkle Trees:_ Merkle trees are a data structure optimised for comparing two collections of data. The idea is that leaf nodes store the hash value of the data itself, while non-leaf nodes store the hash value of the hash values for their children combined. This means that any changes in the data (the leaves) will be propagated up the tree since all of their ancestors will need to be updated.
      * When comparing two Merkle trees, we simply need to recursively compare them until we find all the differing leaf node hashes - which is made easy as we don't need to explore nodes that have the same value in both trees, since this means the subtree is likely the same! This ability to prune paths brings the complexity of comparison down to O(log n)
-     * The most well-known use case of Merkle trees is in GitHub. Merkle trees allow Github to efficiently find the diff between updated and old repos, and modify the upstream master accordingly. This works by treating the leaf nodes as files, and non-leaf nodes as directories. Each node contains a pointer to some hash object, which in turn points to the actual file. One key innovation in Github's case is that the hash is based on the file contents and not the file name, so changing file names and directory structure is as simple as rejigging the tree since all we need to do is update the pointers - the hashes stay the same! Refer to the Gaurav Sen video on Merkle trees for a more detailed discussion
+     * The most well-known use case of Merkle trees is in GitHub. Merkle trees allow Github to efficiently find the diff between updated and old repos, and modify the upstream master accordingly. This works by treating the leaf nodes as files, and non-leaf nodes as directories. Each node contains a pointer to some hash object, which in turn points to the actual file. One key innovation in Github's case is that the hash is based on the file contents and not the file name, so changing file names and directory structure is as simple as rejigging the tree since all we need to do is update the pointers - the hashes stay the same! Each commit is mapped to its own Merkle tree, so when we change a file GitHub creates a new file, and a new Merkle tree that contains the new file. This is kept efficient network wise via only sending the diffs, and maintaining a Merkle tree both on the client and in the upstream repo.
      * Designing a good hash function is crucial in Merkle trees, as this will determine the efficacy of diff detection
 
 <p align="center">
   <img src="images/merkle trees.png" width=700>
   <br/>
   <i>Merkle Trees</i>
+  <br/>
+</p>
+
+<p align="center">
+  <img src="images/github merkle trees.png" width=700>
+  <br/>
+  <i>Merkle Trees in GitHub</i>
   <br/>
 </p>
 
@@ -1001,6 +1008,7 @@ However, this approach leads to some issues. The Gossip protocol makes no guaran
   * The union operation in sets is an example of idempotent operation, and it is an important concept to know when discussing distributed systems!
   * We can implement idempotency in web apps using an 'idempotency key', which uniquely identifies a given request. When duplicate requests come in, we can simply serve them via a cache
 * [Gaurav Sen: Merkle Trees](https://www.youtube.com/watch?v=qHMLy5JjbjQ)
+* [How Github uses Merkle Trees](https://www.youtube.com/watch?v=ronoCeMzfJ4)
 * [Scalability, availability, stability, patterns](http://www.slideshare.net/jboner/scalability-availability-stability-patterns/)
 * [Multi-master replication](https://en.wikipedia.org/wiki/Multi-master_replication)
 
