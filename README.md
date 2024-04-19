@@ -1898,7 +1898,7 @@ There are two main techniques employed with Hash-based Geoindexes:
   <i>Geohashing - we assign a unique binary number to each region/subregion</i>
 </p>
 
-We then hash this value to a base32 string representation of the cell. This approach is very powerful, as it ensures that cells that are next to each other will have the same prefix, and that since longer hash values = a deeper sub-region, there is a relationship between the length of the hash value and the size of the cell!
+We then hash this value to a base32 string representation of the cell. This approach is very powerful, as it ensures that cells that are next to each other will have the same prefix and that since longer hash values = a deeper sub-region, there is a relationship between the length of the hash value and the size of the cell!
 
 <p align="center">
   <img src="images/geohashing binary to hash.png" width=700>
@@ -1924,8 +1924,6 @@ Query flow becomes:
 2. Compute the geohashes for the user's 8 neighbouring cells. This is to avoid issues when the user is located at a cell boundary and can be done in O(1) time
 3. Retrieve all the locations that fall under these geohashes in our database. Since geohashes are strings, we can use a normal database and build an index on top of the hash values - thus facilitating efficient 2D search.
 4. Rank the results by proximity to the user. We will typically store the lat-lon data alongside the geohash in our DB to make this efficient
-
-This flow highlights the key innovation of geospatial indexes - we can efficiently shortlist potential areas before performing the distance ranking.
 
 #### Tree-based GeoIndexes
 
