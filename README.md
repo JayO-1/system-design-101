@@ -1903,7 +1903,7 @@ We then hash this value to a base32 string representation of the cell. This appr
   <br/>
   <i>Hash Length to Grid Size Conversion Table</i>
   <br/>
-  <i>Note: Grid sizes are not completely correct. Should be: 7 -> 152.9m × 152.4m, 8 -> 38.2m × 19m, 9 -> 4.8m × 4.8m, 10 -> 1.2m × 59.5cm</i>
+  <i>Corrected grid sizes: 7 -> 152.9m × 152.4m, 8 -> 38.2m × 19m, 9 -> 4.8m × 4.8m, 10 -> 1.2m × 59.5cm</i>
 </p>
 
 The beauty of this is that since each cell is represented by a string, we can use a normal database and build an index on top of the hash values - thus facilitating efficient 2D search.
