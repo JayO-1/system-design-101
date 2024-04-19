@@ -961,6 +961,7 @@ However, this approach leads to some issues. The Gossip protocol makes no guaran
   <img src="images/merkle trees.png" width=700>
   <br/>
   <i>Merkle Trees</i>
+  <br/>
 </p>
 
 <p align="center">
