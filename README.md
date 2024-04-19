@@ -1919,7 +1919,7 @@ When we perform queries, we simply need to ensure that the geohash for any locat
 
 When storing the data on these locations, we will need to ensure that we choose a length of geohash that is appropriate to our use case, since the length corresponds with the size of the cell. We will typically choose the lower bound on our distance requirements (which will correspond with a longer geohash as the cells are more granular) since taking the prefix of this geohash will allow us to generalise to longer distance queries. 
 
-Query flow becomes:
+**Query flow becomes:**
 1. Lookup the geohash for the user's cell using the user's lat-lon
 2. Compute the geohashes for the user's 8 neighbouring cells. This is to avoid issues when the user is located at a cell boundary and can be done in O(1) time
 3. Retrieve all the locations that fall under these geohashes in our database. Since geohashes are strings, we can use a normal database and build an index on top of the hash values - thus facilitating efficient 2D search.
