@@ -887,7 +887,9 @@ If the slave goes down, we can make use of the master's _replication log_ to bri
 
 #### Master-master replication
 
-Both masters serve reads and writes and coordinate with each other on writes.  If either master goes down, the system can continue to operate with both reads and writes.
+Both masters serve reads and writes and coordinate with each other on writes, maximising write throughput.  If either master goes down, the system can continue to operate with both reads and writes.
+
+This paradigm is very easy to scale geographically, as masters do not have to be located near each other.
 
 <p align="center">
   <img src="images/krAHLGg.png">
@@ -897,7 +899,7 @@ Both masters serve reads and writes and coordinate with each other on writes.  I
 
 A key decision that we make up front is the topology of the node 'network' i.e. how do we distribute writes to all the nodes? The three main options used in practice are the circle, star and all-to-all topology. In the circle topology, writes are passed from node to node in a circle, making every node a single point of failure, while in the star topology, the central node manages the distribution of writes - again becoming a single point of failure. Thus, the all-to-all topology is the standard.
 
-In the all-to-all topology, any write received by a node, whether that be from a client or another node, is broadcasted to every other node. The replication log for each node is modified to ensure that alongside the DB update that occurred, we also log which nodes we have successfully sent the write to. The idea is that each node that then receives the write will communicate the write to any node that didn't receive.
+In the all-to-all topology, any write received by a node, whether that be from a client or another node, is broadcasted to every other node. The replication log for each node is modified to ensure that alongside the DB update that occurred, we also log which nodes we have successfully sent the write to. The idea is that each node that then receives the write will communicate the write to any node that didn't receive it.
 
 <p align="center">
   <img src="images/master-master topologies.png">
@@ -947,7 +949,25 @@ In the all-to-all topology, any write received by a node, whether that be from a
 
 #### Leaderless Replication
 
+In leaderless replication, we do away with the idea of 'masters' and instead perform writes to multiple nodes at once. The idea is that using the Gossip protocol, writes can be propagated through the network and provide eventual consistency.
 
+However, this approach leads to some issues. How do we ensure that 
+
+<p align="center">
+  <img src="images/merkle trees.png" width=700>
+  <br/>
+  <i>Merkle Trees</i>
+</p>
+
+<p align="center">
+  <img src="images/comparing merkle trees.png" width=700>
+  <br/>
+  <i>Comparing Merkle Trees</i>
+</p>
+
+##### Disadvantage(s): Leaderless replication
+
+* 
 
 ##### Disadvantage(s): replication
 
@@ -970,6 +990,7 @@ In the all-to-all topology, any write received by a node, whether that be from a
   * Idempotency is all about the relationship between the operations we perform and the state. If we perform multiple duplicate operations, the operation is idempotent if the resultant state is the same as if the operation had only been applied once
   * The union operation in sets is an example of idempotent operation, and it is an important concept to know when discussing distributed systems!
   * We can implement idempotency in web apps using an 'idempotency key', which uniquely identifies a given request. When duplicate requests come in, we can simply serve them via a cache
+* [Gaurav Sen: Merkle Trees](https://www.youtube.com/watch?v=qHMLy5JjbjQ)
 * [Scalability, availability, stability, patterns](http://www.slideshare.net/jboner/scalability-availability-stability-patterns/)
 * [Multi-master replication](https://en.wikipedia.org/wiki/Multi-master_replication)
 
