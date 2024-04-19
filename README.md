@@ -1879,15 +1879,38 @@ Both of these searches would require a separate parse of the database, which wil
 
 In an ideal world, we would encode the 2D information into a singular value, thus allowing for more efficient DB queries by building an index on top of this value. Each branch in the index tree we go down hones our search in both dimensions!
 
-This is where Geospatial Indexes come in.
+This is where Geospatial Indexes come in. They divide the world map into smaller areas and build indexes for fast search. This also conveniently facilitates sharding, as we can store all of the different areas on different shards, depending on how densely populated they are e.g. NYC may be on its own shard, but the entire state of Wisconsin, which is less densely populated, could be on its own shard.
 
 #### Hash-based GeoIndexes
 
+There are two main techniques employed with Hash-based Geoindexes:
 
+1. Even Grid: We even divide and sub-divide the world into evenly sized grids. The issue with this approach is we don't take into account the density of items on the map - in an ideal world we would want more fine-grained cells for more densely populated areas and larger cells for sparsely populated areas. This would allow us to more finely pick out locations in dense areas.
+
+2. Geohashing: An improvement on the even grid approach is geohashing. In geohashing, we recursively divide the world into grids, stopping once we have reached some predetermined size of the grid. The key innovation with geohashing is that each cell in the grid is given a unique binary number. This binary number encodes its 2D location in the overall grid, each pair of digits in the binary number denoting which region/subregion it is in e.g. for the cell assigned 0111, it would be located in sub-region 11 of the larger region 01.
+
+<p align="center">
+  <img src="images/geohashing.png">
+  <br/>
+  <i>Geohashing - we assign a unique binary number to each region/subregion</i>
+</p>
+
+We then hash this value to a base32 string representation of the cell. This approach is very powerful, as it ensures that cells that are next to each other will have the same prefix, and that since longer hash values = a deeper sub-region, there is a relationship between the length of the hash value and the size of the cell! The beauty of this is that since each cell is represented by a string, we can use a normal database and build an index on top of the hash values - thus facilitating efficient 2D search.
+
+<p align="center">
+  <img src="images/geohashing hash len to size.png">
+  <br/>
+  <i>Hash Length to Grid Size Conversion Table</i>
+</p>
+
+This means when we perform queries, we simply need to:
+a. 
 
 #### Tree-based GeoIndexes
 
-
+There are two main techniques employed with Tree-based Geoindexes:
+1. Quadtree: 
+2. Google S2: 
 
 ### Source(s) and further reading
 
