@@ -1891,7 +1891,7 @@ There are two main techniques employed with Hash-based Geoindexes:
 2. Geohashing: An improvement on the even grid approach is geohashing. In geohashing, we recursively divide the world into grids, stopping once we have reached some predetermined size of the grid. The key innovation with geohashing is that each cell in the grid is given a unique binary number. This binary number encodes its 2D location in the overall grid, each pair of digits in the binary number denoting which region/subregion it is in e.g. for the cell assigned 0111, it would be located in sub-region 11 of the larger region 01.
 
 <p align="center">
-  <img src="images/geohashing.png">
+  <img src="images/geohashing.png" width=700>
   <br/>
   <i>Geohashing - we assign a unique binary number to each region/subregion</i>
 </p>
@@ -1899,14 +1899,14 @@ There are two main techniques employed with Hash-based Geoindexes:
 We then hash this value to a base32 string representation of the cell. This approach is very powerful, as it ensures that cells that are next to each other will have the same prefix, and that since longer hash values = a deeper sub-region, there is a relationship between the length of the hash value and the size of the cell!
 
 <p align="center">
-  <img src="images/geohashing binary to hash.png">
+  <img src="images/geohashing binary to hash.png" width=700>
   <br/>
   <i>Hashing the binary number</i>
   <br/>
 </p>
 
 <p align="center">
-  <img src="images/geohashing hash len to size.png">
+  <img src="images/geohashing hash len to size.png" width=700>
   <br/>
   <i>Hash Length to Grid Size Conversion Table</i>
   <br/>
