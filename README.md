@@ -1899,6 +1899,13 @@ There are two main techniques employed with Hash-based Geoindexes:
 We then hash this value to a base32 string representation of the cell. This approach is very powerful, as it ensures that cells that are next to each other will have the same prefix, and that since longer hash values = a deeper sub-region, there is a relationship between the length of the hash value and the size of the cell!
 
 <p align="center">
+  <img src="images/geohashing binary to hash.png">
+  <br/>
+  <i>Hashing the binary number</i>
+  <br/>
+</p>
+
+<p align="center">
   <img src="images/geohashing hash len to size.png">
   <br/>
   <i>Hash Length to Grid Size Conversion Table</i>
