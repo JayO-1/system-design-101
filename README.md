@@ -244,7 +244,7 @@ Fundamentally we want to list the **Functional** and **Non-Functional** Requirem
 |                 :---:                  |                         :----:                             |                  :---:               |                         :---:                    |
 |               **Users**                |                 **Scale (Read/Write)**                     |             **Performance**          |                       **Cost**                   |
 |  Who is going to use it and for what?  |   Read heavy or write heavy (in qps)?                      |       Availability vs Consistency    |    Should we minimise the cost of development?   |
-|      How many users are there?         |   Can there be spikes in either? (special events?)         |                                      |    Should we minimise the cost of maintenance?   |
+|      How many users are there?         |   Can there be spikes in either? (special events?)         |          Latency vs Throughput       |    Should we minimise the cost of maintenance?   |
 |                                        |   How much data per query/total?                           |                                      |                                                  |
 
 [Source](https://www.youtube.com/watch?v=bUHFg8CZFws&pp=ygUXU3lzdGVtIERlc2lnbiBJbnRlcnZpZXc%3D)
