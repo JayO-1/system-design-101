@@ -1860,6 +1860,7 @@ This section needs to be updated...
 ### Source(s) and further reading
 
 * [Jordan Has No Life: Geospatial Indexes](https://www.youtube.com/watch?v=9BewOp5Gaw8)
+* [ByteByteGo: Design a location-based service](https://www.youtube.com/watch?v=M4lR_Va97cQ)
 
 ## Appendix
 
