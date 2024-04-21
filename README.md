@@ -1772,6 +1772,8 @@ Use UDP over TCP when:
 
 In an RPC, a client causes a procedure to execute on a different address space, usually a remote server.  The procedure is coded as if it were a local procedure call, abstracting away the details of how to communicate with the server from the client program.  Remote calls are usually slower and less reliable than local calls so it is helpful to distinguish RPC calls from local calls.  Popular RPC frameworks include [Protobuf](https://developers.google.com/protocol-buffers/), [Thrift](https://thrift.apache.org/), and [Avro](https://avro.apache.org/docs/current/).
 
+The key innovation behind the most well-known RPC implementation (gRPC - from Google!)  is the use of protocol buffers. Protocol buffers are an efficient data serialisation framework that makes communication very fast and reduces load on the network by reducing payload size. RPCs are typically used for service-to-service communication, however, there is a form of RPC (gRPC Web) that can be used by web clients.
+
 RPC is a request-response protocol:
 
 * **Client program** - Calls the client stub procedure.  The parameters are pushed onto the stack like a local procedure call.
@@ -1856,7 +1858,19 @@ REST is focused on exposing data.  It minimizes the coupling between client/serv
   <i><a href=https://apihandyman.io/do-you-really-know-why-you-prefer-rest-over-rpc/>Source: Do you really know why you prefer REST over RPC</a></i>
 </p>
 
-#### Source(s) and further reading: REST and RPC
+### GraphQL
+
+The typical flow with a RESTful API is a series of different requests from the client to satisfy different needs. The client lacks any ability to fine-tune their request, meaning if they want data across different endpoints they will need to send multiple requests, and if they want a subset of data from an endpoint they will receive a lot of redundant information.
+
+The idea behind GraphQL is that the user can specify the exact details of the data they wish to request and the response will contain exactly what they need - no more and no less. This minimises the number of network calls, minimises the sending of redundant information from the server and means we only need to have one endpoint to satisfy user requests!
+
+#### Disadvantage(s): GraphQL
+
+* Complexity. It is more difficult to design an efficient API schema using GraphQL
+* Caching. GraphQL requests are much more difficult to cache, as requests must be analysed at the field level
+* REST is better supported
+
+#### Source(s) and further reading
 
 * [Do you really know why you prefer REST over RPC](https://apihandyman.io/do-you-really-know-why-you-prefer-rest-over-rpc/)
 * [When are RPC-ish approaches more appropriate than REST?](http://programmers.stackexchange.com/a/181186)
