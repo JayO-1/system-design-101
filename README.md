@@ -1680,6 +1680,8 @@ The main downside of this approach is that the client needs to monitor its webho
 
 <p align="center">
   <img src="images/webhooks.png" width=700>
+  <br/>
+  <i>WebHooks in Action</i>
 </p>
 
 The main use case for webhooks is notifications, and they are commonly used by major companies like Stripe, Slack and GitHub.
