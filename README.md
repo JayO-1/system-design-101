@@ -1640,9 +1640,13 @@ HTTP is an application layer protocol relying on lower-level protocols such as *
 * [Difference between HTTP and TCP](https://www.quora.com/What-is-the-difference-between-HTTP-protocol-and-TCP-protocol)
 * [Difference between PUT and PATCH](https://laracasts.com/discuss/channels/general-discussion/whats-the-differences-between-put-and-patch?page=1)
 
+An important concept to understand when designing systems is: how do we facilitate real-time updates? The main approaches that we have at our disposal are _HTTP Long/Short Polling_, _WebSockets_, _Server-Sent Events_, _WebHooks_, and _WebRTC_.
+
 ### HTTP Long and Short Polling
 
-TBC
+Short polling is the idea of periodically sending requests to the server every few seconds to check for new data. This is done over HTTP and is generally the worst approach to facilitating communication between the client and server as it is very resource-intensive since we dramatically increase load on the server.
+
+Long polling attempts to remedy this issue by delaying the closure of the connection for some time until data is available, thus minimising the volume of new requests at a given time. This still doesn't alleviate our problems as if the request fails we will still need to resend the request, including headers, which again is resource-intensive for the server and network bandwidth.
 
 ### WebSockets (WSS)
 
