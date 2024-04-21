@@ -244,8 +244,9 @@ Fundamentally we want to list the **Functional** and **Non-Functional** Requirem
 |               Functional               |                                                            |              Non-Functional          |                                                  |
 |                 :---:                  |                         :----:                             |                  :---:               |                         :---:                    |
 |               **Users**                |                 **Scale (Read/Write)**                     |             **Performance**          |                       **Cost**                   |
-|  Who is going to use it and for what?  |   Read heavy or write heavy (in qps)?                      |       Availability vs Consistency    |    Should we minimise the cost of development?   |
-|      How many users are there?         |   Can there be spikes in either? (special events?)         |          Latency vs Throughput       |    Should we minimise the cost of maintenance?   |
+|  Who is going to use it and for what?  |                How many users are there?                   |       Availability vs Consistency    |    Should we minimise the cost of development?   |
+|                                        |            Read heavy or write heavy (in qps)?             |          Latency vs Throughput       |    Should we minimise the cost of maintenance?   |
+|                                        |       Can there be spikes in either? (special events?)     |                                      |                                                  |
 
 [Source](https://www.youtube.com/watch?v=bUHFg8CZFws&pp=ygUXU3lzdGVtIERlc2lnbiBJbnRlcnZpZXc%3D)
 
@@ -271,7 +272,7 @@ You might be asked to do some estimates by hand.  Refer to the [Appendix](#appen
 
 ### Step 3: Data Model Design
 
-* What are our DB tables going to look like? (Stick to an SQL format - this schema can be adapted to other choices of database) 
+* What are our DB tables going to look like? (Stick to an SQL format - this schema can be adapted to other choices of database)
 
 ### Step 4: API Design
 
