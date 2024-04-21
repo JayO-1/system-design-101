@@ -171,7 +171,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Hypertext transfer protocol (HTTP)](#hypertext-transfer-protocol-http)
     * [HTTP Long and Short Polling](#http-long-and-short-polling)
     * [WebSockets (WSS)](#websockets-wss)
-    * [Server-Sent Events](#server-sent-events)
+    * [Server-Sent Events (SSE)](#server-sent-events)
     * [WebRTC](#webrtc)
     * [Transmission control protocol (TCP)](#transmission-control-protocol-tcp)
     * [User datagram protocol (UDP)](#user-datagram-protocol-udp)
@@ -1660,13 +1660,17 @@ However, since they put additional load on the server to maintain many concurren
 
 Also, there is some overhead to reestablishing a connection if the server/client goes down. We will need logic to either transfer the connection to another server instance on the backend or facilitate retrying the connection on the client side.
 
-### Server-Sent Events
+### Server-Sent Events (SSE)
 
 Server-sent events run over TCP and are useful in cases where we only need a unidirectional connection from the server to the client. With server-sent events, the connection is reestablished automatically if it drops, meaning we spend less time managing connections. Just like with WebSockets, since we only send the headers once, we make efficient usage of network bandwidth.
 
 However, just like WebSockets, we run the risk of overloading our server if we maintain too many persistent connections!
 
 We also run the risk of encountering the 'Thundering Herd' problem. If the server goes down and comes back up, we could be faced with a huge number of simultaneous incoming requests which could crash the server. We can alleviate this by adding some random delay before a client retries a connection, to spread out the requests.
+
+#### How many connections can we handle at once?
+
+The upper limit on the number of concurrent connections that can be managed for WebSockets or Server-Sent Events is 65000, which is proportional to the number of ports.
 
 ### WebHooks
 
