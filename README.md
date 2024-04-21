@@ -179,6 +179,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Representational state transfer (REST)](#representational-state-transfer-rest)
 * [Security](#security)
 * [Containerization (Docker and Kubernetes)](#containerization-docker-and-kubernetes)
+* [Search Indexes](#search-indexes)
 * [GeoSpatial Databases](#geospatial-databases)
 * [Appendix](#appendix)
     * [Powers of two table](#powers-of-two-table)
@@ -314,6 +315,7 @@ Discuss potential solutions and trade-offs. Everything is a trade-off. Address b
 
 Check out the following links to get a better idea of what to expect:
 
+* [Acing Amazon System Design Interview](https://www.youtube.com/watch?v=KjM1kWCGef8)
 * [How to ace a systems design interview](https://www.palantir.com/2011/10/how-to-rock-a-systems-design-interview/)
 * [The system design interview](http://www.hiredintech.com/system-design)
 * [Intro to Architecture and Systems Design Interviews](https://www.youtube.com/watch?v=ZgdS0EUmn70)
