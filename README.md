@@ -1676,7 +1676,7 @@ The upper limit on the number of concurrent connections that can be managed for 
 
 The client registers a URL with the server alongside their request to allow the server to asynchronously send a POST request containing data on relevant events to the client when available. This is useful in scenarios where communication does not need to be frequent, and we wish to minimise the consumption of server resources.
 
-The main downside of this approach is that the client needs to periodically poll its webhook URL, which can consume resources on the client e.g. memory or battery life (in the case of mobile phones).
+The main downside of this approach is that the client needs to monitor its webhook URL, which can consume resources on the client e.g. memory or battery life (in the case of mobile phones).
 
 <p align="center">
   <img src="images/webhooks.png" width=700>
