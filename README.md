@@ -246,7 +246,6 @@ Fundamentally we want to list the **Functional** and **Non-Functional** Requirem
 |               **Users**                |                 **Scale (Read/Write)**                     |             **Performance**          |                       **Cost**                   |
 |  Who is going to use it and for what?  |   Read heavy or write heavy (in qps)?                      |       Availability vs Consistency    |    Should we minimise the cost of development?   |
 |      How many users are there?         |   Can there be spikes in either? (special events?)         |          Latency vs Throughput       |    Should we minimise the cost of maintenance?   |
-|                                        |   How much data per query/total?                           |                                      |                                                  |
 
 [Source](https://www.youtube.com/watch?v=bUHFg8CZFws&pp=ygUXU3lzdGVtIERlc2lnbiBJbnRlcnZpZXc%3D)
 
@@ -254,14 +253,39 @@ Fundamentally we want to list the **Functional** and **Non-Functional** Requirem
 - **_Minimising Development Cost:_** Rely more on open source frameworks
 - **_Minimising Maintenance Cost:_** Rely more on public cloud services
 
-### Step 2: Create a high level design
+### Step 2: Back-of-the-envelope calculations
 
-Outline a high level design with all important components.
+There are three main metrics that you will want to consider in your answer:
+1. QPS
+    * (DAU (Daily Active Users) * Num Reqs Per User) / 100000 (~Num seconds per day)
+2. Total Storage Per Year
+    * DAU * % of writing users (derived from read-write ratio) * num writes in a year * size of avg write
+3. Bandwidth (Optional)
+    * Size of avg write * QPS
+
+You might be asked to do some estimates by hand.  Refer to the [Appendix](#appendix) for the following resources:
+
+* [Use back of the envelope calculations](http://highscalability.com/blog/2011/1/26/google-pro-tip-use-back-of-the-envelope-calculations-to-choo.html)
+* [Powers of two table](#powers-of-two-table)
+* [Latency numbers every programmer should know](#latency-numbers-every-programmer-should-know)
+
+### Step 3: Data Model Design
+
+* What are our DB tables going to look like? (Stick to an SQL format - this schema can be adapted to other choices of database) 
+
+### Step 4: API Design
+
+* What are some of our API calls going to look like?
+  * You should ideally sketch this out, and highlight how the data model is influencing your API design
+
+### Step 5: Create a high-level design
+
+Outline a high-level design with all important components.
 
 * Sketch the main components and connections
 * Justify your ideas
 
-### Step 3: Design core components
+### Step 6: Design core components
 
 Dive into details for each core component.  For example, if you were asked to [design a url shortening service](solutions/system_design/pastebin/README.md), discuss:
 
@@ -274,7 +298,7 @@ Dive into details for each core component.  For example, if you were asked to [d
     * Database lookup
 * API and object-oriented design
 
-### Step 4: Scale the design
+### Step 7: Scale the design
 
 Identify and address bottlenecks, given the constraints.  For example, do you need the following to address scalability issues?
 
@@ -283,15 +307,7 @@ Identify and address bottlenecks, given the constraints.  For example, do you ne
 * Caching
 * Database sharding
 
-Discuss potential solutions and trade-offs.  Everything is a trade-off.  Address bottlenecks using [principles of scalable system design](#index-of-system-design-topics).
-
-### Back-of-the-envelope calculations
-
-You might be asked to do some estimates by hand.  Refer to the [Appendix](#appendix) for the following resources:
-
-* [Use back of the envelope calculations](http://highscalability.com/blog/2011/1/26/google-pro-tip-use-back-of-the-envelope-calculations-to-choo.html)
-* [Powers of two table](#powers-of-two-table)
-* [Latency numbers every programmer should know](#latency-numbers-every-programmer-should-know)
+Discuss potential solutions and trade-offs. Everything is a trade-off. Address bottlenecks using [principles of scalable system design](#index-of-system-design-topics).
 
 ### Source(s) and further reading
 
@@ -1905,6 +1921,10 @@ They serve to decouple authentication and authorization, where authentication is
 * [OWASP top ten](https://www.owasp.org/index.php/OWASP_Top_Ten_Cheat_Sheet)
 
 ## Containerization (Docker and Kubernetes)
+
+This section needs to be updated...
+
+## Search Indexes
 
 This section needs to be updated...
 
