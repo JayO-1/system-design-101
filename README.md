@@ -1670,11 +1670,19 @@ We also run the risk of encountering the 'Thundering Herd' problem. If the serve
 
 #### How many connections can we handle at once?
 
-The upper limit on the number of concurrent connections that can be managed for WebSockets or Server-Sent Events is 65000, which is proportional to the number of ports.
+The upper limit on the number of concurrent connections that can be managed for WebSockets or Server-Sent Events is _~65000_, which is proportional to the _number of ports_.
 
 ### WebHooks
 
-TBC
+The client registers a URL with the server alongside their request to allow the server to asynchronously send a POST request containing data on relevant events to the client when available. This is useful in scenarios where communication does not need to be frequent, and we wish to minimise the consumption of server resources.
+
+The main downside of this approach is that the client needs to periodically poll its webhook URL, which can consume resources on the client e.g. memory or battery life (in the case of mobile phones).
+
+<p align="center">
+  <img src="images/webhooks.png" width=700>
+</p>
+
+The main use case for webhooks is notifications, and they are commonly used by major companies like Stripe, Slack and GitHub.
 
 ### WebRTC
 
@@ -1732,7 +1740,7 @@ UDP is connectionless.  Datagrams (analogous to packets) are guaranteed only at 
 
 UDP can broadcast, sending datagrams to all devices on the subnet.  This is useful with [DHCP](https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol) because the client has not yet received an IP address, thus preventing a way for TCP to stream without the IP address.
 
-UDP is less reliable but works well in real time use cases such as VoIP, video chat, streaming, and realtime multiplayer games.
+UDP is less reliable but works well in real-time use cases such as VoIP, video chat, streaming, and real-time multiplayer games.
 
 Use UDP over TCP when:
 
@@ -1744,6 +1752,7 @@ Use UDP over TCP when:
 
 * [Fireship: WebRTC Explained](https://www.youtube.com/watch?v=WmR9IMUD_CY)
 * [Jordan Has No Life: Long Polling, Websockets, Server-Sent Events](https://www.youtube.com/watch?v=fIwOd4PToAY&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=59)
+* [ByteMonk: WebHooks](https://www.youtube.com/watch?v=oQaJn6RdA3g)
 * [Networking for game programming](http://gafferongames.com/networking-for-game-programmers/udp-vs-tcp/)
 * [Key differences between TCP and UDP protocols](http://www.cyberciti.biz/faq/key-differences-between-tcp-and-udp-protocols/)
 * [Difference between TCP and UDP](http://stackoverflow.com/questions/5970383/difference-between-tcp-and-udp)
