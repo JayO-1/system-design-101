@@ -1640,23 +1640,33 @@ HTTP is an application layer protocol relying on lower-level protocols such as *
 * [Difference between HTTP and TCP](https://www.quora.com/What-is-the-difference-between-HTTP-protocol-and-TCP-protocol)
 * [Difference between PUT and PATCH](https://laracasts.com/discuss/channels/general-discussion/whats-the-differences-between-put-and-patch?page=1)
 
+---
+
 An important concept to understand when designing systems is: how do we facilitate real-time updates? The main approaches that we have at our disposal are _HTTP Long/Short Polling_, _WebSockets_, _Server-Sent Events_, _WebHooks_, and _WebRTC_.
 
 ### HTTP Long and Short Polling
 
-Short polling is the idea of periodically sending requests to the server every few seconds to check for new data. This is done over HTTP and is generally the worst approach to facilitating communication between the client and server as it is very resource-intensive since we dramatically increase load on the server.
+Short polling is the idea of periodically sending requests to the server every few seconds to check for new data. This is done over HTTP and is generally the worst approach to facilitating communication between the client and server as it is very resource-intensive since we dramatically increase the load on the server. It is also unidirectional, as the server can only respond to incoming requests - it can't take the initiative to send messages.
 
 Long polling attempts to remedy this issue by delaying the closure of the connection for some time until data is available, thus minimising the volume of new requests at a given time. This still doesn't alleviate our problems as if the request fails we will still need to resend the request, including headers, which again is resource-intensive for the server and network bandwidth.
 
 ### WebSockets (WSS)
 
-Another application layer protocol that runs over TCP. Useful in cases where we need bidirectional communication via a persistent connection between client and server. HTTP only supports client -> server, so for server -> client we would need to implement http long polling.
+Another application layer protocol that runs over TCP. WebSockets are particularly useful in cases where we need bidirectional communication via a persistent connection between client and server.
 
-This section needs to be filled out...
+WebSockets boast additional efficiency with regard to network bandwidth usage as we only send the headers/metadata once, and then utilise the connection to facilitate communication. This makes communication faster as payloads become smaller. 
+
+However, since they put additional load on the server to maintain many concurrent sessions, we run into issues if we are not frequently using the connection to send updates as this will mean many of these connections will lay idle while consuming resources.
+
+Also, there is some overhead to reestablishing a connection if the server/client goes down. We will need logic to either transfer the connection to another server instance on the backend or facilitate retrying the connection on the client side.
 
 ### Server-Sent Events
 
-Server-sent events run over TCP and are useful in cases where we only need a unidirectional connection from the server to the client.
+Server-sent events run over TCP and are useful in cases where we only need a unidirectional connection from the server to the client. With server-sent events, the connection is reestablished automatically if it drops, meaning we spend less time managing connections. Just like with WebSockets, since we only send the headers once, we make efficient usage of network bandwidth.
+
+However, just like WebSockets, we run the risk of overloading our server if we maintain too many persistent connections!
+
+We also run the risk of encountering the 'Thundering Herd' problem. If the server goes down and comes back up, we could be faced with a huge number of simultaneous incoming requests which could crash the server. We can alleviate this by adding some random delay before a client retries a connection, to spread out the requests.
 
 ### WebHooks
 
@@ -1729,6 +1739,7 @@ Use UDP over TCP when:
 #### Source(s) and further reading
 
 * [Fireship: WebRTC Explained](https://www.youtube.com/watch?v=WmR9IMUD_CY)
+* [Jordan Has No Life: Long Polling, Websockets, Server-Sent Events](https://www.youtube.com/watch?v=fIwOd4PToAY&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=59)
 * [Networking for game programming](http://gafferongames.com/networking-for-game-programmers/udp-vs-tcp/)
 * [Key differences between TCP and UDP protocols](http://www.cyberciti.biz/faq/key-differences-between-tcp-and-udp-protocols/)
 * [Difference between TCP and UDP](http://stackoverflow.com/questions/5970383/difference-between-tcp-and-udp)
