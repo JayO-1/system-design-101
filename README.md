@@ -1929,7 +1929,21 @@ This section needs to be updated...
 
 ## Search Indexes
 
-This section needs to be updated...
+When we are attempting to provide search functionality, we run into some issues using traditional databases. They offer limited search capabilities in the sense that one can't search for strings that are potentially substrings of other pieces of text. There is limited specificity in our queries.
+
+This is where the inverted index comes in. An inverted index is an index mapping words to the IDs of the documents that contain them, and they are highly efficient in finding all the documents for a given query. We preprocess the input strings before using them as keys in our inverted index, tokenizing them, removing stop words as well as removing casing to get the most representative words for a given corpus.
+
+The beauty of indexes is that we can utilise multiple to provide different search functionality. For example, if one wanted to search for suffixes (terms that end with a certain word) you could store an index of all the reversed search terms, and reverse the query before searching. This works as the reversed search term will start with the revered query if the query is a suffix!
+
+The industry standard for search index technology is **Apache Lucene**, an open-source search index supporting many different types of indexes e.g. prefix, suffix, text, numbers, coordinates, etc. 
+
+To make Apache Lucene more useful, we make use of **ElasticSearch**, a wrapper around Apache Lucene that provides additional functionality, like a REST API, managed replication and partitioning, its own query language and visualisation. 
+
+### Source(s) and further reading
+
+* [Jordan Has No Life: Search Indexes](https://www.youtube.com/watch?v=ty9DQhM32mM&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=46)
+* [Jordan Has No Life: Elastic Search](https://www.youtube.com/watch?v=ty9DQhM32mM&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=47)
+* [Elastic Search Architecture & Design](https://www.youtube.com/watch?v=ptAkcj8b-qc)
 
 ## Geospatial Databases
 
