@@ -1937,7 +1937,11 @@ The beauty of indexes is that we can utilise multiple to provide different searc
 
 The industry standard for search index technology is **Apache Lucene**, an open-source search index supporting many different types of indexes e.g. prefix, suffix, text, numbers, coordinates, etc. 
 
-To make Apache Lucene more useful, we make use of **ElasticSearch**, a wrapper around Apache Lucene that provides additional functionality, like a REST API, managed replication and partitioning, its own query language and visualisation. 
+To make Apache Lucene more useful, we make use of **ElasticSearch**, a wrapper around Apache Lucene that provides additional functionality, like a REST API, managed replication and partitioning, its own query language and visualisation.
+
+Something to note when working with ElasticSearch is the fact that since the index is replicated, each node will hold a local version of its postings, meaning if we ever want to do a thorough search of all the postings for a given term, then we would need some form of aggregator to gather all of the results. This can be avoided in special cases, where we shard terms to the same node based on some data ID e.g. chatID, which will ensure that queries pertaining to a specific subset of data points will always go to the same node, which in this case will hold indexes for each chat.
+
+ElasticSearch also provides query-level caching, where we cache specific parts of the query. This is useful, as it allows common sub-queries to be cached for future usage e.g. If we searched for "Tissues" on "Sale" at Amazon, the "Sale" subquery will be much more common than the "Tissues" subquery. This allows our caching mechanism to be highly adaptive.
 
 ### Source(s) and further reading
 
