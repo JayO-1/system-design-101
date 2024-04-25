@@ -1521,11 +1521,12 @@ Refresh-ahead can result in reduced latency vs read-through if the cache can acc
 
 ### Caching: In A Nutshell
 
-There are three main disadvantages of caches in general:
-1. Need to maintain consistency between caches and the source of truth such as the database through [cache invalidation](https://en.wikipedia.org/wiki/Cache_algorithms)
+Generally, there are three drawbacks of caches:
+1. Cache misses are expensive, especially if the underlying cache implementation is something other than a HashMap e.g. TreeMap
+2. Need to maintain consistency between caches and the source of truth such as the database through [cache invalidation](https://en.wikipedia.org/wiki/Cache_algorithms)
   * We usually use TTL (Time-To-Live) but cache invalidation is a difficult problem and there is additional complexity associated with when to update the cache.
   * Some architectures involve refreshing this TTL periodically using various mechanisms
-2. If a cache node goes down, subsequent reads will be slow until it can be repopulated
+3. If a cache node goes down, subsequent reads will be slow until it can be repopulated
 
 #### Cache Aside: +Ives and -Ives
 
