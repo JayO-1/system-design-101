@@ -1096,7 +1096,7 @@ We use a coordinator node, which will usually be an application server, to query
 If even a single node isn't ready, then the coordinator node signals to all nodes to abort the write!
 
 <p align="center">
-  <img src="images/distributed transactions.png">
+  <img src="images/distributed transactions.png" width=600>
   <br/>
   <i>Distributed Transactions</i>
 </p>
