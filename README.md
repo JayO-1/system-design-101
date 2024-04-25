@@ -1355,6 +1355,13 @@ Caches can also benefit from enhanced geographic locality to the user, reducing 
 
 Caching should only performed when data changes infrequently, we expect read throughput to be high and we can tolerate stale reads. We want to be disciplined about when to introduce a caching layer, as caches inevitably require additional overhead to maintain.
 
+### Cache Eviction Policies
+
+* **Random:** We randomly select a value to evict. The only benefit to this approach is that we don't need to maintain any additional data structures on top of our cache implementation to decide which item to remove, so it can be useful if we're cramped on space
+* **First In First Out (FIFO):** Generally the worst approach to eviction
+* **Least Recently Used (LRU):** We choose the item that was least recently used
+* **Least Frequently Used (LFU):** We choose the item that was least frequently used, defaulting to the LRU in the case that there are multiple with the same frequency
+
 ### Client caching
 
 Caches can be located on the client side (OS or browser), [server side](#reverse-proxy-web-server), or in a distinct cache layer.
@@ -1570,6 +1577,9 @@ Generally, there are three drawbacks of caches:
 ### Source(s) and further reading
 
 * [Caching Overview: Exponent](https://www.youtube.com/watch?v=6GY1akbxyEo)
+* [Jordan Has No Life: Intro to Distributed Caching](https://www.youtube.com/watch?v=4wEQ9_tkqvE&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=51)
+* [Jordan Has No Life: Distributed Cache Writes](https://www.youtube.com/watch?v=4wEQ9_tkqvE&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=52)
+* [Jordan Has No Life: Cache Evictions](https://www.youtube.com/watch?v=4wEQ9_tkqvE&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=53)
 * [From cache to in-memory data grid](http://www.slideshare.net/tmatyashovsky/from-cache-to-in-memory-data-grid-introduction-to-hazelcast)
 * [Scalable system design patterns](http://horicky.blogspot.com/2010/10/scalable-system-design-patterns.html)
 * [Introduction to architecting systems for scale](http://lethain.com/introduction-to-architecting-systems-for-scale/)
