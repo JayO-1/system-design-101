@@ -1101,7 +1101,11 @@ If even a single node isn't ready, then the coordinator node signals to all node
   <i>Distributed Transactions</i>
 </p>
 
-Distributed transactions are useful, but they have a tendency to slow down writes, and we run into issues if a machine goes down. If the coordinator node goes down before the write signal can be sent, then the writer nodes will be holding onto their locks until it is back up and no writes can be performed as the coordinator is a single point of failure. Once it's back up, it will have to use its commit log to check whether there are any unsatisfied commits. Meanwhile, if the writer nodes go down before they can receive the write signal, the coordinator must repeatedly send the write signal downstream until they are back up!
+Distributed transactions are useful, but they have a tendency to slow down writes, and we run into issues if a machine goes down. 
+
+The coordinator node is a single point of failure, and if it goes down then the writer nodes will be holding onto their locks until it is back up and they receive confirmation to perform the write. Once it's back up, it will have to use its commit log to check whether there are any unsatisfied commits. 
+
+Meanwhile, if the writer nodes go down before they can receive the write signal, the coordinator must wait until it comes back up and it can get the all-clear to push the write through on all the nodes.
 
 _This is why we generally want to avoid distributed transactions where possible._
 
