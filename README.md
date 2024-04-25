@@ -1072,24 +1072,38 @@ Similar to the advantages of [federation](#federation), sharding results in less
         * Data distribution can become lopsided in a shard. For example, a set of power users on a shard could result in increased load to that shard compared to others.
         * Also, rebalancing (in the case of adding a node, or a node going down) adds additional complexity.
     * **Hash Range-based Sharding:** We make use of [consistent hashing](http://www.paperplanes.de/2011/12/9/the-magic-of-consistent-hashing.html) to map the data to a given node. The idea is that Node 1 will instead map to hash 1-199, Node 2 to hash 200-399, etc. This reduces the amount of transferred data in the case of adding/deleting a node, as we only need to move the subset of data that falls under that hash range - not the entire dataset (in the case of mapping data to Node ID = data hash % num of nodes). Since the hash distribution of nodes is random, we will typically use [dummy nodes](https://www.youtube.com/watch?v=UF9Iqmg94tk&t=367) to avoid hotspots. Since consistent hashing is optimised to minimise data movement in the case of node addition/failure, it can also be used for managing persistent connections between our application servers and users as it will minimise the number of connections that need to be reallocated
-        * Hash-based sharding lacks the data locality present in range-based sharding. This is because a good hash function will ensure that even similar items have distinct hashes, so we have no way of knowing which node stores what subset of data. This can be mitigated using a [secondary index](#secondary-index)
+        * Hash-based sharding lacks the data locality present in range-based sharding, meaning we cannot easily perform range-based queries. This is because a good hash function will ensure that even similar items have distinct hashes, so we have no way of knowing which node stores what subset of data. This can be mitigated using a [secondary index](#secondary-index)
 * You'll need to update your application logic to work with shards, which could result in complex SQL queries.
 * Joining data from multiple shards is more complex.
 * Sharding adds more hardware and additional complexity.
 
 ##### Secondary Index
 
-A secondary index allows one to speed up reads when performing Hash-based sharding, by circumnavigating the loss of data locality. We store a duplicate copy of the data that follows the rules of our index ordering.
+A secondary index allows one to speed up reads when performing hash-based sharding, by circumnavigating the loss of data locality. We store a duplicate copy of the data that follows the rules of our index ordering.
 
 There are two main types of secondary index:
 * _Local:_ In a local secondary index, a sorted copy of the data on each node is stored alongside the original hash-sharded partitions. This is a very simple schema that doesn't involve changing the way we perform writes, however, it means that to perform queries we need to retrieve the data from every node, slowing down reads
 * _Global:_ In a global secondary index, we combine hash-based sharding and range-based sharding. When we perform a write, we write not only to its hash-shard but also its range-shard, which may or may not be the same node. The idea is that we maintain two copies of our data, one which is sharded by hash and another which is sharded by range. Since writes must be performed across multiple nodes, they can be slowed down
 
-To maintain data integrity when using a global secondary index (in the case of a node going down before a write can go through, or a write failing to be transmitted over the network), we need to use [distributed transations](#distributed-transactions) to ensure that if a write happens across multiple nodes, it either goes through on both nodes or neither node.
+To maintain data integrity when using a global secondary index (in the case of a node going down before a write can go through, or a write failing to be transmitted over the network), we need to use [distributed transations](#distributed-transactions) to ensure that if a write happens across multiple nodes, it either goes through on all nodes or none of the nodes.
 
 ###### Distributed Transactions
 
+Distributed transactions, or, two-phase commit, is a method for allowing us to atomically perform writes across multiple partitions.
 
+We use a coordinator node, which will usually be an application server, to query all nodes we are writing to to confirm whether they are all ready. This message will also contain the data to be written, and if a node is ready, it will lock the required rows, and communicate this to the coordinator. Once all the rows are ready, the coordinator logs this in a commit log and gives all the nodes the signal to perform the write.
+
+If even a single node isn't ready, then the coordinator node signals to all nodes to abort the write!
+
+<p align="center">
+  <img src="images/distributed transactions.png">
+  <br/>
+  <i>Distributed Transactions</i>
+</p>
+
+Distributed transactions are useful, but they have a tendency to slow down writes, and we run into issues if a machine goes down. If the coordinator node goes down before the write signal can be sent, then the writer nodes will be holding onto their locks until it is back up and no writes can be performed as the coordinator is a single point of failure. Once it's back up, it will have to use its commit log to check whether there are any unsatisfied commits. Meanwhile, if the writer nodes go down before they can receive the write signal, the coordinator must repeatedly send the write signal downstream until they are back up!
+
+_This is why we generally want to avoid distributed transactions where possible._
 
 ##### Source(s) and further reading: sharding
 
@@ -1099,8 +1113,6 @@ To maintain data integrity when using a global secondary index (in the case of a
 * [The coming of the shard](http://highscalability.com/blog/2009/8/6/an-unorthodox-approach-to-database-design-the-coming-of-the.html)
 * [Shard database architecture](https://en.wikipedia.org/wiki/Shard_(database_architecture))
 * [Consistent hashing](http://www.paperplanes.de/2011/12/9/the-magic-of-consistent-hashing.html)
-
-
 
 #### Denormalization
 
