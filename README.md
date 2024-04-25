@@ -148,6 +148,8 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
         * [Wide column store](#wide-column-store)
         * [Graph Database](#graph-database)
     * [SQL or NoSQL](#sql-or-nosql)
+    * [Search Indexes](#search-indexes)
+    * [GeoSpatial Databases](#geospatial-databases)
 * [Cache](#cache)
     * [Client caching](#client-caching)
     * [CDN caching](#cdn-caching)
@@ -179,8 +181,6 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Representational state transfer (REST)](#representational-state-transfer-rest)
 * [Security](#security)
 * [Containerization (Docker and Kubernetes)](#containerization-docker-and-kubernetes)
-* [Search Indexes](#search-indexes)
-* [GeoSpatial Databases](#geospatial-databases)
 * [Appendix](#appendix)
     * [Powers of two table](#powers-of-two-table)
     * [Latency numbers every programmer should know](#latency-numbers-every-programmer-should-know)
@@ -1337,6 +1337,102 @@ Sample data well-suited for NoSQL:
 * [Be a Better Dev: SQL vs NoSQL](https://www.youtube.com/watch?v=ruz-vK8IesE)
 * [SQL vs NoSQL differences](https://www.sitepoint.com/sql-vs-nosql-differences/)
 
+### Search Indexes
+
+When we are attempting to provide search functionality, we run into some issues using traditional databases. They offer limited search capabilities in the sense that one can't search for strings that are potentially substrings of other pieces of text. There is limited specificity in our queries.
+
+This is where the inverted index comes in. An inverted index is an index mapping words to the IDs of the documents that contain them, and they are highly efficient in finding all the documents for a given query. We preprocess the input strings before using them as keys in our inverted index, tokenizing them, removing stop words as well as removing casing to get the most representative words for a given corpus.
+
+The beauty of indexes is that we can utilise multiple to provide different search functionality. For example, if one wanted to search for suffixes (terms that end with a certain word) you could store an index of all the reversed search terms, and reverse the query before searching. This works as the reversed search term will start with the reversed query if the query is a suffix!
+
+The industry standard for search index technology is **Apache Lucene**, an open-source search index supporting many different types of indexes e.g. prefix, suffix, text, numbers, coordinates, etc. 
+
+To make Apache Lucene more useful, we make use of **ElasticSearch**, a wrapper around Apache Lucene that provides additional functionality, like a REST API, managed replication and partitioning, its own query language and visualisation.
+
+Something to note when working with ElasticSearch is the fact that since the index is replicated, each node will hold a local version of its postings, meaning if we ever want to do a thorough search of all the postings for a given term, then we would need some form of aggregator to gather all of the results. This can be avoided in special cases, where we shard terms to the same node based on some data ID e.g. chatID, which will ensure that queries pertaining to a specific subset of data points will always go to the same node, which in this case will hold indexes for each chat.
+
+ElasticSearch also provides query-level caching, where we cache specific parts of the query. This is useful, as it allows common sub-queries to be cached for future usage e.g. If we searched for "Tissues" on "Sale" at Amazon, the "Sale" subquery will be much more common than the "Tissues" subquery. This allows our caching mechanism to be highly adaptive.
+
+#### Source(s) and further reading
+
+* [Jordan Has No Life: Search Indexes](https://www.youtube.com/watch?v=ty9DQhM32mM&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=46)
+* [Jordan Has No Life: Elastic Search](https://www.youtube.com/watch?v=ty9DQhM32mM&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=47)
+* [Elastic Search Architecture & Design](https://www.youtube.com/watch?v=ptAkcj8b-qc)
+
+### Geospatial Databases
+
+Geospatial databases are a form of database optimised for storing and querying data in geometric space, like location data. We will typically use a Geospatial database for any use case involving location data management. Some examples of popular implementations are Redis Geohash and PostgreSQL (with Post-GIS extension).
+
+#### Geospatial Indexes
+
+When attempting to perform queries on geospatial data, we run into some issues with traditional databases. Geospatial data (i.e. latitude and longitude) is comprised of pairs of data points, however, normal databases are only capable of indexing on one column, or, data attribute at a time. That is if we wished to, say, find all of the restaurants within 1 mile of the user, the underlying SQL query would require finding all the restaurants with a latitude that is within the user's radius, finding all the restaurants with a longitude within the user's radius then finding the intersection between the values returned.
+
+<p align="center">
+  <img src="images/normal lat-lon sql query.png">
+  <br/>
+  <i>Example SQL query in a normal database to find all the businesses within a radius of the user</i>
+</p>
+
+Both of these searches would require a separate parse of the database, which will either be done in O(n) time via a linear scan or O(log n) time using an index on the latitude and longitude columns. For large datasets, this is very inefficient as 1. We will have to parse the database twice and 2. We will need to consider ALL the restaurants in the database when most aren't even nearby! (Refer to the video on DB indexes located under [Denormalization](#denormalization) to understand why this is the case).
+
+In an ideal world, we would encode the 2D information into a singular value, thus allowing for more efficient DB queries by building an index on top of this value. Each branch in the index tree we go down hones our search in both dimensions!
+
+This is where Geospatial Indexes come in. They divide the world map into smaller areas and build indexes for fast search. This also conveniently facilitates sharding, as we can store all of the different areas on different shards, depending on how densely populated they are e.g. NYC may be on its own shard, but the entire state of Wisconsin, which is less densely populated, could be on its own shard.
+
+#### Hash-based GeoIndexes
+
+There are two main techniques employed with Hash-based Geoindexes:
+
+1. Even Grid: We even divide and sub-divide the world into evenly sized grids. The issue with this approach is we don't take into account the density of items on the map - in an ideal world we would want more fine-grained cells for more densely populated areas and larger cells for sparsely populated areas. This would allow us to more finely pick out locations in dense areas.
+
+2. Geohashing: An improvement on the even grid approach is geohashing. In geohashing, we recursively divide the world into grids, stopping once we have reached some predetermined size of the grid. The key innovation with geohashing is that each cell in the grid is given a unique binary number. This binary number encodes its 2D location in the overall grid, each pair of digits in the binary number denoting which region/subregion it is in e.g. for the cell assigned 0111, it would be located in sub-region 11 of the larger region 01.
+
+<p align="center">
+  <img src="images/geohashing.png" width=700>
+  <br/>
+  <i>Geohashing - we assign a unique binary number to each region/subregion</i>
+</p>
+
+We then hash this value to a base32 string representation of the cell. This approach is very powerful, as it ensures that cells that are next to each other will have the same prefix and that since longer hash values = a deeper sub-region, there is a relationship between the length of the hash value and the size of the cell!
+
+<p align="center">
+  <img src="images/geohashing binary to hash.png" width=700>
+  <br/>
+  <i>Hashing the binary number</i>
+  <br/>
+</p>
+
+<p align="center">
+  <img src="images/geohashing hash len to size.png" width=700>
+  <br/>
+  <i>Hash Length to Grid Size Conversion Table</i>
+  <br/>
+  <i>Corrected grid sizes: 7 -> 152.9m × 152.4m, 8 -> 38.2m × 19m, 9 -> 4.8m × 4.8m, 10 -> 1.2m × 59.5cm</i>
+</p>
+ 
+When we perform queries, we simply need to ensure that the geohash for any locations the user needs to be able to find is stored in our DB, with a compound key of geohash and location ID to ensure that we can remove specific locations with the same geohash.
+
+When storing the data on these locations, we will need to ensure that we choose a length of geohash that is appropriate to our use case, since the length corresponds with the size of the cell. We will typically choose the lower bound on our distance requirements (which will correspond with a longer geohash as the cells are more granular) since taking the prefix of this geohash will allow us to generalise to longer distance queries. 
+
+**Query flow becomes:**
+1. Lookup the geohash for the user's cell using the user's lat-lon
+2. Compute the geohashes for the user's 8 neighbouring cells. This is to avoid issues when the user is located at a cell boundary and can be done in O(1) time
+3. Retrieve all the locations that fall under these geohashes in our database. Since geohashes are strings, we can use a normal database and build an index on top of the hash values - thus facilitating efficient 2D search.
+4. Rank the results by proximity to the user. We will typically store the lat-lon data alongside the geohash in our DB to make this efficient
+
+#### Tree-based GeoIndexes
+
+The core idea behind tree-based geoindexes is to recursively subdivide a region using a tree data structure until each region meets some pre-determined criterion. This criterion can be area size, the number of data points covered by a given cell, etc.
+
+Something to note is that with Tree-based GeoIndexes, the data structure is maintained in memory, rather than being a database solution. This means the index is built by our code, and runs on our servers.
+
+A common implementation is the Quadtree, which subdivides a region into four regions each time. 
+
+#### Source(s) and further reading
+
+* [Jordan Has No Life: Geospatial Indexes](https://www.youtube.com/watch?v=9BewOp5Gaw8)
+* [ByteByteGo: Design a location-based service](https://www.youtube.com/watch?v=M4lR_Va97cQ)
+
 ## Cache
 
 <p align="center">
@@ -1983,102 +2079,6 @@ They serve to decouple authentication and authorization, where authentication is
 ## Containerization (Docker and Kubernetes)
 
 This section needs to be updated...
-
-## Search Indexes
-
-When we are attempting to provide search functionality, we run into some issues using traditional databases. They offer limited search capabilities in the sense that one can't search for strings that are potentially substrings of other pieces of text. There is limited specificity in our queries.
-
-This is where the inverted index comes in. An inverted index is an index mapping words to the IDs of the documents that contain them, and they are highly efficient in finding all the documents for a given query. We preprocess the input strings before using them as keys in our inverted index, tokenizing them, removing stop words as well as removing casing to get the most representative words for a given corpus.
-
-The beauty of indexes is that we can utilise multiple to provide different search functionality. For example, if one wanted to search for suffixes (terms that end with a certain word) you could store an index of all the reversed search terms, and reverse the query before searching. This works as the reversed search term will start with the reversed query if the query is a suffix!
-
-The industry standard for search index technology is **Apache Lucene**, an open-source search index supporting many different types of indexes e.g. prefix, suffix, text, numbers, coordinates, etc. 
-
-To make Apache Lucene more useful, we make use of **ElasticSearch**, a wrapper around Apache Lucene that provides additional functionality, like a REST API, managed replication and partitioning, its own query language and visualisation.
-
-Something to note when working with ElasticSearch is the fact that since the index is replicated, each node will hold a local version of its postings, meaning if we ever want to do a thorough search of all the postings for a given term, then we would need some form of aggregator to gather all of the results. This can be avoided in special cases, where we shard terms to the same node based on some data ID e.g. chatID, which will ensure that queries pertaining to a specific subset of data points will always go to the same node, which in this case will hold indexes for each chat.
-
-ElasticSearch also provides query-level caching, where we cache specific parts of the query. This is useful, as it allows common sub-queries to be cached for future usage e.g. If we searched for "Tissues" on "Sale" at Amazon, the "Sale" subquery will be much more common than the "Tissues" subquery. This allows our caching mechanism to be highly adaptive.
-
-### Source(s) and further reading
-
-* [Jordan Has No Life: Search Indexes](https://www.youtube.com/watch?v=ty9DQhM32mM&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=46)
-* [Jordan Has No Life: Elastic Search](https://www.youtube.com/watch?v=ty9DQhM32mM&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=47)
-* [Elastic Search Architecture & Design](https://www.youtube.com/watch?v=ptAkcj8b-qc)
-
-## Geospatial Databases
-
-Geospatial databases are a form of database optimised for storing and querying data in geometric space, like location data. We will typically use a Geospatial database for any use case involving location data management. Some examples of popular implementations are Redis Geohash and PostgreSQL (with Post-GIS extension).
-
-### Geospatial Indexes
-
-When attempting to perform queries on geospatial data, we run into some issues with traditional databases. Geospatial data (i.e. latitude and longitude) is comprised of pairs of data points, however, normal databases are only capable of indexing on one column, or, data attribute at a time. That is if we wished to, say, find all of the restaurants within 1 mile of the user, the underlying SQL query would require finding all the restaurants with a latitude that is within the user's radius, finding all the restaurants with a longitude within the user's radius then finding the intersection between the values returned.
-
-<p align="center">
-  <img src="images/normal lat-lon sql query.png">
-  <br/>
-  <i>Example SQL query in a normal database to find all the businesses within a radius of the user</i>
-</p>
-
-Both of these searches would require a separate parse of the database, which will either be done in O(n) time via a linear scan or O(log n) time using an index on the latitude and longitude columns. For large datasets, this is very inefficient as 1. We will have to parse the database twice and 2. We will need to consider ALL the restaurants in the database when most aren't even nearby! (Refer to the video on DB indexes located under [Denormalization](#denormalization) to understand why this is the case).
-
-In an ideal world, we would encode the 2D information into a singular value, thus allowing for more efficient DB queries by building an index on top of this value. Each branch in the index tree we go down hones our search in both dimensions!
-
-This is where Geospatial Indexes come in. They divide the world map into smaller areas and build indexes for fast search. This also conveniently facilitates sharding, as we can store all of the different areas on different shards, depending on how densely populated they are e.g. NYC may be on its own shard, but the entire state of Wisconsin, which is less densely populated, could be on its own shard.
-
-#### Hash-based GeoIndexes
-
-There are two main techniques employed with Hash-based Geoindexes:
-
-1. Even Grid: We even divide and sub-divide the world into evenly sized grids. The issue with this approach is we don't take into account the density of items on the map - in an ideal world we would want more fine-grained cells for more densely populated areas and larger cells for sparsely populated areas. This would allow us to more finely pick out locations in dense areas.
-
-2. Geohashing: An improvement on the even grid approach is geohashing. In geohashing, we recursively divide the world into grids, stopping once we have reached some predetermined size of the grid. The key innovation with geohashing is that each cell in the grid is given a unique binary number. This binary number encodes its 2D location in the overall grid, each pair of digits in the binary number denoting which region/subregion it is in e.g. for the cell assigned 0111, it would be located in sub-region 11 of the larger region 01.
-
-<p align="center">
-  <img src="images/geohashing.png" width=700>
-  <br/>
-  <i>Geohashing - we assign a unique binary number to each region/subregion</i>
-</p>
-
-We then hash this value to a base32 string representation of the cell. This approach is very powerful, as it ensures that cells that are next to each other will have the same prefix and that since longer hash values = a deeper sub-region, there is a relationship between the length of the hash value and the size of the cell!
-
-<p align="center">
-  <img src="images/geohashing binary to hash.png" width=700>
-  <br/>
-  <i>Hashing the binary number</i>
-  <br/>
-</p>
-
-<p align="center">
-  <img src="images/geohashing hash len to size.png" width=700>
-  <br/>
-  <i>Hash Length to Grid Size Conversion Table</i>
-  <br/>
-  <i>Corrected grid sizes: 7 -> 152.9m × 152.4m, 8 -> 38.2m × 19m, 9 -> 4.8m × 4.8m, 10 -> 1.2m × 59.5cm</i>
-</p>
- 
-When we perform queries, we simply need to ensure that the geohash for any locations the user needs to be able to find is stored in our DB, with a compound key of geohash and location ID to ensure that we can remove specific locations with the same geohash.
-
-When storing the data on these locations, we will need to ensure that we choose a length of geohash that is appropriate to our use case, since the length corresponds with the size of the cell. We will typically choose the lower bound on our distance requirements (which will correspond with a longer geohash as the cells are more granular) since taking the prefix of this geohash will allow us to generalise to longer distance queries. 
-
-**Query flow becomes:**
-1. Lookup the geohash for the user's cell using the user's lat-lon
-2. Compute the geohashes for the user's 8 neighbouring cells. This is to avoid issues when the user is located at a cell boundary and can be done in O(1) time
-3. Retrieve all the locations that fall under these geohashes in our database. Since geohashes are strings, we can use a normal database and build an index on top of the hash values - thus facilitating efficient 2D search.
-4. Rank the results by proximity to the user. We will typically store the lat-lon data alongside the geohash in our DB to make this efficient
-
-#### Tree-based GeoIndexes
-
-The core idea behind tree-based geoindexes is to recursively subdivide a region using a tree data structure until each region meets some pre-determined criterion. This criterion can be area size, the number of data points covered by a given cell, etc.
-
-Something to note is that with Tree-based GeoIndexes, the data structure is maintained in memory, rather than being a database solution. This means the index is built by our code, and runs on our servers.
-
-A common implementation is the Quadtree, which subdivides a region into four regions each time. 
-
-### Source(s) and further reading
-
-* [Jordan Has No Life: Geospatial Indexes](https://www.youtube.com/watch?v=9BewOp5Gaw8)
-* [ByteByteGo: Design a location-based service](https://www.youtube.com/watch?v=M4lR_Va97cQ)
 
 ## Appendix
 
