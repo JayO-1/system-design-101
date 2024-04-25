@@ -1351,7 +1351,7 @@ Databases often benefit from a uniform distribution of reads and writes across i
 
 ### When can we cache?
 
-Caching should only performed when data changes infrequently, and we expect read throughput to be high. We want to be disciplined about when to introduce a caching layer, as caches inevitably require additional overhead to maintain.
+Caching should only performed when data changes infrequently, we expect read throughput to be high and we can tolerate stale reads. We want to be disciplined about when to introduce a caching layer, as caches inevitably require additional overhead to maintain.
 
 ### Client caching
 
