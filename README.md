@@ -1065,22 +1065,32 @@ Sharding distributes data across different databases such that each database can
 
 Similar to the advantages of [federation](#federation), sharding results in less read and write traffic, less replication, and more cache hits.  Index size is also reduced, which generally improves performance with faster queries.  If one shard goes down, the other shards are still operational, although you'll want to add some form of replication to avoid data loss.  Like federation, there is no single central master serializing writes, allowing you to write in parallel with increased throughput.
 
-Common ways to shard a table of users is either through the user's last name initial or the user's geographic location.
-
 ##### Disadvantage(s): sharding
 
+* Common ways to shard a table of users is either through the user's last name initial or the user's geographic location, using one of two approaches: 
+    * **Range-based Sharding:** We assign each node a range of values, based on the underlying data e.g. Node 1 may map to A-C, while Node 2 may map to D-F. The main benefit of this approach is that range-based queries become much more efficient, as data maintains its locality i.e. If you wanted all the users with last names starting with A-F, you would already know which subset of nodes the data lies on
+        * Data distribution can become lopsided in a shard. For example, a set of power users on a shard could result in increased load to that shard compared to others.
+        * Also, rebalancing (in the case of adding a node, or a node going down) adds additional complexity.
+    * **Hash Range-based Sharding:** We make use of [consistent hashing](http://www.paperplanes.de/2011/12/9/the-magic-of-consistent-hashing.html) to map the data to a given node. The idea is that Node 1 will instead map to hash 1-199, Node 2 to hash 200-399, etc. This reduces the amount of transferred data in the case of adding/deleting a node, as we only need to move the subset of data that falls under that hash range - not the entire dataset (in the case of mapping data to Node ID = data hash % num of nodes). Since the hash distribution of nodes is random, we will typically use [dummy nodes](https://www.youtube.com/watch?v=UF9Iqmg94tk&t=367) to avoid hotspots. Since consistent hashing is optimised to minimise data movement in the case of node addition/failure, it can also be used for managing persistent connections between our application servers and users as it will minimise the number of connections that need to be reallocated
+        * Hash-based sharding lacks the data locality present in range-based sharding. This is because a good hash function will ensure that even similar items have distinct hashes, so we have no way of knowing which node stores what subset of data. This can be mitigated using a [secondary index](#secondary-index)
 * You'll need to update your application logic to work with shards, which could result in complex SQL queries.
-* Data distribution can become lopsided in a shard.  For example, a set of power users on a shard could result in increased load to that shard compared to others.
-    * Rebalancing adds additional complexity.  A sharding function based on [consistent hashing](http://www.paperplanes.de/2011/12/9/the-magic-of-consistent-hashing.html) can reduce the amount of transferred data.
-    * [Consistent Hashing Explained](https://www.youtube.com/watch?v=UF9Iqmg94tk)
 * Joining data from multiple shards is more complex.
 * Sharding adds more hardware and additional complexity.
 
+###### Secondary Index
+
+
+
 ##### Source(s) and further reading: sharding
 
+* [Jordan Has No Life: Intro to Partitioning](https://www.youtube.com/watch?v=Bt8ZMC_Yuys&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=25)
+* [Jordan Has No Life: Two-Phase Commit](https://www.youtube.com/watch?v=Bt8ZMC_Yuys&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=26)
+* [Jordan Has No Life: Consistent Hashing](https://www.youtube.com/watch?v=Bt8ZMC_Yuys&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=27)
 * [The coming of the shard](http://highscalability.com/blog/2009/8/6/an-unorthodox-approach-to-database-design-the-coming-of-the.html)
 * [Shard database architecture](https://en.wikipedia.org/wiki/Shard_(database_architecture))
 * [Consistent hashing](http://www.paperplanes.de/2011/12/9/the-magic-of-consistent-hashing.html)
+
+
 
 #### Denormalization
 
@@ -1933,7 +1943,7 @@ When we are attempting to provide search functionality, we run into some issues 
 
 This is where the inverted index comes in. An inverted index is an index mapping words to the IDs of the documents that contain them, and they are highly efficient in finding all the documents for a given query. We preprocess the input strings before using them as keys in our inverted index, tokenizing them, removing stop words as well as removing casing to get the most representative words for a given corpus.
 
-The beauty of indexes is that we can utilise multiple to provide different search functionality. For example, if one wanted to search for suffixes (terms that end with a certain word) you could store an index of all the reversed search terms, and reverse the query before searching. This works as the reversed search term will start with the revered query if the query is a suffix!
+The beauty of indexes is that we can utilise multiple to provide different search functionality. For example, if one wanted to search for suffixes (terms that end with a certain word) you could store an index of all the reversed search terms, and reverse the query before searching. This works as the reversed search term will start with the reversed query if the query is a suffix!
 
 The industry standard for search index technology is **Apache Lucene**, an open-source search index supporting many different types of indexes e.g. prefix, suffix, text, numbers, coordinates, etc. 
 
