@@ -170,6 +170,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Log-Based Message Brokers](#log-based-message-brokers)
     * [Task queues](#task-queues)
     * [Back pressure](#back-pressure)
+    * [Batch Processing](#batch-processing)
 * [Communication](#communication)
     * [Hypertext transfer protocol (HTTP)](#hypertext-transfer-protocol-http)
     * [HTTP Long and Short Polling](#http-long-and-short-polling)
