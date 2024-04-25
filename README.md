@@ -1548,7 +1548,7 @@ Generally, there are three drawbacks of caches:
 
 ##### -Ives
 
-* The cache may fail before the write goes through, leading to data loss
+* The cache may fail before the DB write goes through, leading to data loss. We can mitigate this using a [distributed transaction](#distributed-transactions) but this makes writes slow
 * We don't take advantage of locality, that is, the cache may contain many irrelevant items
 * If the cache node fails, then it will only be repopulated on new writes (although we can mitigate this by blending cache aside and write through)
 
