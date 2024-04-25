@@ -1422,7 +1422,7 @@ Since you can only store a limited amount of data in cache, you'll need to deter
   <i><a href=http://www.slideshare.net/tmatyashovsky/from-cache-to-in-memory-data-grid-introduction-to-hazelcast>Source: From cache to in-memory data grid</a></i>
 </p>
 
-The application is responsible for reading and writing from storage.  The cache does not interact with storage directly.  The application does the following:
+The application is responsible for reading and writing from storage. The cache does not interact with storage directly, with writes being sent directly to the DB. On read, the application does the following:
 
 * Look for entry in cache, resulting in a cache miss
 * Load entry from the database
@@ -1533,11 +1533,13 @@ Generally, there are three drawbacks of caches:
 ##### +Ives
 
 * Minimal storage - the cache will only contain what's needed
+* Writes are fast, going directly to the DB
 * Simple to implement
 
 ##### -Ives
 
-* Writes can be slow as we make three requests in the worst case: 1. A cache check, 2. A DB query, 3. A cache write
+* Reads can be slow as we make three requests in the worst case: 1. A cache check, 2. A DB query, 3. A cache write
+* The cache is more likely to contain stale data, as it may take a while for us to invalidate. This can be mitigated by invalidating cache entries on each new write, but this is slow
 
 #### Write Through
 
@@ -1551,6 +1553,7 @@ Generally, there are three drawbacks of caches:
 * The cache may fail before the DB write goes through, leading to data loss. We can mitigate this using a [distributed transaction](#distributed-transactions) but this makes writes slow
 * We don't take advantage of locality, that is, the cache may contain many irrelevant items
 * If the cache node fails, then it will only be repopulated on new writes (although we can mitigate this by blending cache aside and write through)
+* Writes can be slow, as each write is done twice
 
 #### Write Behind
 
