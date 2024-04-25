@@ -1077,7 +1077,17 @@ Similar to the advantages of [federation](#federation), sharding results in less
 * Joining data from multiple shards is more complex.
 * Sharding adds more hardware and additional complexity.
 
-###### Secondary Index
+##### Secondary Index
+
+A secondary index allows one to speed up reads when performing Hash-based sharding, by circumnavigating the loss of data locality. We store a duplicate copy of the data that follows the rules of our index ordering.
+
+There are two main types of secondary index:
+* _Local:_ In a local secondary index, a sorted copy of the data on each node is stored alongside the original hash-sharded partitions. This is a very simple schema that doesn't involve changing the way we perform writes, however, it means that to perform queries we need to retrieve the data from every node, slowing down reads
+* _Global:_ In a global secondary index, we combine hash-based sharding and range-based sharding. When we perform a write, we write not only to its hash-shard but also its range-shard, which may or may not be the same node. The idea is that we maintain two copies of our data, one which is sharded by hash and another which is sharded by range. Since writes must be performed across multiple nodes, they can be slowed down
+
+To maintain data integrity when using a global secondary index (in the case of a node going down before a write can go through, or a write failing to be transmitted over the network), we need to use [distributed transations](#distributed-transactions) to ensure that if a write happens across multiple nodes, it either goes through on both nodes or neither node.
+
+###### Distributed Transactions
 
 
 
