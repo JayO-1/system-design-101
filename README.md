@@ -1087,7 +1087,7 @@ There are two main types of secondary index:
 
 To maintain data integrity when using a global secondary index (in the case of a node going down before a write can go through, or a write failing to be transmitted over the network), we need to use [distributed transations](#distributed-transactions) to ensure that if a write happens across multiple nodes, it either goes through on all nodes or none of the nodes.
 
-###### Distributed Transactions
+##### Distributed Transactions
 
 Distributed transactions, or, two-phase commit, is a method for allowing us to atomically perform writes across multiple partitions.
 
