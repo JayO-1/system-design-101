@@ -133,6 +133,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
 * [Application layer](#application-layer)
     * [Microservices](#microservices)
     * [Service discovery](#service-discovery)
+    * [Containerization (Docker and Kubernetes)](#containerization-docker-and-kubernetes)
 * [Database](#database)
     * [Relational database management system (RDBMS)](#relational-database-management-system-rdbms)
         * [Master-slave replication](#master-slave-replication)
@@ -180,7 +181,6 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Remote procedure call (RPC)](#remote-procedure-call-rpc)
     * [Representational state transfer (REST)](#representational-state-transfer-rest)
 * [Security](#security)
-* [Containerization (Docker and Kubernetes)](#containerization-docker-and-kubernetes)
 * [Appendix](#appendix)
     * [Powers of two table](#powers-of-two-table)
     * [Latency numbers every programmer should know](#latency-numbers-every-programmer-should-know)
@@ -846,6 +846,10 @@ Pinterest, for example, could have the following microservices: user profile, fo
 ### Service Discovery
 
 Systems such as [Consul](https://www.consul.io/docs/index.html), [Etcd](https://coreos.com/etcd/docs/latest), and [Zookeeper](http://www.slideshare.net/sauravhaloi/introduction-to-apache-zookeeper) can help services find each other by keeping track of registered names, addresses, and ports.  [Health checks](https://www.consul.io/intro/getting-started/checks.html) help verify service integrity and are often done using an [HTTP](#hypertext-transfer-protocol-http) endpoint.  Both Consul and Etcd have a built in [key-value store](#key-value-store) that can be useful for storing config values and other shared data.
+
+### Containerization (Docker and Kubernetes)
+
+This section needs to be updated...
 
 ### Disadvantage(s): application layer
 
@@ -2075,10 +2079,6 @@ They serve to decouple authentication and authorization, where authentication is
 * [API security checklist](https://github.com/shieldfy/API-Security-Checklist)
 * [Security guide for developers](https://github.com/FallibleInc/security-guide-for-developers)
 * [OWASP top ten](https://www.owasp.org/index.php/OWASP_Top_Ten_Cheat_Sheet)
-
-## Containerization (Docker and Kubernetes)
-
-This section needs to be updated...
 
 ## Appendix
 
