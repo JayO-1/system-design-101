@@ -1349,6 +1349,10 @@ Caching improves page load times and can reduce the load on your servers and dat
 
 Databases often benefit from a uniform distribution of reads and writes across its partitions.  Popular items can skew the distribution, causing bottlenecks.  Putting a cache in front of a database can help absorb uneven loads and spikes in traffic.
 
+### When can we cache?
+
+Caching should only performed when data changes infrequently, and we expect read throughput to be high. We want to be disciplined about when to introduce a caching layer, as caches inevitably require additional overhead to maintain.
+
 ### Client caching
 
 Caches can be located on the client side (OS or browser), [server side](#reverse-proxy-web-server), or in a distinct cache layer.
