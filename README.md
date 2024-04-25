@@ -1550,10 +1550,10 @@ Generally, there are three drawbacks of caches:
 
 ##### -Ives
 
-* The cache may fail before the DB write goes through, leading to data loss. We can mitigate this using a [distributed transaction](#distributed-transactions) but this makes writes slow
+* Writes can be slow, as each write is done twice
+* The cache may fail before the DB write goes through, leading to data loss. We can mitigate this using replication and [distributed transactions](#distributed-transactions) but this makes writes even slower
 * We don't take advantage of locality, that is, the cache may contain many irrelevant items
 * If the cache node fails, then it will only be repopulated on new writes (although we can mitigate this by blending cache aside and write through)
-* Writes can be slow, as each write is done twice
 
 #### Write Behind
 
@@ -1563,8 +1563,9 @@ Generally, there are three drawbacks of caches:
 
 ##### -Ives
 
-* We increase the risk of data loss in the case of failure, due to having more degrees of separation between the service and the DB
-* Due to this, it is more complex to implement
+* We increase the risk of data loss/inconsistency in the case of failure or a slow write, due to having more degrees of separation between the service and the DB
+* If we want to minimise data loss/inconsistency, we need to think about replication and a distributed read/write lock on the rows that are supposed to be modified. If a read comes in for a locked row, that specific write can be performed immediately.
+    * However, this adds latency to reads - defeating the purpose of a cache!
 
 ### Source(s) and further reading
 
