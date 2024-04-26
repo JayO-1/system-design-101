@@ -1699,7 +1699,7 @@ Generally, there are three drawbacks of caches:
 
 Asynchronous workflows help reduce request times for expensive operations that would otherwise be performed in-line.  They can also help by doing time-consuming work in advance, such as periodic aggregation of data.
 
-Additionally, asynchronism can be helpful when processing streams (real-time data), as it allows us to decouple the incoming data from our back-end processes.
+Additionally, asynchronism can be helpful when processing streams (real-time data), as it allows us to decouple the incoming data from our back-end processes. Instead of needing O(n^2) connections (a connection from each producer to each consumer), we can support O(n) connections from each producer to the message broker and attach O(n) consumers to the message broker!
 
 Message queues facilitate the producer-subscriber pattern via their ability to receive, hold, and deliver messages.  If an operation is too slow to perform inline, you can use a message queue with the following workflow:
 
