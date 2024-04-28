@@ -850,7 +850,21 @@ Systems such as [Consul](https://www.consul.io/docs/index.html), [Etcd](https://
 
 ### Containerization (Docker and Kubernetes)
 
-This section needs to be updated...
+A container is a technology that allows you to package your application code, dependencies, environment variables, configuration settings, etc. into a single bundle.
+
+You can then share this bundle (called a container image) with other developers who need to run your application. It makes deploying your code significantly easier.
+
+Some benefits of using containers are:
+* Consistent Development Environments
+* Simplified Dependency Management
+* Faster Onboarding for New Devs
+* Reproducible Builds
+* Easier Scalability
+* Portability
+* Easier Versioning & Rollbacks
+* Configuration Management
+
+These are all benefits of using containers like Docker or LXC.
 
 ### Disadvantage(s): application layer
 
