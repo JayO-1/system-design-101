@@ -1789,7 +1789,7 @@ The user is not blocked and the job is processed in the background.  During this
 
 #### Exactly Once Message Processing
 
-The key feature of message brokers that allows them to be so effective in a distributed system is exactly **once message processing**.
+The key feature of message brokers that allows them to be so effective in a distributed system is **exactly once message processing**.
 
 This concept can be divided into two components:
 1. _At least once message processing:_ Facilitated via fault tolerance (disk persistence and replication) and consumer acknowledgements
