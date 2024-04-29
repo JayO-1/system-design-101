@@ -1752,6 +1752,8 @@ It involves configuring the DB to publish new write events to a message broker.
 
 Message brokers are useful here as they allow us to avoid the use of a two-phase commit to maintain consistency, however, this use case requires the use of a log-based message broker as it assumes that the broker itself will persist the events (crucial in the case of the write failing to go through to the secondary data store).
 
+It should be noted that these writes will be specific to the database, so a downside to this style of system is that it you cannot easily switch databases later, since the broker will contain DB-specific events.
+
 <p align="center">
   <br/>
   <img src="images/stream processing change data capture.png" width=600>
@@ -1761,7 +1763,20 @@ Message brokers are useful here as they allow us to avoid the use of a two-phase
 
 ### Event Sourcing
 
-Event sourcing is the concept of publishing incoming events straight to a message broker rather than
+Event sourcing is the concept of publishing incoming events straight to a message broker, before passing the data to a consumer. 
+
+The idea is that the consumer will read from the broker, and use the data to populate some downstream data store (usually a DB) or process the data and hand off the result to some downstream service.
+
+While this system is similar to the one employed in change data capture, the key difference is that the broker will contain DB-independent events - meaning switching DBs later is made easy.
+
+Just like in change data capture, this use case requires the use of a log-based message broker.
+
+<p align="center">
+  <br/>
+  <img src="images/stream processing event sourcing.png" width=600>
+  <br/>
+  <i>Event Sourcing</i>
+</p>
 
 ### Message Brokers
 
@@ -1771,6 +1786,10 @@ Message brokers facilitate the producer-subscriber pattern via their ability to 
 * A worker picks up the job from the queue, processes it, then signals the job is complete
 
 The user is not blocked and the job is processed in the background.  During this time, the client might optionally do a small amount of processing to make it seem like the task has completed.  For example, if posting a tweet, the tweet could be instantly posted to your timeline, but it could take some time before your tweet is actually delivered to all of your followers.
+
+#### Exactly Once Message Processing
+
+
 
 ### In-Memory Message Brokers
 
