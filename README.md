@@ -1735,9 +1735,10 @@ The underlying data structure for storing these buckets will typically be a Hash
 
 Off the back of this, the consumer is then able to compute sliding windows over the bucketed data. These sliding windows can either be computed by keeping the bucketed data in memory, or they can be computed by maintaining a fixed-size data structure like a LinkedList in memory - deleting the oldest item on each new time interval.
 
-Metric grouping allows us to answer questions like: How many events occurred in the last 5 minutes?
+Metric grouping allows us to answer questions like: How many events occurred in the last 5 minutes? or how many events occurred between 12:15 and 12:30?
 
 <p align="center">
+  <br/>
   <img src="images/stream processing time grouping.png" width=600>
   <br/>
   <i>Grouping Visualised</i>
@@ -1745,11 +1746,22 @@ Metric grouping allows us to answer questions like: How many events occurred in 
 
 ### Change Data Capture
 
+Change data capture is used in scenarios when we have some downstream data store that we wish to keep in sync with our database. The idea is that this data store's contents are _derived_ from the contents of the database, so must be kept consistent with the DB.
 
+It involves configuring the DB to publish new write events to a message broker.
+
+Message brokers are useful here as they allow us to avoid the use of a two-phase commit to maintain consistency, however, this use case requires the use of a log-based message broker as it assumes that the broker itself will persist the events (crucial in the case of the write failing to go through to the secondary data store).
+
+<p align="center">
+  <br/>
+  <img src="images/stream processing change data capture.png" width=600>
+  <br/>
+  <i>Example where a Search Index is kept consistent with the DB</i>
+</p>
 
 ### Event Sourcing
 
-
+Event sourcing is the concept of publishing incoming events straight to a message broker rather than
 
 ### Message Brokers
 
