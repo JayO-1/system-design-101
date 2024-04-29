@@ -1716,7 +1716,7 @@ Asynchronous workflows help reduce request times for expensive operations that w
 Additionally, asynchronism can be helpful when processing streams (real-time data), as it allows us to decouple the incoming data from our back-end processes. Instead of needing O(n^2) connections (a connection from each producer to each consumer), we can support O(n) connections from each producer to the message broker and attach O(n) consumers to the message broker!
 
 <p align="center">
-  <img src="images/stream processing O(n^2) vs O(n).png" width=400>
+  <img src="images/stream processing O(n^2) vs O(n).png" width=600>
   <br/>
   <i>O(n^2) Connections vs O(n) Connections</i>
 </p>
@@ -1725,12 +1725,31 @@ Most stream processing use cases are some variation of:
 * Metric/Log Time Grouping and Bucketing
 * Change Data Capture
 * Event Sourcing
+<br/>
 
 ### Metric/Log Time Grouping and Bucketing
 
+When bucketing, the consumer uses the timestamp of events in the queue to perform some form of bucketing operation based on the time of the event e.g. grouping events by the minute they occurred.
+
+The underlying data structure for storing these buckets will typically be a HashMap, however, this can vary.
+
+Off the back of this, the consumer is then able to compute sliding windows over the bucketed data. These sliding windows can either be computed by keeping the bucketed data in memory, or they can be computed by maintaining a fixed-size data structure like a LinkedList in memory - deleting the oldest item on each new time interval.
+
+Metric grouping allows us to answer questions like: How many events occurred in the last 5 minutes?
+
+<p align="center">
+  <img src="images/stream processing time grouping.png" width=600>
+  <br/>
+  <i>Grouping Visualised</i>
+</p>
+
 ### Change Data Capture
 
+
+
 ### Event Sourcing
+
+
 
 ### Message Brokers
 
