@@ -170,9 +170,9 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [In-Memory Message Brokers (Message Queues)](#in-memory-message-brokers-message-queues)
     * [Log-Based Message Brokers](#log-based-message-brokers)
     * [Task queues](#task-queues)
-    * [Back pressure](#back-pressure)
     * [Stream Joins](#stream-joins)
     * [Batch Processing](#batch-processing)
+    * [Back pressure](#back-pressure)
 * [Communication](#communication)
     * [Hypertext transfer protocol (HTTP)](#hypertext-transfer-protocol-http)
     * [HTTP Long and Short Polling](#http-long-and-short-polling)
@@ -1862,6 +1862,14 @@ Tasks queues receive tasks and their related data, runs them, then delivers thei
 
 **[Celery](https://docs.celeryproject.org/en/stable/)** has support for scheduling and primarily has Python support.
 
+### Stream Joins
+
+To be continued...
+
+### Batch Processing 
+
+To be continued...
+
 ### Back pressure
 
 The major issue with the producer-consumer pattern is that if queues start to grow significantly, there can be too many items in the queue for downstream consumers to be able to handle. This is because we spin up a thread for each task as rapidly as we can ([watch backpressure explained](https://www.youtube.com/watch?v=0KYoIvrM9VY)), and there is a limit on how many threads we can spin up on a given server before performance starts to degrade due to running out of memory. Threads may also start experiencing cache misses as the CPU cache fills up - leading to (slow) disk reads.
@@ -1872,14 +1880,6 @@ In the case of handling web requests, we can view the request-response pattern a
 * **Request Rejection:** Clients get a server busy or HTTP 503 status code to try again later if the queue is full.  Clients can retry the request at a later time, perhaps with [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff).
 * **Request Aggregation:** We handle requests in batches where possible, reducing the number of requests to process (this can happen before the request reaches the server, or after). An example of where this is used is in [OpenTelemetry](https://cloud.google.com/learn/what-is-opentelemetry#:~:text=OpenTelemetry%20provides%20a%20single%2C%20open,export%20of%20telemetry%20data%20complicated.), which preprocesses metric data in batches, to reduce the amount of data shared with downstream clients
 * **Debouncing:** Particularly useful in user-facing applications, we merge similar requests (think of a search bar.. we don't perform a request for every keystroke, but rather once the search term is complete)
-
-### Stream Joins
-
-To be continued...
-
-### Batch Processing 
-
-To be continued...
 
 ### Disadvantage(s): asynchronism
 
