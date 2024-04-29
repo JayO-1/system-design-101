@@ -166,10 +166,12 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
         * [Refresh-ahead](#refresh-ahead)
         * [Caching: In a Nutshell](#caching-in-a-nutshell)
 * [Asynchronism](#asynchronism)
+    * [Message Brokers](#message-brokers)
     * [In-Memory Message Brokers (Message Queues)](#in-memory-message-brokers-message-queues)
     * [Log-Based Message Brokers](#log-based-message-brokers)
     * [Task queues](#task-queues)
     * [Back pressure](#back-pressure)
+    * [Stream Joins](#stream-joins)
     * [Batch Processing](#batch-processing)
 * [Communication](#communication)
     * [Hypertext transfer protocol (HTTP)](#hypertext-transfer-protocol-http)
@@ -1854,10 +1856,6 @@ We can mitigate this by **"fanning out"** our queue, duplicating it across many 
 
 **Log-Based:** Ideal when ordering is essential for our use case e.g. asynchronously performing DB writes, and processing time-series data like from sensors
 
-### Stream Joins
-
-To be continued...
-
 ### Task queues
 
 Tasks queues receive tasks and their related data, runs them, then delivers their results.  They can support scheduling and can be used to run computationally-intensive jobs in the background.
@@ -1874,6 +1872,10 @@ In the case of handling web requests, we can view the request-response pattern a
 * **Request Rejection:** Clients get a server busy or HTTP 503 status code to try again later if the queue is full.  Clients can retry the request at a later time, perhaps with [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff).
 * **Request Aggregation:** We handle requests in batches where possible, reducing the number of requests to process (this can happen before the request reaches the server, or after). An example of where this is used is in [OpenTelemetry](https://cloud.google.com/learn/what-is-opentelemetry#:~:text=OpenTelemetry%20provides%20a%20single%2C%20open,export%20of%20telemetry%20data%20complicated.), which preprocesses metric data in batches, to reduce the amount of data shared with downstream clients
 * **Debouncing:** Particularly useful in user-facing applications, we merge similar requests (think of a search bar.. we don't perform a request for every keystroke, but rather once the search term is complete)
+
+### Stream Joins
+
+To be continued...
 
 ### Batch Processing 
 
