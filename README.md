@@ -1715,14 +1715,33 @@ Asynchronous workflows help reduce request times for expensive operations that w
 
 Additionally, asynchronism can be helpful when processing streams (real-time data), as it allows us to decouple the incoming data from our back-end processes. Instead of needing O(n^2) connections (a connection from each producer to each consumer), we can support O(n) connections from each producer to the message broker and attach O(n) consumers to the message broker!
 
-Message queues facilitate the producer-subscriber pattern via their ability to receive, hold, and deliver messages.  If an operation is too slow to perform inline, you can use a message queue with the following workflow:
+<p align="center">
+  <img src="images/stream processing O(n^2) vs O(n).png" width=400>
+  <br/>
+  <i>O(n^2) Connections vs O(n) Connections</i>
+</p>
+
+Most stream processing use cases are some variation of:
+* Metric/Log Time Grouping and Bucketing
+* Change Data Capture
+* Event Sourcing
+
+### Metric/Log Time Grouping and Bucketing
+
+### Change Data Capture
+
+### Event Sourcing
+
+### Message Brokers
+
+Message brokers facilitate the producer-subscriber pattern via their ability to receive, hold, and deliver messages.  If an operation is too slow to perform inline, you can use a message broker with the following workflow:
 
 * An application publishes a job to the queue, then notifies the user of job status
 * A worker picks up the job from the queue, processes it, then signals the job is complete
 
 The user is not blocked and the job is processed in the background.  During this time, the client might optionally do a small amount of processing to make it seem like the task has completed.  For example, if posting a tweet, the tweet could be instantly posted to your timeline, but it could take some time before your tweet is actually delivered to all of your followers.
 
-### In-Memory Message Brokers (Message Queues)
+### In-Memory Message Brokers
 
 <p align="center">
   <img src="images/In-Memory Message Broker.png">
@@ -1760,7 +1779,7 @@ However, since items must be read in order, _difficult to process items act as b
 We can mitigate this by **"fanning out"** our queue, duplicating it across many partitions and assigning subscribers to each duplicate.
 
 **Kafka** is a very common message broker
-* Messages are published to "topics" which are persisted in memory across various "partitions" for some time
+* Messages are published to "topics" which are persisted in memory across various distributed "partitions" for some time
 
 **Amazon Kinesis**
 
@@ -1769,6 +1788,10 @@ We can mitigate this by **"fanning out"** our queue, duplicating it across many 
 **In-Memory:** Ideal when we _don't care about ordering_ and we need _maximum throughput_ e.g posting content online -> all we care about is the end result
 
 **Log-Based:** Ideal when ordering is essential for our use case e.g. asynchronously performing DB writes, and processing time-series data like from sensors
+
+### Stream Joins
+
+To be continued...
 
 ### Task queues
 
