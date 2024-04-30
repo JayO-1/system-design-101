@@ -1882,7 +1882,9 @@ There are three main variations of stream joins:
 
 Here we join events from two or more streams. The idea is that we assign a message queue to each stream, and aggregate the different sources of data via a consumer.
 
-The idea is that the consumer will cache the events from a given stream in memory for some time, and join it with data from other streams when matching data points are received by joining data points that have the same IDs.
+The consumer will cache the events from a given stream in memory for some time, and join it with data from other streams when matching data points are received by joining data points that have the same IDs.
+
+The consumer can then publish the newly formed messages to some downstream service or more commonly another queue.
 
 #### Stream-Table Joins
 
@@ -1920,9 +1922,7 @@ We not only have to worry about ensuring consumers don't run out of memory, but 
 
 We can mitigate the effect of a down consumer via a write-ahead log, however, since we rely on a partitioned global state, this means that the other consumers will become out of sync while the consumer is down.
 
-This is where stream processing frameworks, like **Apache Flink** come in.
-
-
+This is where stream processing frameworks, like **Apache Flink** come in. They ensure that we manage the consumer state in a fault-tolerant way.
 
 ### Batch Processing 
 
