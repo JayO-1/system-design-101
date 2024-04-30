@@ -1940,6 +1940,7 @@ In the case of handling web requests, we can view the request-response pattern a
 * [What is a Message Queue?](https://www.youtube.com/watch?v=W4_aGb_MOls)
 * [Jordan Has No Life: Stream Processing](https://www.youtube.com/watch?v=oiPCC8G6ufg&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=42)
 * [Jordan Has No Life: In-Memory Brokers vs Log-Based Brokers](https://www.youtube.com/watch?v=_5mu7lZz5X4)
+* [StackOverflow: Understanding Kafka Topics and Partitions](https://stackoverflow.com/questions/38024514/understanding-kafka-topics-and-partitions)
 * [Jordan Has No Life: Stream Joins](https://www.youtube.com/watch?v=oiPCC8G6ufg&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=44)
 * [Jordan Has No Life: Apache Flink](https://www.youtube.com/watch?v=oiPCC8G6ufg&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=45)
 * [Back Pressure Explained](https://www.youtube.com/watch?v=0KYoIvrM9VY)
