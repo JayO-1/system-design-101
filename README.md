@@ -1864,6 +1864,56 @@ Tasks queues receive tasks and their related data, runs them, then delivers thei
 
 ### Stream Joins
 
+When we are working with streams, we sometimes wish to enrich the stream data with additional information. This information can come from a DB or even another stream.
+
+This is where stream joins come in. They involve utilising message brokers to facilitate joining data from different streams together.
+
+There are three main variations of stream joins:
+1. Stream-Stream Joins
+2. Stream-Table Joins
+3. Table-Table Joins
+
+#### Stream-Stream Joins
+
+<p align="center">
+  <img src="images/stream-stream joins.png">
+</p>
+<br>
+
+Here we join events from two or more streams. The idea is that we assign a message queue to each stream, and aggregate the different sources of data via a consumer.
+
+The idea is that the consumer will cache the events from a given stream in memory for some time, and join it with data from other streams when matching data points are received by joining data points that have the same IDs.
+
+#### Stream-Table Joins
+
+<p align="center">
+  <img src="images/stream-table joins.png">
+</p>
+<br>
+
+Here we join events from a stream to data points in a DB table. Message brokers are useful here as by using change data capture, we can turn DB writes into a stream and follow a similar process to stream-stream joins.
+
+The difference here is that the consumer will, instead of temporarily caching events from a given stream in memory, maintain an entire in-memory copy of the DB table.
+
+This also conveniently avoids requiring the consumer to make slow network calls to poll the DB every time a new event is received from the stream.
+
+However, we run the risk of the table being too big to fit in memory. In this case, we will want to partition the DB queue and assign a consumer to each partition.
+
+#### Table-Table Joins
+
+<p align="center">
+  <img src="images/table-table joins.png">
+</p>
+<br>
+
+Here we join the contents of two DB tables using message brokers. Similarly to stream-table joins, we use change data capture to convert the changes to the DB tables into streams.
+
+The idea is that we maintain an in-memory copy of both tables on the consumer, and use these copies to perform the joins.
+
+Just like with stream-table joins, this avoids having to poll the DBs to check for updates but we run into issues with memory on the consumer. 
+
+### Stream Processing Frameworks
+
 To be continued...
 
 ### Batch Processing 
@@ -1888,7 +1938,10 @@ In the case of handling web requests, we can view the request-response pattern a
 ### Source(s) and further reading
 
 * [What is a Message Queue?](https://www.youtube.com/watch?v=W4_aGb_MOls)
+* [Jordan Has No Life: Stream Processing](https://www.youtube.com/watch?v=oiPCC8G6ufg&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=42)
 * [Jordan Has No Life: In-Memory Brokers vs Log-Based Brokers](https://www.youtube.com/watch?v=_5mu7lZz5X4)
+* [Jordan Has No Life: Stream Joins](https://www.youtube.com/watch?v=oiPCC8G6ufg&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=44)
+* [Jordan Has No Life: Apache Flink](https://www.youtube.com/watch?v=oiPCC8G6ufg&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=45)
 * [Back Pressure Explained](https://www.youtube.com/watch?v=0KYoIvrM9VY)
 * [It's all a numbers game](https://www.youtube.com/watch?v=1KRYH75wgy4)
 * [Applying back pressure when overloaded](http://mechanical-sympathy.blogspot.com/2012/05/apply-back-pressure-when-overloaded.html)
