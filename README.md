@@ -1876,7 +1876,7 @@ There are three main variations of stream joins:
 #### Stream-Stream Joins
 
 <p align="center">
-  <img src="images/stream-stream joins.png">
+  <img src="images/stream-stream joins.png" width=500>
 </p>
 <br>
 
@@ -1887,7 +1887,7 @@ The idea is that the consumer will cache the events from a given stream in memor
 #### Stream-Table Joins
 
 <p align="center">
-  <img src="images/stream-table joins.png">
+  <img src="images/stream-table joins.png" width=500>
 </p>
 <br>
 
@@ -1902,7 +1902,7 @@ However, we run the risk of the table being too big to fit in memory. In this ca
 #### Table-Table Joins
 
 <p align="center">
-  <img src="images/table-table joins.png">
+  <img src="images/table-table joins.png" width=500>
 </p>
 <br>
 
