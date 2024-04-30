@@ -1404,9 +1404,9 @@ This is where Geospatial Indexes come in. They divide the world map into smaller
 
 There are two main techniques employed with Hash-based Geoindexes:
 
-1. Even Grid: We even divide and sub-divide the world into evenly sized grids. The issue with this approach is we don't take into account the density of items on the map - in an ideal world we would want more fine-grained cells for more densely populated areas and larger cells for sparsely populated areas. This would allow us to more finely pick out locations in dense areas.
+1. **Even Grid:** We even divide and sub-divide the world into evenly sized grids. The issue with this approach is we don't take into account the density of items on the map - in an ideal world we would want more fine-grained cells for more densely populated areas and larger cells for sparsely populated areas. This would allow us to more finely pick out locations in dense areas.
 
-2. Geohashing: An improvement on the even grid approach is geohashing. In geohashing, we recursively divide the world into grids, stopping once we have reached some predetermined size of the grid. The key innovation with geohashing is that each cell in the grid is given a unique binary number. This binary number encodes its 2D location in the overall grid, each pair of digits in the binary number denoting which region/subregion it is in e.g. for the cell assigned 0111, it would be located in sub-region 11 of the larger region 01.
+2. **Geohashing:** An improvement on the even grid approach is geohashing. In geohashing, we recursively divide the world into grids, stopping once we have reached some predetermined size of the grid. The key innovation with geohashing is that each cell in the grid is given a unique binary number. This binary number encodes its 2D location in the overall grid, each pair of digits in the binary number denoting which region/subregion it is in e.g. for the cell assigned 0111, it would be located in sub-region 11 of the larger region 01.
 
 <p align="center">
   <img src="images/geohashing.png" width=700>
