@@ -1914,7 +1914,15 @@ Just like with stream-table joins, this avoids having to poll the DBs to check f
 
 ### Stream Processing Frameworks
 
-To be continued...
+What quickly becomes apparent when attempting to perform stream joins is that the memory on the consumer is a bottleneck. 
+
+We not only have to worry about ensuring consumers don't run out of memory, but also data loss if a consumer goes down.
+
+We can mitigate the effect of a down consumer via a write-ahead log, however, since we rely on a partitioned global state, this means that the other consumers will become out of sync while the consumer is down.
+
+This is where stream processing frameworks, like **Apache Flink** come in.
+
+
 
 ### Batch Processing 
 
