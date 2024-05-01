@@ -1924,7 +1924,9 @@ What quickly becomes apparent when attempting to perform stream joins is that th
 
 We not only have to worry about ensuring consumers don't run out of memory, but also data loss if a consumer goes down.
 
-We can mitigate the effect of a down consumer via a write-ahead log, however, since we rely on a partitioned global state, this means that the other consumers will become out of sync while the consumer is down.
+We limit memory usage via queue partitioning, assigning a consumer to each partition, and we can mitigate the effect of a down consumer via a write-ahead log.
+
+However, since we may rely on a global state across multiple consumers, this means that other consumers will become out of sync while the consumer is down.
 
 The consumer may also fail before it can send confirmation that it has processed a message to the message broker. This means once it comes back up, it may process the same message again.
 
