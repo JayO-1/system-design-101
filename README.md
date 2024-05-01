@@ -1797,7 +1797,7 @@ This concept can be divided into two components:
 1. _At least once message processing:_ Facilitated via fault tolerance (disk persistence and replication) and consumer acknowledgements
 2. _No more than once message processing:_ Facilitated using two-phase commit (which we want to avoid) OR idempotency keys.
     * With idempotency keys, the broker associates a unique order-based id with each message and keeps track of which message the consumer has processed at a given time
-    * This allows the consumer to facilitate idempotent message processing
+    * This allows the consumer to facilitate idempotent message processing by ignoring messages it has already seen
 
 <p align="center">
   <br/>
