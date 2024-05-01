@@ -965,6 +965,7 @@ In the all-to-all topology, any write received by a node, whether that be from a
     * Version Vectors are also useful for _distributed counters_ (e.g. imagine a column which is a count of how many items have been seen, we will need to distribute the count!) as we can get the counter value by merging and then summing the contents of the vector
   * **Conflict-Free Replicated Data Types (CRDTs):** We use a data type that is optimised for use in distributed systems to encapsulate information in our application. The idea is that by making our data type more complex, we simplify the algorithms required to resolve conflicts and solve them automatically!
     * There are three main types of CRDTs:
+
       1. _Operational CRDTs:_ Instead of sending \[write, version vector] we simply distribute a singular operation (e.g. increment(sender id), add("A")) and manage the state in each node, minimising payload size. This state variable will contain state info not just for that node, but also for all the other nodes in the network, and we will aggregate them to get our final answer (refer to Jordan Has No Life Videos).
         - This type of CRDT is great for simple data fields, like a counter. In the case of a counter, in each node, we maintain a vector/map containing the counts/number of increment operations for all the other nodes in the network. To get the final count we just need to sum the values, and to allow for deletes, we can have a separate vector/map that is solely for deletes!
         - We can use a similar logic to build distributed sets, where we have an add state (containing items to be added) and a remove state. We update the add state and remove state using operational CRDTs, and make use of a state-based CRDT to manage state locally. This gives us access to a merge function with the same properties as those used by state-based CRDTs to merge new operations into the local state (simply the set union operation). The idea is that if we can keep the add and remove states consistent across a cluster of nodes, the final set will be whatever is left after all the removes are applied.
@@ -1794,10 +1795,11 @@ The user is not blocked and the job is processed in the background.  During this
 The key feature of message brokers that allows them to be so effective in a distributed system is **exactly once message processing**.
 
 This concept can be divided into two components:
+
 1. _At least once message processing:_ Facilitated via fault tolerance (disk persistence and replication) and consumer acknowledgements
 2. _No more than once message processing:_ Facilitated using two-phase commit (which we want to avoid) OR idempotency keys.
     * With idempotency keys, the broker associates a unique order-based id with each message and keeps track of which message the consumer has processed at a given time
-    * This allows the consumer to facilitate idempotent message processing by ignoring messages it has already seen
+    * This allows the consumer to facilitate idempotent message processing by ignoring messages it has already seen, and the producer to send messages in order
 
 <p align="center">
   <br/>
@@ -1924,11 +1926,22 @@ We not only have to worry about ensuring consumers don't run out of memory, but 
 
 We can mitigate the effect of a down consumer via a write-ahead log, however, since we rely on a partitioned global state, this means that the other consumers will become out of sync while the consumer is down.
 
+The consumer may also fail before it can send confirmation that it has processed a message to the message broker. This means once it comes back up, it may process the same message again.
+
 This is where stream processing frameworks, like **Apache Flink** come in. They ensure that we manage the consumer state in a _fault-tolerant_ way.
+
+They are not message brokers but rather run on top of our consumers.
 
 #### Apache Flink
 
+Apache Flink is a stream processing framework that ensures that each message only _affects the state once_. 
 
+It works by...
+
+Some advantages of Flink are:
+
+1. It runs with minimal additional processing overhead since the snapshots it generates are very lightweight and,
+2. It is declarative in nature, meaning that users can specify a target without knowing the details of implementation
 
 ### Batch Processing 
 
@@ -2048,6 +2061,7 @@ WebRTC is a peer-to-peer protocol designed for facilitating real-time connection
 WebRTC can be a good alternative to the options previously mentioned as peer-to-peer networks can take greater advantage of geographic locality and increase fault tolerance by eliminating the single source of failure. We can also use WebRTC in conjunction with the other methods mentioned, where we treat the other methods as fallbacks for when WebRTC fails e.g. the signalling server goes down. 
 
 To communicate via WebRTC, the user:
+
 1. Queries a 'signalling server', whose job is to allow users to find each other and establish the initial connection. When the user opens up a connection, the server will store some data about the user e.g. ID, video codec etc in a 'session description protocol' file
 2. Receives inbound connections. When another user attempts to join an existing connection (using the ID stored), the server stores a session description protocol file for the new user and connects them to the open connection they have requested to join
 
