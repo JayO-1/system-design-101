@@ -1954,6 +1954,8 @@ Some advantages of Flink are:
 1. It runs with minimal additional processing overhead since the snapshots it generates are very lightweight and,
 2. It is declarative in nature, meaning that users can specify a target without knowing the details of implementation
 
+However, it is important to note that _Flink can only affect the state of consumers it has access to_. Any state maintained outside this system will require additional processes to ensure exactly-once message processing.
+
 ### Batch Processing 
 
 To be continued...
