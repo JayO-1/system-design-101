@@ -1940,7 +1940,7 @@ Flink relies on a 'job manager' to facilitate this functionality. The job manage
 
 As these barrier messages move through the system, each time a consumer has received barrier messages from all its incoming queues, it will publish a snapshot of its state to an Amazon S3 instance alongside some barrier identifier.
 
-The idea is that when a consumer goes down, we can rollback state to the last barrier point that all consumers were at.
+The idea is that when a consumer goes down, we can roll back state to the last barrier point that all consumers were at - eliminating the need to replay all events.
 
 <p align="center">
   <img src="images/apache flink.png" width=500>
