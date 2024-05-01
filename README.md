@@ -1795,7 +1795,9 @@ The key feature of message brokers that allows them to be so effective in a dist
 
 This concept can be divided into two components:
 1. _At least once message processing:_ Facilitated via fault tolerance (disk persistence and replication) and consumer acknowledgements
-2. _No more than once message processing:_ Facilitated using two-phase commit (which we want to avoid) OR idempotency keys
+2. _No more than once message processing:_ Facilitated using two-phase commit (which we want to avoid) OR idempotency keys.
+    * With idempotency keys, the broker associates a unique order-based id with each message and keeps track of which message the consumer has processed at a given time
+    * This allows the consumer to facilitate idempotent message processing
 
 <p align="center">
   <br/>
@@ -1922,7 +1924,11 @@ We not only have to worry about ensuring consumers don't run out of memory, but 
 
 We can mitigate the effect of a down consumer via a write-ahead log, however, since we rely on a partitioned global state, this means that the other consumers will become out of sync while the consumer is down.
 
-This is where stream processing frameworks, like **Apache Flink** come in. They ensure that we manage the consumer state in a fault-tolerant way.
+This is where stream processing frameworks, like **Apache Flink** come in. They ensure that we manage the consumer state in a _fault-tolerant_ way.
+
+#### Apache Flink
+
+
 
 ### Batch Processing 
 
