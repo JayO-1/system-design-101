@@ -1936,7 +1936,16 @@ They are not message brokers but rather run on top of our consumers.
 
 Apache Flink is a stream processing framework that ensures that each message only _affects the state once_. 
 
-It works by...
+Flink relies on a 'job manager' to facilitate this functionality. The job manager will periodically publish 'barrier' messages to the message brokers coming out of the producer.
+
+As these barrier messages move through the system, each time a consumer has received barrier messages from all its incoming queues, it will publish a snapshot of its state to an Amazon S3 instance alongside some barrier identifier.
+
+The idea is that when a consumer goes down, we can rollback state to the last barrier point that all consumers were at.
+
+<p align="center">
+  <img src="images/apache flink.png" width=500>
+</p>
+<br>
 
 Some advantages of Flink are:
 
