@@ -1946,6 +1946,7 @@ The idea is that when a consumer goes down, we can roll back state to the last b
 
 <p align="center">
   <img src="images/apache flink.png" width=500>
+  <i>Flink example with multiple consumers</i>
 </p>
 <br>
 
