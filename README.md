@@ -2072,6 +2072,7 @@ In the case of handling web requests, we can view the request-response pattern a
 * [Jordan Has No Life: Apache Flink](https://www.youtube.com/watch?v=oiPCC8G6ufg&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=45)
 * [Jordan Has No Life: MapReduce](https://www.youtube.com/watch?v=lHp7M078nHo&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=39)
 * [ByteMonk: MapReduce](https://www.youtube.com/watch?v=cHGaQz0E7AU)
+* [Jordan Has No Life: Batch Job Data Joins](https://www.youtube.com/watch?v=gqxbQTVgdkI&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=40)
 * [Back Pressure Explained](https://www.youtube.com/watch?v=0KYoIvrM9VY)
 * [It's all a numbers game](https://www.youtube.com/watch?v=1KRYH75wgy4)
 * [Applying back pressure when overloaded](http://mechanical-sympathy.blogspot.com/2012/05/apply-back-pressure-when-overloaded.html)
