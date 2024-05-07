@@ -1946,9 +1946,10 @@ The idea is that when a consumer goes down, we can roll back state to the last b
 
 <p align="center">
   <img src="images/apache flink.png" width=500>
+  <br/>
   <i>Flink example with multiple consumers</i>
 </p>
-<br>
+<br/>
 
 Some advantages of Flink are:
 
@@ -1959,7 +1960,64 @@ However, it is important to note that _Flink can only affect the state of consum
 
 ### Batch Processing 
 
-To be continued...
+Batch processing is a technique for allowing us to process large datasets in _batches_, where a batch is some subset of the data.
+
+Just like in stream processing, batch jobs can be chained together, and we can also perform _batch joins_.
+
+Some of the most well-known batch processing frameworks are **MapReduce** and **Apache Spark**.
+
+#### MapReduce
+
+MapReduce is a batch processing framework that was designed to run on distributed file systems, so it is optimised for fault tolerance.
+
+Map Reduce relies on two key function types: _Mappers_ and _Reducers_.
+
+A Mapper takes some input data structure, and converts it into a key: value pair.
+
+<p align="center">
+  <img src="images/map-reduce mapper.png" width=500>
+  <br/>
+  <i>Mapper</i>
+</p>
+<br/>
+
+Meanwhile, a reducer takes a list of key: value pairs and turns it into a singular key: value pair.
+
+<p align="center">
+  <img src="images/map-reduce reducer.png" width=500>
+  <br/>
+  <i>Reducer</i>
+</p>
+<br/>
+
+The distributed processing pipeline then becomes:
+
+_Disk -> Map -> Sort by key -> Send to Reducers using consistent hashing -> Reduce -> Output_
+
+<p align="center">
+  <img src="images/map-reduce pipeline.png" width=500>
+  <br/>
+  <i>MapReduce Pipeline</i>
+</p>
+<br/>
+
+We sort the data by key before sending to the reducers because this ensures that the data is sorted on the reducer. This gives us the ability of not needing to maintain 'buckets' in memory when 
+doing the reduce step, since all the items with the same key will be colocated - meaning we can flush to disk as soon as we finish processing a key.
+
+<p align="center">
+  <img src="images/map-reduce reducer internals.png" width=500>
+  <br/>
+  <i>Reducer Internals - we only keep data for the current key in memory</i>
+</p>
+<br/>
+
+The main _advantages_ of Map Reduce include:
+
+1. The ability to use arbritary code for the mapper and the reducer
+2. Nodes can have other use-cases, and we perform the computation on the same node that holds the data. This minimises data movement!
+3. Failed mappers/reducers are restarted independently
+
+However, we generally do not use MapReduce in practice.
 
 ### Back pressure
 
@@ -1984,6 +2042,8 @@ In the case of handling web requests, we can view the request-response pattern a
 * [StackOverflow: Understanding Kafka Topics and Partitions](https://stackoverflow.com/questions/38024514/understanding-kafka-topics-and-partitions)
 * [Jordan Has No Life: Stream Joins](https://www.youtube.com/watch?v=oiPCC8G6ufg&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=44)
 * [Jordan Has No Life: Apache Flink](https://www.youtube.com/watch?v=oiPCC8G6ufg&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=45)
+* [Jordan Has No Life: MapReduce](https://www.youtube.com/watch?v=lHp7M078nHo&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=39)
+* [ByteMonk: MapReduce](https://www.youtube.com/watch?v=cHGaQz0E7AU)
 * [Back Pressure Explained](https://www.youtube.com/watch?v=0KYoIvrM9VY)
 * [It's all a numbers game](https://www.youtube.com/watch?v=1KRYH75wgy4)
 * [Applying back pressure when overloaded](http://mechanical-sympathy.blogspot.com/2012/05/apply-back-pressure-when-overloaded.html)
