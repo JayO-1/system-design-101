@@ -1966,7 +1966,13 @@ Just like in stream processing, batch jobs can be chained together, and we can a
 
 #### Batch Joins
 
+Sometimes we may want to perform a batch job that involves combining the results for two datasets together. 
 
+There are generally three main approaches: 
+1. **Sort-Shuffle+MergeJoin-Reduce:** This is an approach based on MapReduce.
+    * We apply MapReduce up until the sort step, and then when shuffling we ensure that the data across both datasets is located on the same reducer. We then design our reduce operation to combine both datasets
+    * The main downside of the sort-shuffle-reduce approach is that it is extremely slow - we will be sorting our **entire** dataset, and will have to send at least one **whole** dataset over the network!
+2. 
 
 ---
 
@@ -2010,9 +2016,11 @@ The distributed processing pipeline then becomes:
 
 Shuffling involves moving the data around such that all the data points for a given key are located on one reducer node, and we typically use _consistent hashing_ to do this. 
 
-Since the data is sorted locally before this happens we can perform a merge join on a given reducer node as the data comes in, meaning that the data for a given key will be in sorted order before reducing. A merge join works by joining the incoming data in sorted order using parallel lists containing the sorted data from each incoming data stream. By adding the smallest item at the head of each list to the output, the final output is sorted.
+Since the data is sorted locally before this happens we can perform a _merge join_ on a given reducer node as the data comes in, meaning that the data for a given key will be in sorted order before reducing. A merge join works by joining the incoming data in sorted order using parallel lists containing the sorted data from each incoming data stream. By adding the smallest item at the head of each list to the output, the final output is sorted.
 
-This is useful for the reduce step as we no longer need to maintain 'buckets' in memory, since all the items with the same key will be colocated, meaning we can flush to disk as soon as we finish processing a key.
+We minimise memory usage at run time while joining by writing to disk every time we poll from a given list to form the sorted output.
+
+This is also useful for the reduce step as we no longer need to maintain 'buckets' in memory to process each key, since all the items with the same key will be colocated, meaning we can flush to disk as soon as we finish processing a key.
 
 <p align="center">
   <img src="images/map-reduce reducer internals.png" width=500>
