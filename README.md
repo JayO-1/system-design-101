@@ -1968,7 +1968,7 @@ Just like in stream processing, batch jobs can be chained together, and we can a
 
 Sometimes we may want to perform a batch job that involves combining the results for two datasets together. 
 
-There are generally three main approaches: 
+There are generally two main approaches: 
 1. **Sort-Shuffle+Merge-Reduce:** This is an approach based on MapReduce.
     * We apply MapReduce up until the sort step, and then when shuffling we ensure that the data across both datasets is located on the same reducer. We then design our reduce operation to combine both datasets
     * The main downside of the sort-shuffle-reduce approach is that it is extremely slow - we will be sorting our **entire** dataset, and will have to send at least one **whole** dataset over the network!
@@ -1978,7 +1978,25 @@ There are generally three main approaches:
 </p>
 <br/>
 
-2. 
+2. **Broadcast/Partitioned Hash Joins:** This approach attempts to solve the main issue with the previous approach - the aggregation of all the data onto n nodes before the reduce step.
+    * Instead, we apply batch processing to both datasets in their entirety and perform the merge after the fact
+    * Since the data will be partitioned by key across the reducers, merging is simple assuming we can get one of the datasets to fit in memory.
+    * Sometimes a dataset after batch processing will fit in memory in its entirety, but other times it will need to be further partitioned into memory-sized partitions
+    * 
+
+<p align="center">
+  <img src="images/batch joins broadcast hash joins.png" width=500>
+  <br/>
+  <i>Broadcast Hash Joins</i>
+</p>
+<br/>
+
+<p align="center">
+  <img src="images/batch joins partitioned hash joins.png" width=500>
+  <br/>
+  <i>Partitioned Hash Joins</i>
+</p>
+<br/>
 
 ---
 
