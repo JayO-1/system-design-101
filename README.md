@@ -1968,7 +1968,7 @@ Some of the most well-known batch processing frameworks are **MapReduce** and **
 
 #### MapReduce
 
-MapReduce is a batch processing framework that was designed to run on distributed file systems, so it is optimised for fault tolerance.
+MapReduce is a batch processing framework that was designed to run on distributed file systems like _Hadoop_, so it is optimised for fault tolerance.
 
 Map Reduce relies on two key function types: _Mappers_ and _Reducers_.
 
@@ -1981,7 +1981,7 @@ A Mapper takes some input data structure, and converts it into a key: value pair
 </p>
 <br/>
 
-Meanwhile, a reducer takes a list of key: value pairs and turns it into a singular key: value pair.
+Meanwhile, a Reducer takes a list of key: value pairs and turns it into a singular key: value pair.
 
 <p align="center">
   <img src="images/map-reduce reducer.png" width=500>
@@ -1992,17 +1992,21 @@ Meanwhile, a reducer takes a list of key: value pairs and turns it into a singul
 
 The distributed processing pipeline then becomes:
 
-_Disk -> Map -> Sort by key -> Send to Reducers using consistent hashing -> Reduce -> Output_
+_Disk -> Map -> Sort locally by key -> Shuffle + Merge Join -> Reduce -> Output_
 
 <p align="center">
   <img src="images/map-reduce pipeline.png" width=500>
   <br/>
   <i>MapReduce Pipeline</i>
+  <br/>
 </p>
 <br/>
 
-We sort the data by key before sending to the reducers because this ensures that the data is sorted on the reducer. This gives us the ability of not needing to maintain 'buckets' in memory when 
-doing the reduce step, since all the items with the same key will be colocated - meaning we can flush to disk as soon as we finish processing a key.
+Shuffling involves moving the data around such that all the data points for a given key are located on one reducer node, and we typically use _consistent hashing_ to do this. 
+
+Since the data is sorted locally before this happens we can perform a merge join on a given reducer node as the data comes in, meaning that the data for a given key will be in sorted order before reducing.
+
+This is useful for the reduce step as we no longer need to maintain 'buckets' in memory, since all the items with the same key will be colocated, meaning we can flush to disk as soon as we finish processing a key.
 
 <p align="center">
   <img src="images/map-reduce reducer internals.png" width=500>
@@ -2014,10 +2018,16 @@ doing the reduce step, since all the items with the same key will be colocated -
 The main _advantages_ of Map Reduce include:
 
 1. The ability to use arbritary code for the mapper and the reducer
-2. Nodes can have other use-cases, and we perform the computation on the same node that holds the data. This minimises data movement!
-3. Failed mappers/reducers are restarted independently
+2. We perform the computation on the same node that holds the data. This minimises data movement!
+3. Failed mappers/reducers are restarted independently, as the job manager can rerun the appropriate part of the pipeline
+    * This even holds with network failures, as we can simply perform the sort/shuffle step again!
+    * Since failure is dealt with by rerunning a given process, the mapper/reducer must be **idempotent**
 
-However, we generally do not use MapReduce in practice.
+However, we generally do not use MapReduce in practice as it has many issues.
+
+#### Apache Spark
+
+
 
 ### Back pressure
 
