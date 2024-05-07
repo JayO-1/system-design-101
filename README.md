@@ -1969,9 +1969,15 @@ Just like in stream processing, batch jobs can be chained together, and we can a
 Sometimes we may want to perform a batch job that involves combining the results for two datasets together. 
 
 There are generally three main approaches: 
-1. **Sort-Shuffle+MergeJoin-Reduce:** This is an approach based on MapReduce.
+1. **Sort-Shuffle+Merge-Reduce:** This is an approach based on MapReduce.
     * We apply MapReduce up until the sort step, and then when shuffling we ensure that the data across both datasets is located on the same reducer. We then design our reduce operation to combine both datasets
     * The main downside of the sort-shuffle-reduce approach is that it is extremely slow - we will be sorting our **entire** dataset, and will have to send at least one **whole** dataset over the network!
+
+<p align="center">
+  <img src="images/batch joins sort-shuffle+merge-reduce.png" width=500>
+</p>
+<br/>
+
 2. 
 
 ---
