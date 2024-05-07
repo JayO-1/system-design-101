@@ -1964,6 +1964,12 @@ Batch processing is a technique for allowing us to process large datasets in _ba
 
 Just like in stream processing, batch jobs can be chained together, and we can also perform _batch joins_.
 
+#### Batch Joins
+
+
+
+---
+
 Some of the most well-known batch processing frameworks are **MapReduce** and **Apache Spark**.
 
 #### MapReduce
