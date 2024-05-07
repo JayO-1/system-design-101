@@ -1992,7 +1992,7 @@ Meanwhile, a Reducer takes a list of key: value pairs and turns it into a singul
 
 The distributed processing pipeline then becomes:
 
-_Disk -> Map -> Sort locally by key -> Shuffle + Merge Join -> Reduce -> Output_
+<p align="center"><i>Disk -> Map -> Sort locally by key -> Shuffle + Merge Join -> Reduce -> Output</i></p>
 
 <p align="center">
   <img src="images/map-reduce pipeline.png" width=500>
@@ -2004,14 +2004,16 @@ _Disk -> Map -> Sort locally by key -> Shuffle + Merge Join -> Reduce -> Output_
 
 Shuffling involves moving the data around such that all the data points for a given key are located on one reducer node, and we typically use _consistent hashing_ to do this. 
 
-Since the data is sorted locally before this happens we can perform a merge join on a given reducer node as the data comes in, meaning that the data for a given key will be in sorted order before reducing.
+Since the data is sorted locally before this happens we can perform a merge join on a given reducer node as the data comes in, meaning that the data for a given key will be in sorted order before reducing. A merge join works by joining the incoming data in sorted order using parallel lists containing the sorted data from each incoming data stream. By adding the smallest item at the head of each list to the output, the final output is sorted.
 
 This is useful for the reduce step as we no longer need to maintain 'buckets' in memory, since all the items with the same key will be colocated, meaning we can flush to disk as soon as we finish processing a key.
 
 <p align="center">
   <img src="images/map-reduce reducer internals.png" width=500>
   <br/>
-  <i>Reducer Internals - we only keep data for the current key in memory</i>
+  <i>Reducer Internals</i>
+  <br/>
+  <i>Sorting allows us to only keep data for the current key in memory</i>
 </p>
 <br/>
 
@@ -2025,7 +2027,7 @@ The main _advantages_ of Map Reduce include:
 
 ##### Conclusion
 
-MapReduce is a powerful framework, however, it has many flaws which mean it often isn't the best tool for the job.
+MapReduce is a powerful framework, however, it has many flaws which means it often isn't the best tool for the job.
 
 #### Apache Spark
 
