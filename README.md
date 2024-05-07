@@ -1978,11 +1978,12 @@ There are generally two main approaches:
 </p>
 <br/>
 
-2. **Broadcast/Partitioned Hash Joins:** This approach attempts to solve the main issue with the previous approach - the aggregation of all the data onto n nodes before the reduce step.
-    * Instead, we apply batch processing to both datasets in their entirety and perform the merge after the fact
-    * Since the data will be partitioned by key across the reducers, merging is simple assuming we can get one of the datasets to fit in memory.
-    * Sometimes a dataset after batch processing will fit in memory in its entirety, but other times it will need to be further partitioned into memory-sized partitions
-    * 
+2. **Broadcast/Partitioned Hash Joins:** This approach attempts to solve the main issue with the previous approach - the aggregation of all the data onto n nodes via consistent hashing _before_ the reduce step.
+    * Instead, we apply batch processing to both datasets in their entirety and perform the merge after the fact.
+    * _Broadcast Hash Joins:_ If one of the datasets in its entirety can fit in memory, we can simply send this dataset to all the partitions of the larger data set - merging this dataset into the larger one.
+    * _Partitioned Hash Joins:_ Other times, we will need to design our partitioning schema to partition one of the datasets into memory-sized partitions.
+    * As long as the memory-sized partitions are partitioned in the same way as the larger dataset, then the memory-sized partition for a given hash range can be sent to the corresponding partition of the larger dataset for merging.
+    * We can find the key in the larger dataset to merge on using a linear scan in O(n) or a binary search in O(log n), considering the data will be sorted. This merge happens directly on disk, minimising memory usage.
 
 <p align="center">
   <img src="images/batch joins broadcast hash joins.png" width=500>
@@ -1997,6 +1998,12 @@ There are generally two main approaches:
   <i>Partitioned Hash Joins</i>
 </p>
 <br/>
+
+##### Conclusion
+
+While hash joins are typically the better approach, they are not always feasible due to memory limitations.
+
+In cases like these, we can either fall back to Sort-Shuffle+Merge-Reduce, or get creative!
 
 ---
 
