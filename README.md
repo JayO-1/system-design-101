@@ -2018,12 +2018,14 @@ This is useful for the reduce step as we no longer need to maintain 'buckets' in
 The main _advantages_ of Map Reduce include:
 
 1. The ability to use arbritary code for the mapper and the reducer
-2. We perform the computation on the same node that holds the data. This minimises data movement!
+2. We perform the computation on the same node that holds the data. This minimises data movement
 3. Failed mappers/reducers are restarted independently, as the job manager can rerun the appropriate part of the pipeline
     * This even holds with network failures, as we can simply perform the sort/shuffle step again!
     * Since failure is dealt with by rerunning a given process, the mapper/reducer must be **idempotent**
 
-However, we generally do not use MapReduce in practice as it has many issues.
+##### Conclusion
+
+MapReduce is a powerful framework, however, it has many flaws which mean it often isn't the best tool for the job.
 
 #### Apache Spark
 
