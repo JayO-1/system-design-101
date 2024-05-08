@@ -2015,6 +2015,8 @@ Some of the most well-known batch processing frameworks are **MapReduce** and **
 
 MapReduce is a batch processing framework that was designed to run on distributed file systems like _Hadoop_, so it is optimised for fault tolerance.
 
+All computation happens on the same nodes that data is stored on, MapReduce simply being a process that is run on top of these nodes.
+
 Map Reduce relies on two key function types: _Mappers_ and _Reducers_.
 
 A Mapper takes some input data structure, and converts it into a key: value pair.
@@ -2093,7 +2095,9 @@ MapReduce operations in the chain will be unnecessarily persisted.
 
 #### Apache Spark
 
-Apache Spark aims to make batch chaining more efficient by enabling parallelism and 
+Apache Spark aims to make batch chaining more efficient by enabling parallelism and minimising disk writes/sorting.
+
+
 
 ### Back pressure
 
@@ -2121,6 +2125,7 @@ In the case of handling web requests, we can view the request-response pattern a
 * [Jordan Has No Life: MapReduce](https://www.youtube.com/watch?v=lHp7M078nHo&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=39)
 * [ByteMonk: MapReduce](https://www.youtube.com/watch?v=cHGaQz0E7AU)
 * [Jordan Has No Life: Batch Job Data Joins](https://www.youtube.com/watch?v=gqxbQTVgdkI&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=40)
+* [Jordan Has No Life: Apache Spark](https://www.youtube.com/watch?v=ZYTZ4JwRZqE&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=41)
 * [Back Pressure Explained](https://www.youtube.com/watch?v=0KYoIvrM9VY)
 * [It's all a numbers game](https://www.youtube.com/watch?v=1KRYH75wgy4)
 * [Applying back pressure when overloaded](http://mechanical-sympathy.blogspot.com/2012/05/apply-back-pressure-when-overloaded.html)
