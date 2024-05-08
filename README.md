@@ -2106,7 +2106,7 @@ Operators replace Mappers and Reducers, and can take on any arbitrary operation:
 * Shuffle
 * etc
 
-Meanwhile, RDDs replace the intermediary nodes in the batch chain, and are designed for performing computations solely in memory. They do not perform disk writes when computation is complete like the reducers in MapReduce.
+Meanwhile, RDDs replace the intermediary nodes in the batch chain, and are designed for performing computations solely in memory. Unlike the reducers in MapReduce, they do not perform disk writes when computation is complete.
 
 <p align="center">
   <img src="images/apache spark computation graph.png" width=500>
@@ -2115,11 +2115,13 @@ Meanwhile, RDDs replace the intermediary nodes in the batch chain, and are desig
 </p>
 <br/>
 
-Apache Spark makes the computation graph fault-tolerant by using different strategies depending on the type of dependency between any two Operators:
+Apache Spark makes the computation graph fault-tolerant by using different strategies on node failure depending on the type of dependency between any two nodes:
 
 ##### Narrow Dependency
 
-A narrow dependency is a dependency where all computation stays on one node between two steps of the Spark job. The map operation is a good example of a narrow dependency.
+A narrow dependency is a dependency where a node is dependent on only one preceding node in the computation graph. That is, data either stays on the same node, or is only sent to one subsequent node.
+
+The map operation is a good example of a narrow dependency, as it can be performed on the same node where a data partition is stored, or the data can be sent to another node to carry out mapping.
 
 <p align="center">
   <img src="images/apache spark narrow dependency.png" width=500>
@@ -2128,10 +2130,20 @@ A narrow dependency is a dependency where all computation stays on one node betw
 </p>
 <br/>
 
+Since narrow dependencies require no aggregation of data (shuffling), they can be performed on any node. Thus, we resolve them by loading the appropriate data partition from the original disk partition, spreading it across many other nodes, and repeating the relevant operations in parallel.
+
+<p align="center">
+  <img src="images/apache spark narrow dependency fault handling.png" width=500>
+  <br/>
+  <i>Narrow Dependency Fault Handling</i>
+</p>
+<br/>
 
 ##### Wide Dependency
 
-A wide dependency is...
+A wide dependency is a dependency where the computation is dependent on the results of multiple preceding nodes.
+
+A good example of a wide dependency is the shuffle operation.
 
 <p align="center">
   <img src="images/apache spark wide dependency.png" width=500>
@@ -2139,6 +2151,28 @@ A wide dependency is...
   <i>Wide Dependency Visualised</i>
 </p>
 <br/>
+
+We deal with wide dependencies by persisting the state to disk for any node that possesses a wide dependency as soon as it receives all of the data from its incoming nodes.
+
+If a node fails, we can simply restore it from disk.
+
+This also functions as a form of 'checkpoint', meaning that subsequent narrow dependencies will be able to use the last wide dependency as the reset point in case of failure.
+
+<p align="center">
+  <img src="images/apache spark wide dependency fault handling.png" width=500>
+  <br/>
+  <i>Wide Dependency Fault Handling</i>
+</p>
+<br/>
+
+##### Conclusion
+
+Apache Spark offers major speed improvements on MapReduce, by:
+1. Parallelising computation
+2. Storing intermediate state in memory rather than on disk
+3. Eliminating unnecessary sorting
+
+However, the main downside is that our partitioning schema will need to ensure that each partition fits in memory.
 
 ### Back pressure
 
