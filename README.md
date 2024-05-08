@@ -2071,6 +2071,7 @@ The main _advantages_ of Map Reduce include:
 1. The ability to use arbitrary code for the mapper and the reducer
 2. We perform the computation on the same node that holds the data. This minimises data movement
 3. Failed mappers/reducers are restarted independently, as the job manager can rerun the appropriate part of the pipeline
+    * Data is stored on the same nodes the Mappers/Reducers run on, so these steps are easily repeated
     * This even holds with network failures, as we can simply perform the sort/shuffle step again!
     * Since failure is dealt with by rerunning a given process, the mapper/reducer must be **idempotent**
 4. The system is easily scalable, as adding new nodes is a matter of simply sending the data and the mapper/reducer code
@@ -2097,7 +2098,32 @@ MapReduce operations in the chain will be unnecessarily persisted.
 
 Apache Spark aims to make batch chaining more efficient by enabling parallelism and minimising disk writes/sorting.
 
+It does so using RDDs (Resilient Distributed Datasets), Operators and by _maintaining a fault-tolerant computation graph_.
 
+Operators replace Mappers and Reducers, and can take on any arbitrary operation:
+* Map
+* Reduce
+* Shuffle
+* etc
+
+Meanwhile, RDDs replace the intermediary nodes in the batch chain, and are designed for performing computations solely in memory. They do not perform disk writes when computation is complete like the reducers in MapReduce.
+
+<p align="center">
+  <img src="images/apache spark computation graph.png" width=500>
+  <br/>
+  <i>Apache Spark Computation Graph</i>
+</p>
+<br/>
+
+Apache Spark makes the computation graph fault-tolerant by using different strategies depending on the type of dependency between any two Operators:
+
+##### Narrow Dependencies
+
+A narrow dependency is a dependency where all computation stays on one node between two steps of the Spark job. The map operation is a good example of a narrow dependency.
+
+
+
+##### Wide Dependency
 
 ### Back pressure
 
