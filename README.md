@@ -1962,7 +1962,9 @@ However, it is important to note that _Flink can only affect the state of consum
 
 Batch processing is a technique for allowing us to process large datasets in _batches_, where a batch is some subset of the data.
 
-Just like in stream processing, batch jobs can be chained together, and we can also perform _batch joins_.
+Just like in stream processing, batch jobs can be:
+* Chained together
+* Combined via _batch joins_
 
 #### Batch Joins
 
@@ -2064,11 +2066,12 @@ This is also useful for the reduce step as we no longer need to maintain 'bucket
 
 The main _advantages_ of Map Reduce include:
 
-1. The ability to use arbritary code for the mapper and the reducer
+1. The ability to use arbitrary code for the mapper and the reducer
 2. We perform the computation on the same node that holds the data. This minimises data movement
 3. Failed mappers/reducers are restarted independently, as the job manager can rerun the appropriate part of the pipeline
     * This even holds with network failures, as we can simply perform the sort/shuffle step again!
     * Since failure is dealt with by rerunning a given process, the mapper/reducer must be **idempotent**
+4. The system is easily scalable, as adding new nodes is a matter of simply sending the data and the mapper/reducer code
 
 ##### Conclusion
 
