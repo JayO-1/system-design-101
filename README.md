@@ -2117,13 +2117,28 @@ Meanwhile, RDDs replace the intermediary nodes in the batch chain, and are desig
 
 Apache Spark makes the computation graph fault-tolerant by using different strategies depending on the type of dependency between any two Operators:
 
-##### Narrow Dependencies
+##### Narrow Dependency
 
 A narrow dependency is a dependency where all computation stays on one node between two steps of the Spark job. The map operation is a good example of a narrow dependency.
 
+<p align="center">
+  <img src="images/apache spark narrow dependency.png" width=500>
+  <br/>
+  <i>Narrow Dependency Visualised</i>
+</p>
+<br/>
 
 
 ##### Wide Dependency
+
+A wide dependency is...
+
+<p align="center">
+  <img src="images/apache spark wide dependency.png" width=500>
+  <br/>
+  <i>Wide Dependency Visualised</i>
+</p>
+<br/>
 
 ### Back pressure
 
