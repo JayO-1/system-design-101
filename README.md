@@ -1960,7 +1960,7 @@ However, it is important to note that _Flink can only affect the state of consum
 
 ### Batch Processing 
 
-Batch processing is a technique for allowing us to process large datasets in _batches_, where a batch is some subset of the data.
+Batch processing is a technique for allowing us to process _large, distributed datasets_ in _batches_, where a batch is some subset of the data.
 
 Just like in stream processing, batch jobs can be:
 * Chained together
@@ -2077,9 +2077,23 @@ The main _advantages_ of Map Reduce include:
 
 MapReduce is a powerful framework, however, it has many flaws which means it often isn't the best tool for the job.
 
+As previously mentioned, we will typically chain batch jobs together to achieve more complex functionality. 
+
+When chaining MapReduce operations together, the entire chain can only be executed as fast as the slowest MapReduce operation, as MapReduce is not designed for parallelising chained jobs.
+
+Additionally, chaining MapReduce jobs means there will be a lot of unnecessary sorting and disk usage, due to how MapReduce works - each complete MapReduce operation performs a write to disk, meaning intermediary
+MapReduce operations in the chain will be unnecessarily persisted.
+
+<p align="center">
+  <img src="images/map-reduce issues.png" width=500>
+  <br/>
+  <i>Problems with MapReduce</i>
+</p>
+<br/>
+
 #### Apache Spark
 
-
+Apache Spark aims to make batch chaining more efficient by enabling parallelism and 
 
 ### Back pressure
 
