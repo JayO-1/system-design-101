@@ -1502,7 +1502,9 @@ The client will:
 
 #### Writing Files in HDFS
 
+To perform a write, the client will query the name node for the location of nearby data nodes to write to.
 
+The name node will designate the nearest few data nodes to the client as the primary locations to write to, based on the location of their data centre.
 
 <p align="center">
   <br/>
@@ -1510,6 +1512,40 @@ The client will:
   <br/>
   <i>HDFS Writes</i>
 </p>
+
+Similarly to concepts discussed in leaderless replication, we use a form of 'anti-entropy' within a given data centre to replicate the data throughout the cluster.
+
+Unlike anti-entropy however, where we rely on a Gossip protocol for data propagation, in Hadoop we use a _replication pipeline_.
+
+<p align="center">
+  <br/>
+  <img src="images/hdfs writes - replication pipeline.png" width=600>
+  <br/>
+  <i>HDFS Replication Pipeline</i>
+</p>
+
+The replication pipeline relies on acknowledgements from each node the data is replicated to for the write to be complete, which can cause issues in the case of network error.
+
+We can mitigate these issues by retrying failed writes, or by utilising the name node to ensure eventual consistency in the background by polling for stale file vers.
+
+In either case - it is impossible to guarantee strong consistency with HDFS!
+
+#### Name Node: A Single Point of Failure
+
+The base design of the system means that the name node will act as a single source of failure.
+
+We eliminate this issue by combining the write-ahead log with Zookeeper. 
+
+<p align="center">
+  <br/>
+  <img src="images/hdfs single point of failure.png" width=600>
+  <br/>
+  <i>HDFS: Single Point of Failure</i>
+</p>
+
+The idea is that the WAL will be distributed across multiple nodes, allowing a secondary name node to easily resume state in case of failure.
+
+Zookeeper works well here as it facilitates strongly consistent distributed consensus, meaning the write-ahead log won't be lost.
 
 #### Source(s) and further reading
 
