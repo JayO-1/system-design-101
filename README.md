@@ -1038,7 +1038,7 @@ This is where distributed consensus comes in.
 
 It is the idea of allowing us to find a 'consensus' on the order of writes in a distributed system - every node agrees on the ordering.
 
-Distributed consensus is a component of almost every modern system, and it is implemented using a variety of algorithms.
+Distributed consensus is a component of almost every modern system (e.g. for facilitating failover, master-slave replication, etc), and it is implemented using a variety of algorithms.
 
 The **Raft** algorithm is the simplest and most common.
 
@@ -1052,7 +1052,33 @@ Distributed consensus algorithms can generally be split into two components of f
 
 ###### Raft Leader Election
 
+The current leader will periodically send a heartbeat to its follower nodes. 
 
+If the follower doesn't receive a heartbeat from the leader after some predetermined length of time, the follower node will nominate itself as leader and begin an election.
+
+The node will ping all other nodes, in an attempt to receive confirmation that it is safe to become the leader.
+
+If a candidate hears 'yes' from a quorum (majority) of nodes, then it has won the election!
+
+<p align="center">
+  <img src="images/raft leader election.png" width=700>
+  <br/>
+  <i>Leader Election Visualised</i>
+  <br/>
+</p>
+
+The decision to respond 'yes' or 'no' from a given node is based on the epoch number (term number in the diagram, denoting which generation of leader the node belongs to) and the node's local state in the form of a log.
+
+For a node to respond with 'yes', the candidate must have both a higher epoch number (signifying it's from a later generation) and the candidate's state must be the same as or further ahead than the node's local state.
+
+---
+
+Why this process works:
+
+1. Old leaders cannot come back up due to epoch numbers
+    * Old leaders are guaranteed to be from a previous epoch and possess a stale state
+2. We cannot elect two leaders simultaneously, since only one leader will achieve a majority vote
+3. The elected leader will have an up-to-date log, so can backfill stale follower nodes
 
 ###### Raft Writes
 
@@ -1081,7 +1107,10 @@ Distributed consensus algorithms can generally be split into two components of f
   * We can implement idempotency in web apps using an 'idempotency key', which uniquely identifies a given request. When duplicate requests come in, we can simply serve them via a cache
 * [Gaurav Sen: Merkle Trees](https://www.youtube.com/watch?v=qHMLy5JjbjQ)
 * [How Github uses Merkle Trees](https://www.youtube.com/watch?v=ronoCeMzfJ4)
-* []()
+* [Jordan Has No Life: Linearizable Databases](https://www.youtube.com/watch?v=Al2JNJBGG30&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=28)
+* [Jordan Has No Life: Raft Leader Election](https://www.youtube.com/watch?v=Al2JNJBGG30&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=29)
+* [Jordan Has No Life: Raft Writes](https://www.youtube.com/watch?v=Al2JNJBGG30&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=30)
+* [Jordan Has No Life: Zookeeper](https://www.youtube.com/watch?v=Al2JNJBGG30&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=31)
 * [Scalability, availability, stability, patterns](http://www.slideshare.net/jboner/scalability-availability-stability-patterns/)
 * [Multi-master replication](https://en.wikipedia.org/wiki/Multi-master_replication)
 
