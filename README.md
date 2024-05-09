@@ -1458,7 +1458,7 @@ A common implementation is the Quadtree, which subdivides a region into four reg
 
 ### Hadoop (HDFS)
 
-HDFS, or, Hadoop Distributed File Storage, is a distributed file store with "rack aware" storage. That is, we take advantage of the location of each node to minimise network latency.
+HDFS, or, Hadoop Distributed File Storage, is a distributed file store with "rack aware" storage. That is, we take advantage of the location of each data centre (DC) to minimise network latency.
 
 It is fault tolerant, and is made up of two different types of nodes: a name node and data nodes.
 
