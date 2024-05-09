@@ -1112,13 +1112,22 @@ It takes the form of a key-value store, that stores information like:
 * Replication schema
 * Partitioning schema
 
-Coordination services will also be responsible for facilitating failover by electing new leaders when a node goes down.
-
----
+Coordination services will also be responsible for facilitating failover by electing new leaders when a node goes down, since they are built on top of distributed consensus algorithms.
 
 Examples include:
 * ZooKeeper
 * etcd
+
+---
+
+While distributed consensus algorithms guarantee linearizable reads/writes, they only ensure that writes reach a majority of the nodes (remember, writes occur in quorums!)
+
+This means that on read, clients could potentially read a node with old data.
+
+This can be mitigated by either:
+1. Forcing the client to read solely from the leader
+2. Using a SYNC message
+    * When a client  
 
 ##### Disadvantage(s): replication
 
