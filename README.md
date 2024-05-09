@@ -151,6 +151,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [SQL or NoSQL](#sql-or-nosql)
     * [Search Indexes](#search-indexes)
     * [GeoSpatial Databases](#geospatial-databases)
+    * [Hadoop (HDFS)](#hadoop-hdfs)
 * [Cache](#cache)
     * [Client caching](#client-caching)
     * [CDN caching](#cdn-caching)
@@ -1454,6 +1455,65 @@ A common implementation is the Quadtree, which subdivides a region into four reg
 
 * [Jordan Has No Life: Geospatial Indexes](https://www.youtube.com/watch?v=9BewOp5Gaw8)
 * [ByteByteGo: Design a location-based service](https://www.youtube.com/watch?v=M4lR_Va97cQ)
+
+### Hadoop (HDFS)
+
+HDFS, or, Hadoop Distributed File Storage, is a distributed file store with "rack aware" storage. That is, we take advantage of the location of each node to minimise network latency.
+
+It is fault tolerant, and is made up of two different types of nodes: a name node and data nodes.
+
+<p align="center">
+  <br/>
+  <img src="images/hdfs architecture.png" width=600>
+  <br/>
+  <i>HDFS Architecture</i>
+</p>
+
+The name node is responsible for managing metadata about the organisation of the dataset in memory, like:
+* Which node a file is stored on
+* The ver. number of the file on a given node
+
+<p align="center">
+  <br/>
+  <img src="images/hdfs name node.png" width=600>
+  <br/>
+  <i>HDFS Name Node Internals</i>
+</p>
+
+When the name node starts up, it will request the relevant location information from each server, and ensure there is an appropriate amount of replication e.g. files are replicated across enough nodes. 
+
+To facilitate fault tolerance, a write-ahead log is used to persist the persist the metadata in case of failures. Hadoop optimises restoration by maintaining an index of which point the name server was up to in the write-ahead log.
+
+#### Reading Files in HDFS
+
+In HDFS, we assume that reads will be occur at a much greater ratio than writes.
+
+<p align="center">
+  <br/>
+  <img src="images/hdfs reads.png" width=600>
+  <br/>
+  <i>HDFS Reads</i>
+</p>
+
+The client will:
+1. Query the name node for file location. The name node will optimise for data node location
+2. Cache the file location (avoiding querying the name server for every read)
+3. Perform the read
+
+#### Writing Files in HDFS
+
+
+
+<p align="center">
+  <br/>
+  <img src="images/hdfs writes.png" width=600>
+  <br/>
+  <i>HDFS Writes</i>
+</p>
+
+#### Source(s) and further reading
+
+* [Jordan Has No Life: Hadoop/HDFS](https://www.youtube.com/watch?v=ix88Zj0asjs&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=37)
 
 ## Cache
 
