@@ -1005,21 +1005,21 @@ However, this approach leads to some issues. The Gossip protocol makes no guaran
      * Designing a good hash function is crucial in Merkle trees, as this will determine the efficacy of diff detection
 
 <p align="center">
-  <img src="images/merkle trees.png" width=700>
+  <img src="images/merkle trees.png" width=500>
   <br/>
   <i>Merkle Trees</i>
   <br/>
 </p>
 
 <p align="center">
-  <img src="images/github merkle trees.png" width=700>
+  <img src="images/github merkle trees.png" width=500>
   <br/>
   <i>Merkle Trees in GitHub</i>
   <br/>
 </p>
 
 <p align="center">
-  <img src="images/comparing merkle trees.png" width=700>
+  <img src="images/comparing merkle trees.png" width=500>
   <br/>
   <i>Comparing Merkle Trees</i>
 </p>
@@ -1061,7 +1061,7 @@ The node will ping all other nodes, in an attempt to receive confirmation that i
 If a candidate hears 'yes' from a quorum (majority) of nodes, then it has won the election!
 
 <p align="center">
-  <img src="images/raft leader election.png" width=700>
+  <img src="images/raft leader election.png" width=500>
   <br/>
   <i>Leader Election Visualised</i>
   <br/>
@@ -1081,6 +1081,10 @@ Why this process works:
 3. The elected leader will have an up-to-date log, so can backfill stale follower nodes
 
 ###### Raft Writes
+
+
+
+##### Zookeeper
 
 
 
