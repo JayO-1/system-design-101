@@ -1080,9 +1080,9 @@ Why this process works:
 2. We cannot elect two leaders simultaneously, since only one leader will achieve a majority vote
 3. The elected leader will have an up-to-date log, so can backfill stale follower nodes
 
-##### Raft Writes
+##### Raft Reads & Writes
 
-Raft ensures strong consistency, by relying on the elected leader to manage all writes, and in some cases, even reads.
+Raft ensures strong consistency, by relying on the elected leader to manage all reads and writes.
 
 Clients will publish writes to the leader which, accounting for the epoch number and state of the writes on a given follower node, will coordinate the write across a quorum (majority) of nodes.
 
@@ -1093,9 +1093,11 @@ However, unlike transactions, the writes performed with Raft will be identical, 
 
 ---
 
-Raft is very useful, however, it is **slow** due to the use of a single leader and the need for coordination.
+Raft is very useful, however, it is **slow** due to the use of a single leader and the need for coordination. 
 
-This means we do not want to use Raft all the time, but rather for use cases where data _must_ be strongly consistent.
+If we want to improve read throughput, we could use quorum reads, where the quorum always includes the leader.
+
+Raft should only be implemented for use cases where data _must_ be strongly consistent.
 
 This includes: Distributed key-value stores (caches), distributed configuration/coordination services, distributed locks, etc.
 
