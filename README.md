@@ -1032,17 +1032,17 @@ However, this approach leads to some issues. The Gossip protocol makes no guaran
 
 #### Distributed Consensus
 
-A big issue we run into with distributed systems is finding a way of ensuring a **guaranteed** global ordering of writes/events.
+A big issue we run into with distributed systems is finding a way of ensuring a **strongly consistent** global ordering of writes.
 
 This is where distributed consensus comes in.
 
-It is the idea of allowing us to find a 'consensus' on the order of writes in a distributed system - every node agrees on the ordering.
+It is the idea of allowing us to find a 'consensus' on the order of writes in a distributed system - every node agrees on the ordering making reads _linearizable_.
 
 Distributed consensus is a component of almost every modern system (e.g. for facilitating failover, master-slave replication, etc), and it is implemented using a variety of algorithms.
 
 The **Raft** algorithm is the simplest and most common.
 
-##### Raft
+#### Raft
 
 Raft is a distributed consensus algorithm that allows us to build a distributed log that maintains the linearizability (ordering) of writes.
 
@@ -1050,7 +1050,7 @@ Distributed consensus algorithms can generally be split into two components of f
 * Leader Election
 * Strongly consistent distributed writes, guaranteed through the elected leader
 
-###### Raft Leader Election
+##### Raft Leader Election
 
 The current leader will periodically send a heartbeat to its follower nodes. 
 
@@ -1080,13 +1080,43 @@ Why this process works:
 2. We cannot elect two leaders simultaneously, since only one leader will achieve a majority vote
 3. The elected leader will have an up-to-date log, so can backfill stale follower nodes
 
-###### Raft Writes
+##### Raft Writes
 
+Raft ensures strong consistency, by relying on the elected leader to manage all writes, and in some cases, even reads.
 
+Clients will publish writes to the leader which, accounting for the epoch number and state of the writes on a given follower node, will coordinate the write across a quorum (majority) of nodes.
 
-##### Zookeeper
+The idea is that the leader guarantees that a majority of nodes will receive the new data. This is a very similar process to distributed transactions in the sense that the leader must receive
+confirmation from the quorum before the write is 'committed'. 
 
+However, unlike transactions, the writes performed with Raft will be identical, while distributed transactions allow us to perform two different writes simultaneously.
 
+---
+
+Raft is very useful, however, it is **slow** due to the use of a single leader and the need for coordination.
+
+This means we do not want to use Raft all the time, but rather for use cases where data _must_ be strongly consistent.
+
+This includes: Distributed key-value stores (caches), distributed configuration/coordination services, distributed locks, etc.
+
+We will typically avoid using Raft in databases due to speed, however, it is possible.
+
+#### Coordination Services
+
+While consensus is slow, it is crucial for some use cases - the most important of which being coordination services.
+
+Coordination services, as the name suggests, help manage metadata important for the upkeep of a distributed system.
+
+It takes the form of a key-value store, that stores information like:
+* IPs for back-end servers and databases
+* Replication schema
+* Partitioning schema
+
+Coordination services will also be responsible for facilitating failover by electing new leaders when a node goes down.
+
+Example include:
+* ZooKeeper
+* etcd
 
 ##### Disadvantage(s): replication
 
