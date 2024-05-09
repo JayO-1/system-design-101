@@ -1032,11 +1032,31 @@ However, this approach leads to some issues. The Gossip protocol makes no guaran
 
 #### Distributed Consensus
 
-The main issue with the aforementioned replication schemas is that while they ensure writes are not lost, they provide no way of ensuring a **guaranteed** global ordering of writes/events.
+A big issue we run into with distributed systems is finding a way of ensuring a **guaranteed** global ordering of writes/events.
 
 This is where distributed consensus comes in.
 
-It allows...
+It is the idea of allowing us to find a 'consensus' on the order of writes in a distributed system - every node agrees on the ordering.
+
+Distributed consensus is a component of almost every modern system, and it is implemented using a variety of algorithms.
+
+The **Raft** algorithm is the simplest and most common.
+
+##### Raft
+
+Raft is a distributed consensus algorithm that allows us to build a distributed log that maintains the linearizability (ordering) of writes.
+
+Distributed consensus algorithms can generally be split into two components of functionality:
+* Leader Election
+* Strongly consistent distributed writes, guaranteed through the elected leader
+
+###### Raft Leader Election
+
+
+
+###### Raft Writes
+
+
 
 ##### Disadvantage(s): replication
 
@@ -1061,6 +1081,7 @@ It allows...
   * We can implement idempotency in web apps using an 'idempotency key', which uniquely identifies a given request. When duplicate requests come in, we can simply serve them via a cache
 * [Gaurav Sen: Merkle Trees](https://www.youtube.com/watch?v=qHMLy5JjbjQ)
 * [How Github uses Merkle Trees](https://www.youtube.com/watch?v=ronoCeMzfJ4)
+* []()
 * [Scalability, availability, stability, patterns](http://www.slideshare.net/jboner/scalability-availability-stability-patterns/)
 * [Multi-master replication](https://en.wikipedia.org/wiki/Multi-master_replication)
 
