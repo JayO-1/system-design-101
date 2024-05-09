@@ -1044,7 +1044,7 @@ The **Raft** algorithm is the simplest and most common.
 
 #### Raft
 
-Raft is a distributed consensus algorithm that allows us to build a distributed log that maintains the linearizability (ordering) of writes.
+Raft is a distributed consensus algorithm that allows us to build a distributed log that maintains the linearizability (ordering) of writes and reads.
 
 Distributed consensus algorithms can generally be split into two components of functionality:
 * Leader Election
@@ -1114,7 +1114,9 @@ It takes the form of a key-value store, that stores information like:
 
 Coordination services will also be responsible for facilitating failover by electing new leaders when a node goes down.
 
-Example include:
+---
+
+Examples include:
 * ZooKeeper
 * etcd
 
