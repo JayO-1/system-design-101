@@ -139,6 +139,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
         * [Master-slave replication](#master-slave-replication)
         * [Master-master replication](#master-master-replication)
         * [Leaderless replication](#leaderless-replication)
+        * [Distributed Consensus](#distributed-consensus)
         * [Federation](#federation)
         * [Sharding](#sharding)
         * [Denormalization](#denormalization)
@@ -1028,6 +1029,14 @@ However, this approach leads to some issues. The Gossip protocol makes no guaran
 * It's impossible to achieve strong consistency with this paradigm, as due to network effects writes can arrive out of order at a given node or be lost altogether
 * Quorum reads can be slow since we query multiple nodes
 * **Hinted Handoff:** Quorums aren't perfect - if an issue forces the user to write to a different Quorum than usual, we will need to back channel writes to the appropriate Quorum
+
+#### Distributed Consensus
+
+The main issue with the aforementioned replication schemas is that while they ensure writes are not lost, they provide no way of ensuring a **guaranteed** global ordering of writes/events.
+
+This is where distributed consensus comes in.
+
+It allows...
 
 ##### Disadvantage(s): replication
 
