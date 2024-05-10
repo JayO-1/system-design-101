@@ -2816,12 +2816,63 @@ Security is a broad topic.  Unless you have considerable experience, a security 
 
 ### JSON Web Tokens (JWT)
 
-JSON Web Tokens are tokens that... 
+JSON Web Tokens (JWTs) are tokens used to decouple authentication and authorization, where authentication is the determination of whether a user can access a service, while authorization is about determining what a user can actually do with the service.
 
-They serve to decouple authentication and authorization, where authentication is the determination of whether a user can access a service, while authorization is about determining what a user can actually do with the service. 
+The standard approach to facilitating authentication is shown below. It relies on cookies to maintain user state between the client and the server, cookies being sent alongside all user requests to the server. 
+
+The main downside of this approach is that it makes it difficult to horizontally scale since session information must be stored on each server/persisted in a shared DB.
+
+<p align="center">
+  <img src="images/cookie based authentication.png" width=500>
+  <br/>
+  <i>Traditional Cookie-based Auth Flow</i>
+</p>
+
+JWTs improve upon this by moving the responsibility of managing client state from the server to the client.
+
+When the client first logs in, the server constructs a token that encodes client state, which is passed to and stored by the client.
+
+On subsequent requests, the client will send the token to the server, which the server will validate. 
+
+JWTs are designed to be validated without the need for the server to store state. This means JWTs can be used in place of sessions.
+
+<p align="center">
+  <img src="images/jwt based authentication.png" width=500>
+  <br/>
+  <i>JWT Auth Flow</i>
+</p>
+
+JWTs are made up of a _header_, a _payload_ and a _signature_.
+
+The header will contain information on the hashing algorithm and the token type.
+
+Meanwhile, the payload will contain information regarding the user like:
+* user-id
+* name
+* token expiry time
+* scope
+* etc
+
+Finally, the signature will be the hash of the base64 encoded values of the header and the payload.
+
+The token that gets sent to the client becomes:
+```
+<base 64 encoded header>.<base 64 encoded payload>.<signature>
+```
+
+To validate, the server simply computes the hash of the header and payload in the received token. If it matches the signature, the token is valid. If not, it means the header/payload must have been tampered with.
+
+Thus, all a given server needs to validate a JWT is the secret key used to create the hash that forms the signature!
+
+<p align="center">
+  <img src="images/json web token.png" width=500>
+  <br/>
+  <i>JSON Web Token Visualised</i>
+</p>
 
 ### Source(s) and further reading
 
+* [Web Dev Simplified: JWTs](https://www.youtube.com/watch?v=7Q17ubqLfaM)
 * [API security checklist](https://github.com/shieldfy/API-Security-Checklist)
 * [Security guide for developers](https://github.com/FallibleInc/security-guide-for-developers)
 * [OWASP top ten](https://www.owasp.org/index.php/OWASP_Top_Ten_Cheat_Sheet)
