@@ -1282,8 +1282,24 @@ Benchmarking and profiling might point you to the following optimizations.
 
 ##### Use good indices
 
+* Indices are auxiliary data structures that optimise DB reads in exchange for slower write speeds
 * Columns that you are querying (`SELECT`, `GROUP BY`, `ORDER BY`, `JOIN`) could be faster with indices.
-* Indices are usually represented as self-balancing [B-tree](https://en.wikipedia.org/wiki/B-tree) that keeps data sorted and allows searches, sequential access, insertions, and deletions in logarithmic time.
+* Types of indices include:
+    1. Hash-Based Indices
+        * We use a hash map, making reads/writes O(1)
+        * However, hash-maps do not perform well on disk (since values will be naturally spread out in memory, and the disk is not optimised for random access)
+        * This means we will typically store hash-maps in memory, which opens up concerns regarding data loss - we may need a write-ahead log to ensure that we can remake it on failure
+        * Keys will also need to fit in memory, which may not be possible!
+        * Hash-Maps also do not support range-based queries faster than O(n)
+    2. Self-balancing [B-tree](https://en.wikipedia.org/wiki/B-tree)
+        * Tree data structure that keeps data sorted and allows searches, sequential access, insertions, and deletions in logarithmic time
+        * Each node will store information on the range of values it covers, as well as references to the nodes for the subranges
+        * This tree will be maintained directly on disk using memory pages, making reads fast
+        * In SQL DBs, the primary key will use what is known as a 'clustered index', which will manage ranges of IDs for entire rows.
+        * Meanwhile, for non-primary columns, we will typically use a 'non-clustered' index, which will index directly on the values for that row. At a given leaf node, we will store the primary key, allowing us to use the clustered index to find the whole row. 
+        * However, writes will be slow, as we need to traverse and potentially update the tree
+    3. LSM Tree + SSTable
+        * 
 * Placing an index can keep the data in memory, requiring more space.
 * Writes could also be slower since the index also needs to be updated.
 * When loading large amounts of data, it might be faster to disable indices, load the data, then rebuild the indices.
@@ -1302,6 +1318,12 @@ Benchmarking and profiling might point you to the following optimizations.
 
 ##### Source(s) and further reading: SQL tuning
 
+* [Jordan Has No Life: Database Indexes](https://www.youtube.com/watch?v=Z2OaqmxiH20&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=2)
+* [Jordan Has No Life: How do Hash Indexes work?](https://www.youtube.com/watch?v=Z2OaqmxiH20&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=3)
+* [Jordan Has No Life: How do B-Tree Indexes Work?](https://www.youtube.com/watch?v=Z2OaqmxiH20&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=4)
+* [Jordan Has No Life: LSM Tree + SSTable Database Indexes?](https://www.youtube.com/watch?v=Z2OaqmxiH20&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=5)
+* [Jordan Has No Life: Indexes Concluded](https://www.youtube.com/watch?v=Z2OaqmxiH20&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=6)
+* [How SQL Indexes work](https://www.youtube.com/watch?v=YuRO9-rOgv4)
 * [Tips for optimizing MySQL queries](http://aiddroid.com/10-tips-optimizing-mysql-queries-dont-suck/)
 * [Is there a good reason i see VARCHAR(255) used so often?](http://stackoverflow.com/questions/1217466/is-there-a-good-reason-i-see-varchar255-used-so-often-as-opposed-to-another-l)
 * [How do null values affect performance?](http://stackoverflow.com/questions/1017239/how-do-null-values-affect-performance-in-a-database-search)
