@@ -1400,9 +1400,15 @@ Graphs databases offer high performance for data models with complex relationshi
 
 #### Disadvantages: NoSQL
 
-All the disadvantages of NoSQL are the same as those for [denormalisation](#denormalisation). 
+All the disadvantages of NoSQL are the same as those for [denormalization](#denormalization). 
 
 Since data is duplicated, we not only store redundant copies but also require modifying multiple nodes whenever there are updates.
+
+This means we may even need [distributed transactions](#distributed-transactions) depending on the NoSQL implementation.
+
+There may also be less flexibility with how much data we need to send over the network. 
+
+For example, with document stores, we may need to send the entire JSON even if we only need a subset of the data.
 
 #### Source(s) and further reading: NoSQL
 
