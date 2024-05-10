@@ -144,6 +144,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
         * [Sharding](#sharding)
         * [Denormalization](#denormalization)
         * [SQL tuning](#sql-tuning)
+        * [MySQL vs PostgreSQL](#mysql-vs-postgresql)
     * [NoSQL](#nosql)
         * [Key-value store](#key-value-store)
         * [Document store](#document-store)
@@ -1293,16 +1294,23 @@ Benchmarking and profiling might point you to the following optimizations.
         * Hash-Maps also do not support range-based queries faster than O(n)
     2. Self-balancing [B-tree](https://en.wikipedia.org/wiki/B-tree)
         * Tree data structure that keeps data sorted and allows searches, sequential access, insertions, and deletions in logarithmic time
-        * Each node will store information on the range of values it covers, as well as references to the nodes for the subranges
-        * This tree will be maintained directly on disk using memory pages, making reads fast
+        * Each node will store information on the range of values it covers, as well as references to the nodes for the subranges.
+          * Leaf nodes will contain the memory locations for all the data points for some range of values, in sorted order
+        * This tree will be maintained directly on disk using memory pages sized around 256kB, making reads fast.
         * In SQL DBs, the primary key will use what is known as a 'clustered index', which will manage ranges of IDs for entire rows.
         * Meanwhile, for non-primary columns, we will typically use a 'non-clustered' index, which will index directly on the values for that row. At a given leaf node, we will store the primary key, allowing us to use the clustered index to find the whole row. 
-        * However, writes will be slow, as we need to traverse and potentially update the tree
+        * However, writes will be slow, as we need to traverse and potentially rebalance the tree.
+          * If we edit the tree in place, we must also consider maintaining index consistency on failure. This can be done via a write-ahead log, or we can avoid editing in place altogether by making copies of pages and moving the pointers over.
     3. LSM Tree + SSTable
         * 
-* Placing an index can keep the data in memory, requiring more space.
 * Writes could also be slower since the index also needs to be updated.
 * When loading large amounts of data, it might be faster to disable indices, load the data, then rebuild the indices.
+
+<p align="center">
+  <img src="images/b-tree indexes.png" width=600>
+  <br/>
+  <i>B-Tree Indexes Visualised</i>
+</p>
 
 ##### Avoid expensive joins
 
@@ -1328,6 +1336,8 @@ Benchmarking and profiling might point you to the following optimizations.
 * [Is there a good reason i see VARCHAR(255) used so often?](http://stackoverflow.com/questions/1217466/is-there-a-good-reason-i-see-varchar255-used-so-often-as-opposed-to-another-l)
 * [How do null values affect performance?](http://stackoverflow.com/questions/1017239/how-do-null-values-affect-performance-in-a-database-search)
 * [Slow query log](http://dev.mysql.com/doc/refman/5.7/en/slow-query-log.html)
+
+#### MySQL vs PostgreSQL
 
 ### NoSQL
 
