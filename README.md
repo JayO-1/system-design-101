@@ -1317,25 +1317,25 @@ Benchmarking and profiling might point you to the following optimizations.
 * When loading large amounts of data, it might be faster to disable indices, load the data, then rebuild the indices.
 
 <p align="center">
-  <img src="images/b-tree indexes.png" width=250>
+  <img src="images/b-tree indexes.png" width=400>
   <br/>
   <i>B-Tree Indexes Visualised</i>
 </p>
 
 <p align="center">
-  <img src="images/lsm tree + sstable indexes.png" width=250>
+  <img src="images/lsm tree + sstable indexes.png" width=400>
   <br/>
   <i>LSM Trees & SSTables Visualised</i>
 </p>
 
 <p align="center">
-  <img src="images/sstable optimisations.png" width=250>
+  <img src="images/sstable optimisations.png" width=400>
   <br/>
   <i>SSTable Optimisations</i>
 </p>
 
 <p align="center">
-  <img src="images/sstable compaction.png" width=250>
+  <img src="images/sstable compaction.png" width=400>
   <br/>
   <i>SSTable Compaction</i>
 </p>
