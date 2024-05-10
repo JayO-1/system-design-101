@@ -2859,13 +2859,14 @@ The token that gets sent to the client becomes:
 ```
 <base 64 encoded header>.<base 64 encoded payload>.<signature>
 ```
+<br/>
 
 To validate, the server simply computes the hash of the header and payload in the received token. If it matches the signature, the token is valid. If not, it means the header/payload must have been tampered with.
 
 Thus, all a given server needs to validate a JWT is the secret key used to create the hash that forms the signature!
 
 <p align="center">
-  <img src="images/json web token.png" width=500>
+  <img src="images/json web token.png" width=350>
   <br/>
   <i>JSON Web Token Visualised</i>
 </p>
