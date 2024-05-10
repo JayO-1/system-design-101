@@ -978,7 +978,7 @@ In the all-to-all topology, any write received by a node, whether that be from a
     * _Gossip Protocol:_ This is something we use to propagate messages through a decentralised system e.g. CRDTs, where we treat messages as an infection. Every infected node infects n random other nodes, and if a non-infected node is hit, it repeats - ensuring every node has received the message! It is useful as it requires no additional middleware/centralised server to manage messages
       1. Apache Cassandra, a wide-column NoSQL database, makes use of the Gossip protocol not only to pass information between nodes, but also to ensure every node receives regular heartbeats from every other node. When a node goes down, the other nodes will eventually find out and stop sending writes to it. 
     * Examples include:
-      * Riak
+      * Riak (Makes use of CRDTs extensively)
       * Redis (Sets in Redis enterprise)
   
 <p align="center">
@@ -1193,6 +1193,7 @@ Similar to the advantages of [federation](#federation), sharding results in less
         * Hash-based sharding lacks the data locality present in range-based sharding, meaning we cannot easily perform range-based queries. This is because a good hash function will ensure that even similar items have distinct hashes, so we have no way of knowing which node stores what subset of data. This can be mitigated using a [secondary index](#secondary-index)
 * You'll need to update your application logic to work with shards, which could result in complex SQL queries.
 * Joining data from multiple shards is more complex.
+* Performing writes across multiple partitions will require distributed transactions. The same is true for federation in cases where multiple partitions must be kept in sync
 * Sharding adds more hardware and additional complexity.
 
 ##### Secondary Index
@@ -1366,7 +1367,7 @@ Document stores provide high flexibility and are often used for working with occ
 
 A wide column store's basic unit of data is a column (name/value pair).  A column can be grouped in column families (analogous to a SQL table).  Super column families further group column families.  You can access each column independently with a row key, and columns with the same row key form a row.  Each value contains a timestamp for versioning and for conflict resolution.
 
-Google introduced [Bigtable](http://www.read.seas.harvard.edu/~kohler/class/cs239-w08/chang06bigtable.pdf) as the first wide column store, which influenced the open-source [HBase](https://www.edureka.co/blog/hbase-architecture/) often-used in the Hadoop ecosystem, and [Cassandra](http://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archIntro.html) from Facebook.  Stores such as BigTable, HBase, and Cassandra maintain keys in a user-defined lexicographic order via a 'cluster key' that the user selects. This allows the user to control how items are ordered, facilitating efficient retrieval of selective key ranges.
+Google introduced [Bigtable](http://www.read.seas.harvard.edu/~kohler/class/cs239-w08/chang06bigtable.pdf) as the first wide column store, which influenced the open-source [HBase](https://www.edureka.co/blog/hbase-architecture/) often-used in the Hadoop ecosystem, and [Cassandra](http://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archIntro.html) from Facebook.  Stores such as BigTable, HBase, and Cassandra maintain keys in a user-defined lexicographic order via a 'sort key' that the user selects. This allows the user to control how items are ordered, facilitating efficient retrieval of selective key ranges. Meanwhile, a 'cluster key' is used to determine which partition a datapoint is stored on i.e. how it is sharded.
 
 Wide column stores offer high availability and high scalability.  They are often used for very large data sets, due to their high storage capacity and high write throughput (since most use leaderless replication).
 
@@ -1396,6 +1397,12 @@ Graphs databases offer high performance for data models with complex relationshi
 * [Graph database](https://en.wikipedia.org/wiki/Graph_database)
 * [Neo4j](https://neo4j.com/)
 * [FlockDB](https://blog.twitter.com/2010/introducing-flockdb)
+
+#### Disadvantages: NoSQL
+
+All the disadvantages of NoSQL are the same as those for [denormalisation](#denormalisation). 
+
+Since data is duplicated, we not only store redundant copies but also require modifying multiple nodes whenever there are updates.
 
 #### Source(s) and further reading: NoSQL
 
@@ -1437,7 +1444,7 @@ Reasons for **NoSQL**:
 * Store many TB (or PB) of data
 * Very data-intensive workload
 * Much easier to horizontally scale
-  * If SQL databases are read-heavy, then scaling is relatively simple as we just need more read-replicas. However, if they are write-heavy, then we either make the sacrifice of consistency to facilitate horizontal scaling or block writes to ensure strong consistency, and focus on vertical scaling
+  * If SQL databases are read-heavy, then scaling is relatively simple as we just need more read-replicas. However, if they are write-heavy, then we either make the sacrifice of consistency to facilitate horizontal scaling or use row-level locked writes to ensure strong consistency, and focus on vertical scaling
 * Very high throughput for IOPS
 
 Sample data well-suited for NoSQL:
@@ -1450,6 +1457,7 @@ Sample data well-suited for NoSQL:
 
 ##### Source(s) and further reading: SQL or NoSQL
 
+* [Jordan Has No Life: SQL vs NoSQL](https://www.youtube.com/watch?v=YgTLqO54UOA&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=32)
 * [Scaling up to your first 10 million users](https://www.youtube.com/watch?v=kKjm4ehYiMs)
 * [Exponent: SQL vs NoSQL](https://www.youtube.com/watch?v=_Ss42Vb1SU4)
 * [Be a Better Dev: SQL vs NoSQL](https://www.youtube.com/watch?v=ruz-vK8IesE)
