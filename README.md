@@ -1285,23 +1285,24 @@ Benchmarking and profiling might point you to the following optimizations.
 
 * Indices are auxiliary data structures that optimise DB reads in exchange for slower write speeds
 * Columns that you are querying (`SELECT`, `GROUP BY`, `ORDER BY`, `JOIN`) could be faster with indices.
+* Writes could also be slower since the index also needs to be updated.
 * Types of indices include:
-    1. Hash-Based Indices
+    1. **Hash-Based Indices**
         * We use a hash map, making reads/writes O(1)
         * However, hash-maps do not perform well on disk (since values will be naturally spread out in memory, and the disk is not optimised for random access)
         * This means we will typically store hash-maps in memory, which opens up concerns regarding data loss - we may need a write-ahead log to ensure that we can remake it on failure
         * All the keys will also need to fit in memory, which may not be possible!
         * Hash-Maps also do not support range-based queries
-    2. Self-balancing [B-tree](https://en.wikipedia.org/wiki/B-tree)
+    2. **Self-balancing [B-tree](https://en.wikipedia.org/wiki/B-tree)**
         * Tree data structure that keeps data sorted and allows searches, range-based queries, sequential access, insertions, and deletions in logarithmic time
         * Each node will store information on the range of keys it covers, as well as references to the nodes for the subranges.
           * Leaf nodes will contain the memory locations for all the data points for some range of values, in sorted order
-        * This tree will be maintained directly on disk using memory pages sized around 256kB, making reads fast and the max number of keys very large
+        * This tree will be maintained directly on disk using memory pages sized around 8kB, making reads fast and the max number of keys very large
         * In SQL DBs, the primary key will use what is known as a 'clustered index', which will manage ranges of IDs for entire rows.
         * Meanwhile, for non-primary columns, we will typically use a 'non-clustered' index, which will index directly on the values for that row. At a given leaf node, we will store the primary key, allowing us to use the clustered index to find the whole row. 
         * However, writes will be slow, as we need to traverse and potentially rebalance the tree, all on disk.
           * If we edit the tree in place, we must also consider maintaining index consistency on failure. This can be done via a write-ahead log, or we can avoid editing in place altogether by making copies of pages and moving the pointers over.
-    3. LSM Tree + SSTable
+    3. **LSM Tree + SSTable**
         * LSM Tree: We use an in-memory self-balancing binary search tree, rather than maintaining the tree on the disk. This can be an AVL tree, a Red-Black Tree, etc
         * The durability of this tree is ensured via a write-ahead log, however, we still face the same memory limitation as with hash indexes
         * SSTable: We overcome this by using SSTables. When the LSM tree becomes too large to fit in memory, we serialise it using an in-order traversal and dump its contents to an SSTable on disk. This allows the max no. of keys to be large
@@ -1309,11 +1310,10 @@ Benchmarking and profiling might point you to the following optimizations.
         * When we wish to delete a key, we use a form of null value known as a 'tombstone'. This ensures that when the tree is converted into an SSTable, it is marked as deleted
         * Since the contents of SSTables are in order, reads can be done in O(log n) via a binary search
         * We also make two main optimisations on SSTables, to speed reads up further: sparse indexes and bloom filters
-          * Sparse Indexes: A mini-index on top of the contents of the SSTable, that aims to speed up the binary search by providing more refined left and right values.
-          * Bloom Filter: A data structure optimised for efficiently determining whether an item is **not** present, but may return false positives for whether the item is present. We use it to skip over irrelevant SSTables.
+          * **Sparse Indexes:** A mini-index on top of the contents of the SSTable, that aims to speed up the binary search by providing more refined left and right values.
+          * **Bloom Filter:** A probabilistic data structure optimised for efficiently determining whether an item is **not** present, but may return false positives for whether the item is present. We use it to skip over irrelevant SSTables.
         * Since the LSM Tree is in memory, writes are faster, however, reads are slower than B-Trees, since we may have to search the SSTables.
-        * We also run the risk of large disk overhead to store SSTables. We avoid this by merging SSTables in the background, but this means greater CPU overhead.
-* Writes could also be slower since the index also needs to be updated.
+        * **Compaction:** We also run the risk of large disk overhead to store SSTables. We avoid this by merging SSTables in the background, but this means greater CPU overhead.
 * When loading large amounts of data, it might be faster to disable indices, load the data, then rebuild the indices.
 
 <p align="center">
