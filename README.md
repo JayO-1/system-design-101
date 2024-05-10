@@ -1397,7 +1397,9 @@ In theory, SSI is better than two-phase locking, but this will depend on the fre
 
 ### NoSQL
 
-NoSQL is a collection of data items represented in a **key-value store**, **document store**, **wide column store**, or a **graph database**.  Data is denormalized, and joins are generally done in the application code.  Most NoSQL stores lack true ACID transactions and favor [eventual consistency](#eventual-consistency).
+NoSQL is a term used to describe any database that does not rely on a traditional relational schema.
+
+They are typically made up of a collection of data items represented in a **key-value store**, **document store**, **wide column store**, or a **graph database**.  Data is denormalized, and joins are generally done in the application code.  Most NoSQL stores lack true ACID transactions and favor [eventual consistency](#eventual-consistency).
 
 **BASE** is often used to describe the properties of NoSQL databases.  In comparison with the [CAP Theorem](#cap-theorem), BASE chooses availability over consistency.
 
@@ -1436,6 +1438,15 @@ Some document stores like [MongoDB](https://www.mongodb.com/mongodb-architecture
 
 Document stores provide high flexibility and are often used for working with occasionally changing data.
 
+##### MongoDB
+
+MongoDB merges the schema flexibility of NoSQL, with the data guarantees of SQL.
+
+It is typically used to store JSON documents, and features include:
+* ACID and distributed transactions, like in SQL databases, depending on how it is configured
+* B-Tree based index
+* Single-leader replication (typically)
+
 ##### Source(s) and further reading: document store
 
 * [Document-oriented database](https://en.wikipedia.org/wiki/Document-oriented_database)
@@ -1455,9 +1466,15 @@ Document stores provide high flexibility and are often used for working with occ
 
 A wide column store's basic unit of data is a column (name/value pair).  A column can be grouped in column families (analogous to a SQL table).  Super column families further group column families.  You can access each column independently with a row key, and columns with the same row key form a row.  Each value contains a timestamp for versioning and for conflict resolution.
 
-Google introduced [Bigtable](http://www.read.seas.harvard.edu/~kohler/class/cs239-w08/chang06bigtable.pdf) as the first wide column store, which influenced the open-source [HBase](https://www.edureka.co/blog/hbase-architecture/) often-used in the Hadoop ecosystem, and [Cassandra](http://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archIntro.html) from Facebook.  Stores such as BigTable, HBase, and Cassandra maintain keys in a user-defined lexicographic order via a 'sort key' that the user selects. This allows the user to control how items are ordered, facilitating efficient retrieval of selective key ranges. Meanwhile, a 'cluster key' is used to determine which partition a datapoint is stored on i.e. how it is sharded.
+Google introduced [Bigtable](http://www.read.seas.harvard.edu/~kohler/class/cs239-w08/chang06bigtable.pdf) as the first wide column store, which influenced the open-source [HBase](https://www.edureka.co/blog/hbase-architecture/) often-used in the Hadoop ecosystem, and [Cassandra](http://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archIntro.html) from Facebook.  Stores such as BigTable, HBase, and Cassandra maintain keys in a user-defined lexicographic order via a 'sort key' that the user selects. This allows the user to control how items are ordered, facilitating efficient retrieval of selective key ranges. 
 
 Wide column stores offer high availability and high scalability.  They are often used for very large data sets, due to their high storage capacity and high write throughput (since most use leaderless replication).
+
+##### Apache Cassandra
+
+* 'cluster key' is used to determine which partition a datapoint is stored on i.e. how it is sharded. Partition information is shared throughout the cluster via the Gossip protocol to facilitate leaderless replication, however, there is no support for distributed transactions.
+* To resolve write conflicts, Cassandra will typically rely on last write wins, meaning very weak consistency.
+* Uses LSM Tree + SSTables, making it write-optimised
 
 ##### Source(s) and further reading: wide column store
 
