@@ -1367,6 +1367,34 @@ Benchmarking and profiling might point you to the following optimizations.
 
 #### MySQL vs PostgreSQL
 
+MySQL and PostgreSQL are common open-source implementations of SQL databases.
+
+Both facilitate the A, C and D in ACID in the same way, ensuring Atomicity and Consistency using a write-ahead log to validate changes before committing, and ensuring Durability by storing the DB on disk.
+
+However, they generally differ in how they guarantee Isolation.
+
+MySQL makes use of **Two-Phase Locking**, while PostgreSQL uses **Serializable Snapshot Isolation**.
+
+##### Two-Phase Locking
+
+Each row has locks, with writes and reads acquiring the locks differently.
+
+Writes use mutually exclusive locks, ensuring that no other write can act on the row while it is taking place.
+
+Meanwhile, reads use shared locks, meaning writes can still go ahead, but the read can potentially return stale data.
+
+The main downside of this approach is that we will typically need to detect and undo deadlocks.
+
+##### Serializable Snapshot Isolation (SSI)
+
+Instead of using locks, transactions will rely on data snapshots.
+
+At commit time, if the transaction sees a value that was modified by another transaction before, the original will be rolled back and retried.
+
+This is referred to as 'Optimistic Concurrency Control', or, OCC. We are optimistic about the frequency of clashes, so we abandon locking.
+
+In theory, SSI is better than two-phase locking, but this will depend on the frequency with which transactions occur. If they are very common, rollback will occur too often to see any benefit!
+
 ### NoSQL
 
 NoSQL is a collection of data items represented in a **key-value store**, **document store**, **wide column store**, or a **graph database**.  Data is denormalized, and joins are generally done in the application code.  Most NoSQL stores lack true ACID transactions and favor [eventual consistency](#eventual-consistency).
