@@ -1290,16 +1290,16 @@ Benchmarking and profiling might point you to the following optimizations.
         * We use a hash map, making reads/writes O(1)
         * However, hash-maps do not perform well on disk (since values will be naturally spread out in memory, and the disk is not optimised for random access)
         * This means we will typically store hash-maps in memory, which opens up concerns regarding data loss - we may need a write-ahead log to ensure that we can remake it on failure
-        * Keys will also need to fit in memory, which may not be possible!
-        * Hash-Maps also do not support range-based queries faster than O(n)
+        * All the keys will also need to fit in memory, which may not be possible!
+        * Hash-Maps also do not support range-based queries
     2. Self-balancing [B-tree](https://en.wikipedia.org/wiki/B-tree)
-        * Tree data structure that keeps data sorted and allows searches, sequential access, insertions, and deletions in logarithmic time
-        * Each node will store information on the range of values it covers, as well as references to the nodes for the subranges.
+        * Tree data structure that keeps data sorted and allows searches, range-based queries, sequential access, insertions, and deletions in logarithmic time
+        * Each node will store information on the range of keys it covers, as well as references to the nodes for the subranges.
           * Leaf nodes will contain the memory locations for all the data points for some range of values, in sorted order
-        * This tree will be maintained directly on disk using memory pages sized around 256kB, making reads fast.
+        * This tree will be maintained directly on disk using memory pages sized around 256kB, making reads fast and the max number of keys very large
         * In SQL DBs, the primary key will use what is known as a 'clustered index', which will manage ranges of IDs for entire rows.
         * Meanwhile, for non-primary columns, we will typically use a 'non-clustered' index, which will index directly on the values for that row. At a given leaf node, we will store the primary key, allowing us to use the clustered index to find the whole row. 
-        * However, writes will be slow, as we need to traverse and potentially rebalance the tree.
+        * However, writes will be slow, as we need to traverse and potentially rebalance the tree, all on disk.
           * If we edit the tree in place, we must also consider maintaining index consistency on failure. This can be done via a write-ahead log, or we can avoid editing in place altogether by making copies of pages and moving the pointers over.
     3. LSM Tree + SSTable
         * 
