@@ -1395,6 +1395,12 @@ This is referred to as 'Optimistic Concurrency Control', or, OCC. We are optimis
 
 In theory, SSI is better than two-phase locking, but this will depend on the frequency with which transactions occur. If they are very common, rollback will occur too often to see any benefit!
 
+##### Source(s) and further reading: MySQL vs PostgreSQL
+
+* [Jordan Has No Life: SQL vs PostgreSQL](https://www.youtube.com/watch?v=x6-RN-_i5Xs&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=33)
+* [Jordan Has No Life: Intro to ACID Database Transactions](https://www.youtube.com/watch?v=oGmxzUBCYtY&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=7)
+* [Jordan Has No Life: Read Committed Isolation](https://www.youtube.com/watch?v=oS60pr8H1e0&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=8)
+
 ### NoSQL
 
 NoSQL is a term used to describe any database that does not rely on a traditional relational schema.
@@ -1470,6 +1476,7 @@ Google introduced [Bigtable](http://www.read.seas.harvard.edu/~kohler/class/cs23
 
 Wide column stores offer high availability and high scalability.  They are often used for very large data sets, due to their high storage capacity and high write throughput (since most use leaderless replication).
 
+
 ##### Apache Cassandra
 
 * Uses LSM Tree + SSTables, making it write-optimised
@@ -1477,6 +1484,8 @@ Wide column stores offer high availability and high scalability.  They are often
   * Partition information is shared throughout the cluster via the Gossip protocol to facilitate leaderless replication
   * The creators of Cassandra are opinionated, believing that reads/writes should only happen on one partition - thus there is little support for distributed transactions
 * To resolve write conflicts, Cassandra will typically rely on last write wins, meaning very weak consistency.
+
+A good use case for Cassandra is for messaging systems. We can use the chat id as a cluster key, while the timestamp can be the sort key. In consumer apps, we generally don't mind inconsistency!
 
 ##### Source(s) and further reading: wide column store
 
@@ -1519,6 +1528,7 @@ For example, with document stores, we may need to send the entire JSON even if w
 
 #### Source(s) and further reading: NoSQL
 
+* [Jordan Has No Life: MongoDB vs Apache Cassandra](https://www.youtube.com/watch?v=6bxin9cZL_w&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=36)
 * [Explanation of base terminology](http://stackoverflow.com/questions/3342497/explanation-of-base-terminology)
 * [NoSQL databases a survey and decision guidance](https://medium.com/baqend-blog/nosql-databases-a-survey-and-decision-guidance-ea7823a822d#.wskogqenq)
 * [Scalability](http://www.lecloud.net/post/7994751381/scalability-for-dummies-part-2-database)
