@@ -1472,9 +1472,11 @@ Wide column stores offer high availability and high scalability.  They are often
 
 ##### Apache Cassandra
 
-* 'cluster key' is used to determine which partition a datapoint is stored on i.e. how it is sharded. Partition information is shared throughout the cluster via the Gossip protocol to facilitate leaderless replication, however, there is no support for distributed transactions.
-* To resolve write conflicts, Cassandra will typically rely on last write wins, meaning very weak consistency.
 * Uses LSM Tree + SSTables, making it write-optimised
+* 'Cluster key' is used to determine which partition a datapoint is stored on i.e. how it is sharded.
+  * Partition information is shared throughout the cluster via the Gossip protocol to facilitate leaderless replication
+  * The creators of Cassandra are opinionated, believing that reads/writes should only happen on one partition - thus there is little support for distributed transactions
+* To resolve write conflicts, Cassandra will typically rely on last write wins, meaning very weak consistency.
 
 ##### Source(s) and further reading: wide column store
 
