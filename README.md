@@ -2494,7 +2494,7 @@ Apache Spark offers major speed improvements on MapReduce, by:
 2. Storing intermediate state in memory rather than on disk
 3. Eliminating unnecessary sorting
 
-Apache Spark also supports stream processing, by processing data in mini-batches.
+Apache Spark also supports stream processing. Unlike Apache Flink, which processes each event individually, Apache Spark processes data from the message broker in mini-batches.
 
 However, the main downside is that our partitioning schema will need to ensure that each partition fits in memory.
 
