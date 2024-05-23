@@ -1071,7 +1071,7 @@ If a candidate hears 'yes' from a quorum (majority) of nodes, then it has won th
 
 The decision to respond 'yes' or 'no' from a given node is based on the epoch number (term number in the diagram, denoting which generation of leader the node belongs to) and the node's local state in the form of a log.
 
-For a node to respond with 'yes', the candidate must have both a higher epoch number (signifying it's from a later generation) and the candidate's state must be the same as or further ahead than the node's local state.
+For a node to respond with 'yes', the candidate must have both a higher epoch number (signifying it's from a later generation) **and** the candidate's state must be the same as or further ahead than the node's local state.
 
 ---
 
