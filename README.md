@@ -1073,6 +1073,8 @@ The decision to respond 'yes' or 'no' from a given node is based on the epoch nu
 
 For a node to respond with 'yes', the candidate must have both a higher epoch number (signifying it's from a later generation) **and** the candidate's state must be the same as or further ahead than the node's local state.
 
+In either case, if the candidate has a higher epoch number the node's epoch number will be updated to mirror the candidates. This ensures that we maintain a distributed state of the latest generation/epoch number.
+
 ---
 
 Why this process works:
