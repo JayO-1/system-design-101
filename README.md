@@ -1738,6 +1738,8 @@ LSM Tree + SSTable based indexes can also be employed to maximise write speed.
 
 If we wish to delete significant portions of our data, chunk tables are useful here as well as we can simply mark entire chunks for deletion!
 
+In practice, this works by marking them as safe to overwrite.
+
 <p align="center">
   <img src="images/time series hypertable optimising deletes.png" width=700>
   <br/>
