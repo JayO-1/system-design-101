@@ -153,6 +153,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [SQL or NoSQL](#sql-or-nosql)
     * [Search Indexes](#search-indexes)
     * [GeoSpatial Databases](#geospatial-databases)
+    * [Time Series Databases](#time-series-databases)
     * [Hadoop (HDFS)](#hadoop-hdfs)
 * [Cache](#cache)
     * [Client caching](#client-caching)
@@ -1684,6 +1685,35 @@ A common implementation is the Quadtree, which subdivides a region into four reg
 
 * [Jordan Has No Life: Geospatial Indexes](https://www.youtube.com/watch?v=9BewOp5Gaw8)
 * [ByteByteGo: Design a location-based service](https://www.youtube.com/watch?v=M4lR_Va97cQ)
+
+### Time Series Databases
+
+Time series databases are a type of database optimised for dealing with time series data. Common use cases include logs, metrics, sensor readings, etc.
+
+Time series DBs employ a variety of strategies to optimise reads and writes. The two core innovations include the use of column-oriented storage 
+(meaning retrieval happens at the column level rather than the row level) and [Hypertables](#hypertables).
+
+The advantages of column-oriented storage include:
+* Less data needs to be fetched at a given time
+* It is easier to cache
+* Enhanced data locality on disk
+
+Popular time series technologies include:
+* TimeScale DB
+* Influx DB
+
+#### Hypertables
+
+##### Optimising Reads
+
+
+
+##### Optimising Writes
+
+
+#### Source(s) and further reading
+
+* [Jordan Has No Life: Time Series Databases](https://www.youtube.com/watch?v=fUpYLwzGtW0&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=53)
 
 ### Hadoop (HDFS)
 
