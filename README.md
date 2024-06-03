@@ -1704,12 +1704,46 @@ Popular time series technologies include:
 
 #### Hypertables
 
+Instead of one large table with one big index over all of the data, time series DBs employ a Hypertable. That is, a table of tables in grid form.
+
+Each sub-table is referred to as a 'chunk table' and it stores the time series data for a specific period of time e.g. 1d, 1hr, 1m
+
+<p align="center">
+  <img src="images/time series hypertable.png" width=700>
+  <br/>
+  <i>Hypertable</i>
+  <br/>
+</p>
+
 ##### Optimising Reads
 
+Each chunk has its own index, making reads fast
 
+Additionally, chunks can be cached in their entirety, making reads even faster.
 
 ##### Optimising Writes
 
+We can shard by chunk, thus ensuring locality between the data source and the chunk it maps to (assuming we colocate the data source with storage). This minimises costly network calls.
+
+LSM Tree + SSTable based indexes can also be employed to maximise write speed.
+
+<p align="center">
+  <img src="images/time series hypertable optimising writes.png" width=700>
+  <br/>
+  <i>Hypertable: Optimising Writes</i>
+  <br/>
+</p>
+
+##### Optimising Deletes
+
+If we wish to delete significant portions of our data, chunk tables are useful here as well as we can simply mark entire chunks for deletion!
+
+<p align="center">
+  <img src="images/time series hypertable optimising deletes.png" width=700>
+  <br/>
+  <i>Hypertable: Optimising Deletes</i>
+  <br/>
+</p>
 
 #### Source(s) and further reading
 
