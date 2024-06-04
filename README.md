@@ -856,6 +856,28 @@ Systems such as [Consul](https://www.consul.io/docs/index.html), [Etcd](https://
 
 ### Containerization (Docker and Kubernetes)
 
+To understand containerization, one must first understand virtualisation, and the virtual machine (VM).
+
+Virtualisation is the idea of simulating a machine's capabilities independent of the underlying OS/hardware.
+
+Meanwhile, a VM, as the name suggests, is a virtual version of a machine (including the OS, any relevant dependencies, and the required application) that runs on top of some existing OS (which may differ) and hardware.
+
+Multiple VMs can run on a given machine, and they are managed by a 'Hypervisor', a special piece of software designed to manage groups of VMs. It acts as the interface between the VMs OS and the underlying hardware.
+
+Virtualisation/VMs are useful as they allow us to run our applications in a manner that is hardware agnostic, that is, we can spin up one or more VMs across a cluster of nodes to deploy our application.
+
+However, the main drawback is that since each VM has its own OS, and a Hypervisor must be in place to manage them, it makes each VM consume a large portion of the resources on the underlying machine.
+
+<p align="center">
+  <img src="images/virtual machines.png">
+  <br/>
+  <i>Virtual Machines</i>
+</p>
+
+#### Containers
+
+Containers eliminate the resource intensiveness of VMs, 
+
 A container is a technology that allows you to package your application code, dependencies, environment variables, configuration settings, etc. into a single bundle.
 
 You can then share this bundle (called a container image) with other developers who need to run your application. It makes deploying your code significantly easier.
@@ -879,6 +901,7 @@ These are all benefits of using containers like Docker or LXC.
 
 ### Source(s) and further reading
 
+* [IBM: Containerization Explained](https://www.youtube.com/watch?v=0qotVMX-J5s)
 * [Intro to architecting systems for scale](http://lethain.com/introduction-to-architecting-systems-for-scale)
 * [Crack the system design interview](http://www.puncsky.com/blog/2016-02-13-crack-the-system-design-interview)
 * [Service oriented architecture](https://en.wikipedia.org/wiki/Service-oriented_architecture)
