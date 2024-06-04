@@ -876,11 +876,19 @@ However, the main drawback is that since each VM has its own OS, and a Hyperviso
 
 #### Containers
 
-Containers eliminate the resource intensiveness of VMs, 
+Containers aim to improve upon the resource intensiveness of VMs, by removing the need for a virtual OS from the VM.
 
-A container is a technology that allows you to package your application code, dependencies, environment variables, configuration settings, etc. into a single bundle.
+Instead, only application code, dependencies, environment variables, configuration settings, etc. are wrapped into a single bundle, making containers lightweight and easily scaled.
+
+A manifest file is used to describe the properties of this bundle. With Docker, this is referred to as a Docker file, while in Cloud Foundry a manifest.yaml is used.
 
 You can then share this bundle (called a container image) with other developers who need to run your application. It makes deploying your code significantly easier.
+
+<p align="center">
+  <img src="images/containers.png">
+  <br/>
+  <i>Containers</i>
+</p>
 
 Some benefits of using containers are:
 * Consistent Development Environments
@@ -892,7 +900,9 @@ Some benefits of using containers are:
 * Easier Versioning & Rollbacks
 * Configuration Management
 
-These are all benefits of using containers like Docker or LXC.
+#### Kubernetes
+
+
 
 ### Disadvantage(s): application layer
 
