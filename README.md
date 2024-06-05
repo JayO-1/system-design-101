@@ -869,7 +869,7 @@ Virtualisation/VMs are useful as they allow us to run our applications in a mann
 However, the main drawback is that since each VM has its own OS, and a Hypervisor must be in place to manage them, it makes each VM consume a large portion of the resources on the underlying machine.
 
 <p align="center">
-  <img src="images/virtual machines.png">
+  <img width="350" src="images/virtual machines.png">
   <br/>
   <i>Virtual Machines</i>
 </p>
@@ -885,7 +885,7 @@ A manifest file is used to describe the properties of this bundle. With Docker, 
 You can then share this bundle (called a container image) with other developers who need to run your application. It makes deploying and horizontally scaling your code significantly easier.
 
 <p align="center">
-  <img src="images/containers.png">
+  <img width="350" src="images/containers.png">
   <br/>
   <i>Containers</i>
 </p>
@@ -917,9 +917,11 @@ These properties include:
 While the Kubernetes master exposes an API for finetuned configuration, it is not queried directly. Instead, the interface for this API is **Kubectl**, and it is where the manifests we create get pushed to.
 
 <p align="center">
-  <img src="images/kubernetes high level overview.png">
+  <img width="600" src="images/kubernetes high level overview.png">
   <br/>
   <i>Kubernetes: High Level Overview</i>
+  <br/>
+  <i>It should be noted that each Pod will have its own IP address!</i>
 </p>
 
 
