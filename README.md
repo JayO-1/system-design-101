@@ -882,7 +882,7 @@ Instead, only application code, dependencies, environment variables, configurati
 
 A manifest file is used to describe the properties of this bundle. With Docker, this is referred to as a Docker file, while in Cloud Foundry a manifest.yaml is used.
 
-You can then share this bundle (called a container image) with other developers who need to run your application. It makes deploying your code significantly easier.
+You can then share this bundle (called a container image) with other developers who need to run your application. It makes deploying and horizontally scaling your code significantly easier.
 
 <p align="center">
   <img src="images/containers.png">
