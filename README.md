@@ -902,6 +902,26 @@ Some benefits of using containers are:
 
 #### Kubernetes
 
+Kubernetes is an orchestration tool allowing you to run and manage your container-based workloads.
+
+At the heart of Kubernetes is the **Kubernetes Master**. The Kubernetes master exposes an API for finetuned configuration, with applications being deployed to a cluster of worker nodes.
+
+Each worker node contains a **Kublet**, which is responsible for scheduling and making sure your apps are healthy and running within the worker nodes.
+
+When running our applications, we deploy one or more **Pods** to each worker node. A Pod is synonymous to the container your app runs in, and a manifest (yaml file) is used to configure the properties of a given collection of Pods.
+
+These properties include:
+* The application image
+* any labels
+
+While the Kubernetes master exposes an API for finetuned configuration, it is not queried directly. Instead, the interface for this API is **Kubectl**, and it is where the manifests we create get pushed to.
+
+<p align="center">
+  <img src="images/kubernetes high level overview.png">
+  <br/>
+  <i>Kubernetes: High Level Overview</i>
+</p>
+
 
 
 ### Disadvantage(s): application layer
@@ -912,6 +932,7 @@ Some benefits of using containers are:
 ### Source(s) and further reading
 
 * [IBM: Containerization Explained](https://www.youtube.com/watch?v=0qotVMX-J5s)
+* [IBM: Kubernetes](https://www.youtube.com/watch?v=aSrqRSk43lY)
 * [Intro to architecting systems for scale](http://lethain.com/introduction-to-architecting-systems-for-scale)
 * [Crack the system design interview](http://www.puncsky.com/blog/2016-02-13-crack-the-system-design-interview)
 * [Service oriented architecture](https://en.wikipedia.org/wiki/Service-oriented_architecture)
