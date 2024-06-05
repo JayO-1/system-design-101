@@ -921,7 +921,35 @@ While the Kubernetes master exposes an API for finetuned configuration, it is no
   <br/>
   <i>Kubernetes: High Level Overview</i>
   <br/>
-  <i>It should be noted that each Pod will have its own IP address!</i>
+  <i>It should be noted that each Pod will have its own IP address, which will be regenerated whenever it is spun up!</i>
+</p>
+
+##### Advanced Deployments
+
+We can perform more complex deployments by describing a 'desired state' for a given application within the manifest file. 
+
+Typically, the desired state will involve specifying the number of instances for the application, alongside the properties we would specify normally.
+
+Once this file has been pushed through Kubectl, the Kubernetes master will then ensure that this state is maintained by spinning up new Pods whenever one fails.
+
+<p align="center">
+  <img width="600" src="images/kubernetes advanced deployments.png">
+  <br/>
+  <i>Kubernetes: Advanced Deployments</i>
+</p>
+
+###### Service Discovery
+
+One issue we run into when deploying multiple instances of an application is that each application will have its own IP address.
+
+In some cases, this is the desired behaviour, but we will usually want to query these instances using a singular, shared IP address.
+
+Kubernetes provides this functionality by default. To utilise it, one can simply specify the desired behaviour via the manifest file.
+
+<p align="center">
+  <img width="600" src="images/kubernetes service discovery.png">
+  <br/>
+  <i>Kubernetes: Service Discovery</i>
 </p>
 
 
