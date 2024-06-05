@@ -921,7 +921,9 @@ While the Kubernetes master exposes an API for finetuned configuration, it is no
   <br/>
   <i>Kubernetes: High Level Overview</i>
   <br/>
-  <i>It should be noted that each Pod will have its own IP address, which will be regenerated whenever it is spun up!</i>
+  <i>It should be noted that each Pod will have its own internal</i>
+  <br/>
+  <i>IP address, which will be regenerated whenever it is spun up!</i>
 </p>
 
 ##### Advanced Deployments
@@ -952,7 +954,21 @@ Kubernetes provides this functionality by default. To utilise it, one can simply
   <i>Kubernetes: Service Discovery</i>
 </p>
 
+This offers the added benefit of facilitating backend inter-service communication.
 
+Kubernetes also offers a DNS service by default that makes this even easier, generating private domains for each Pod cluster.
+
+---
+
+When we wish to expose a service to external users, we run into an issue - all of the IP addresses/domains that are generated are private by default.
+
+To change that, we can simply specify in the manifest file for a given service that Kubernetes should create a load balancer for it. This triggers the creation of a public IP.
+
+<p align="center">
+  <img width="600" src="images/kubernetes public service discovery.png">
+  <br/>
+  <i>Kubernetes: Public Service Discovery</i>
+</p>
 
 ### Disadvantage(s): application layer
 
