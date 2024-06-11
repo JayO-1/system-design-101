@@ -2797,7 +2797,7 @@ There is a standard for navigating this issue known as the Interactive Connectiv
 
 WebRTC facilitates peer-to-peer communication, however, in scenarios where we want more than two users to be able to connect e.g. multiple users collaborating in the same text editor, there are some edge cases we need to think about. For one, we will need to manually implement a Gossip Protocol to ensure that messages are propagated throughout the system. 
 
-Additionally, we will need to ensure that when a peer leaves, no user is left isolated. We can mitigate this by firstly ensuring each node stores a list of all the other peers in the network and secondly ensuring that when new nodes join the network we avoid connecting them to nodes that already have a high in-degree (essentially steering the network towards having fewer centrally clustered regions of nodes).
+Additionally, we will need to ensure that when a peer leaves, no user is left isolated. We can mitigate this by firstly ensuring each node stores a list of all the other peers in the network, thus allowing the node to connect to another peer if the it is connected to fails, and secondly ensuring that when new nodes join the network we avoid connecting them to nodes that already have a high in-degree (essentially steering the network towards having fewer centrally clustered regions of nodes).
 
 ### Transmission control protocol (TCP)
 
