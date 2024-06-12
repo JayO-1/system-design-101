@@ -2774,7 +2774,9 @@ Long polling attempts to remedy this issue by delaying the closure of the connec
 
 Another application layer protocol that runs over TCP. WebSockets are particularly useful in cases where we need bidirectional communication via a persistent connection between client and server.
 
-WebSockets boast additional efficiency with regard to network bandwidth usage as we only send the headers/metadata once, and then utilise the connection to facilitate communication. This makes communication faster as payloads become smaller. 
+WebSockets boast additional efficiency with regard to network bandwidth usage as we only send the headers/metadata once, and then utilise the connection to facilitate communication. This makes communication faster as payloads become smaller.
+
+In practice, this will involve using HTTP to establish the initial connection, then switching over to the WebSocket Protocol to exchange data.
 
 However, since they put additional load on the server to maintain many concurrent sessions, we run into issues if we are not frequently using the connection to send updates as this will mean many of these connections will lay idle while consuming resources.
 
