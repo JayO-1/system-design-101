@@ -249,7 +249,7 @@ You can use the following steps to guide the discussion.  To help solidify this 
 Gather requirements and scope the problem.  Ask questions to clarify use cases and constraints.  Discuss assumptions.
 Fundamentally we want to list the **Functional** and **Non-Functional** Requirements
 
-|               Functional               |                                                            |              Non-Functional          |                                                  |
+|               Functional               |                     Non-Functional                         |                                      |                                                  |
 |                 :---:                  |                         :----:                             |                  :---:               |                         :---:                    |
 |               **Users**                |                 **Scale (Read/Write)**                     |             **Performance**          |                       **Cost**                   |
 |  Who is going to use it and for what?  |                How many users are there?                   |       Availability vs Consistency    |    Should we minimise the cost of development?   |
@@ -262,7 +262,11 @@ Fundamentally we want to list the **Functional** and **Non-Functional** Requirem
 - **_Minimising Development Cost:_** Rely more on open source frameworks
 - **_Minimising Maintenance Cost:_** Rely more on public cloud services
 
-### Step 2: Back-of-the-envelope calculations
+### Step 2: Data Model Design
+
+* What are our DB tables going to look like? (Stick to an SQL format - this schema can be adapted to other choices of database)
+
+### Step 3: Back-of-the-envelope calculations
 
 There are three main metrics that you will want to consider in your answer:
 1. QPS
@@ -277,10 +281,6 @@ You might be asked to do some estimates by hand.  Refer to the [Appendix](#appen
 * [Use back of the envelope calculations](http://highscalability.com/blog/2011/1/26/google-pro-tip-use-back-of-the-envelope-calculations-to-choo.html)
 * [Powers of two table](#powers-of-two-table)
 * [Latency numbers every programmer should know](#latency-numbers-every-programmer-should-know)
-
-### Step 3: Data Model Design
-
-* What are our DB tables going to look like? (Stick to an SQL format - this schema can be adapted to other choices of database)
 
 ### Step 4: API Design
 
