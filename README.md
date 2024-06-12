@@ -188,6 +188,11 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Remote procedure call (RPC)](#remote-procedure-call-rpc)
     * [Representational state transfer (REST)](#representational-state-transfer-rest)
 * [Security](#security)
+* [Common System Design Interview Questions](#common-system-design-interview-questions)
+    * [Design TinyURl / PasteBin](#design-tinyurl-pastebin)
+    * [Design Instagram, Twitter, Facebook, Reddit](#design-instagram-twitter-facebook-reddit)
+    * [Design Dropbox / Google Drive](#design-dropbox-google-drive)
+    * [System Design Question Resources](#system-design-question-resources)
 * [Appendix](#appendix)
     * [Powers of two table](#powers-of-two-table)
     * [Latency numbers every programmer should know](#latency-numbers-every-programmer-should-know)
@@ -2867,6 +2872,8 @@ In an RPC, a client causes a procedure to execute on a different address space, 
 
 The key innovation behind the most well-known RPC implementation (gRPC - from Google!)  is the use of protocol buffers. Protocol buffers are an efficient data serialisation framework that makes communication very fast and reduces load on the network by reducing payload size. RPCs are typically used for service-to-service communication, however, there is a form of RPC (gRPC Web) that can be used by web clients.
 
+gRPC also provides functionality for facilitating inter-service streaming capabilities, making it useful for specific use-cases.
+
 RPC is a request-response protocol:
 
 * **Client program** - Calls the client stub procedure.  The parameters are pushed onto the stack like a local procedure call.
@@ -3048,6 +3055,10 @@ Thus, all a given server needs to validate a JWT is the secret key used to creat
 * [API security checklist](https://github.com/shieldfy/API-Security-Checklist)
 * [Security guide for developers](https://github.com/FallibleInc/security-guide-for-developers)
 * [OWASP top ten](https://www.owasp.org/index.php/OWASP_Top_Ten_Cheat_Sheet)
+
+## Common System Design Interview Questions
+
+### Design TinyURL / PasteBin
 
 ## Appendix
 
