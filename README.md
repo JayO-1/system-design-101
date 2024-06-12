@@ -189,9 +189,32 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Representational state transfer (REST)](#representational-state-transfer-rest)
 * [Security](#security)
 * [Common System Design Interview Questions](#common-system-design-interview-questions)
-    * [Design TinyURl / PasteBin](#design-tinyurl-pastebin)
+    * [Design TinyURl / PasteBin](#design-tinyurl--pastebin)
     * [Design Instagram, Twitter, Facebook, Reddit](#design-instagram-twitter-facebook-reddit)
-    * [Design Dropbox / Google Drive](#design-dropbox-google-drive)
+    * [Design Dropbox / Google Drive](#design-dropbox--google-drive)
+    * [Design Facebook Messenger / WhatsApp](#design-facebook-messenger--whatsapp)
+    * [Design Netflix / YouTube](#design-netflix--youtube)
+    * [Design Typeahead Suggestion / Google Search Bar](#design-typeahead-suggestion--google-search-bar)
+    * [Design a Rate Limiter](#design-a-rate-limiter)
+    * [Design a Web Crawler](#design-a-web-crawler)
+    * [Design Yelp / Google Places](#design-yelp--google-places)
+    * [Design Uber / Lyft](#design-uber--lyft)
+    * [Design Ticketmaster / StubHub](#design-ticketmaster--stubhub)
+    * [Design Google Docs / Real-time Text Editor](#design-google-docs--real-time-text-editor)
+    * [Design Google Maps](#design-google-maps)
+    * [Design Distributed Logging & Metrics Framework](#design-distributed-logging--metrics-framework)
+    * [Design Reddit Comments](#design-reddit-comments)
+    * [Design Amazon / Flipkart](#design-amazon--flipkart)
+    * [Design Top K Leaderboard](#design-top-k-leaderboard)
+    * [Design Count Unique Active Users](#design-count-unique-active-users)
+    * [Design Notification Service](#design-notification-service)
+    * [Design Distributed Job Scheduler](#design-distributed-job-scheduler)
+    * [Design Distributed Locking](#design-distributed-locking)
+    * [Design Recommendation Engine](#design-recommendation-engine)
+    * [Design Multiplayer Battle Royale Video Game](#design-multiplayer-battle-royale-video-game)
+    * [Design Video / Conference Calling (Zoom)](#design-video--conference-calling-zoom)
+    * [Design Live Streaming (Twitch)](#design-live-streaming-twitch)
+    * [Design Robinhood Stock Trading Platform](#design-robinhood-stock-trading-platform)
     * [System Design Question Resources](#system-design-question-resources)
 * [Appendix](#appendix)
     * [Powers of two table](#powers-of-two-table)
@@ -3059,6 +3082,61 @@ Thus, all a given server needs to validate a JWT is the secret key used to creat
 ## Common System Design Interview Questions
 
 ### Design TinyURL / PasteBin
+
+### Design Instagram, Twitter, Facebook, Reddit
+
+### Design Dropbox / Google Drive
+
+### Design Facebook Messenger / WhatsApp
+
+### Design Netflix / YouTube
+
+### Design Typeahead Suggestion / Google Search Bar
+
+### Design a Rate Limiter
+
+### Design a Web Crawler
+
+### Design Yelp / Google Places
+
+### Design Uber / Lyft
+
+### Design Ticketmaster / StubHub
+
+### Design Google Docs / Real-time Text Editor
+
+### Design Google Maps
+
+### Design Distributed Logging & Metrics Framework
+
+### Design Reddit Comments
+
+### Design Amazon / Flipkart
+
+### Design Top K Leaderboard
+
+### Design Count Unique Active Users
+
+### Design Notification Service
+
+### Design Distributed Job Scheduler
+
+### Design Distributed Locking
+
+### Design Recommendation Engine
+
+### Design Multiplayer Battle Royale Video Game
+
+### Design Video / Conference Calling (Zoom)
+
+### Design Live Streaming (Twitch)
+
+### Design Robinhood Stock Trading Platform
+
+### System Design Question Resources
+* [Jordan Has No Life: System Design Question Playlist](https://www.youtube.com/watch?v=J-5JozlYIqI&list=PLjTveVh7FakJOoY6GPZGWHHl4shhDT8iV)
+* [Meta Staff Engineer: In-Depth System Design Explanations](https://www.reddit.com/r/leetcode/comments/1czoosy/design_a_web_crawler_broken_down_by_meta_staff/?chainedPosts=t3_1d0wq5e)
+* [Mobile System Design Guide](https://github.com/weeeBox/mobile-system-design?tab=readme-ov-file)
 
 ## Appendix
 
