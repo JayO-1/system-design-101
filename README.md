@@ -3085,6 +3085,59 @@ Thus, all a given server needs to validate a JWT is the secret key used to creat
 
 ### Design TinyURL / PasteBin
 
+#### Step 1: Functional vs Non-Functional Requirements
+
+##### Functional Requirements
+
+1. Generate a **unique** short URL per long URL/paste
+2. Keep track of some analytics data for each short URL e.g. number of clicks
+
+##### Non-Functional Requirements
+
+1. 100 Million Users
+2. Read-Heavy
+3. Spikes can occur in the number of reads, which we will need to account for
+4. Consistency vs Availability: We need a balance of both - we can tolerate delays, but not inconsistency in what a tiny URL maps to
+5. Latency vs Throughput: Writes will be significantly lower than reads, and we can tolerate some delay in a tiny URL becoming active
+
+#### Step 2: Data Model
+
+User ID | Long URL | Tiny URL | Created At | S3 Link (PasteBin)
+
+#### Step 3: Back-of-the-envelope estimations
+
+QPS:
+100 Million Users * ~5 requests per day = 500 Million RPD
+500 Million  / ~100000 seconds in a day = 5000 QPS
+
+Storage Requirements:
+Avg size of data stored is in Kb
+If we had say 1 trillion Tiny URLs, we would need 1 Trillion * 1Kb = 1 PB of storage space
+
+#### Step 4: APIs
+
+createTinyURL(UserID, LongURL, timestamp, payload (pastebin))
+
+getLongURL(TinyURL)
+
+#### Step 5: High-Level Architecture
+
+
+
+#### Step 6: Key Technical Questions
+
+* **How do we go about generating tiny URLs?**
+    * We will typically use a hashing function, that takes into account both the long URL, the User ID and a timestamp to ensure uniqueness
+    * A key consideration of this approach is that we will need some way of avoiding hash collisions. An easy way to do this is to simply increment the hash
+
+* **Is it possible to use multi-leader/leaderless replication here to speed up writes?**
+    * NO! We cannot tolerate inconsistency in the long url a short link leads to. We need to be able to globally lock the tiny URL to long URL mapping
+
+* **Is it possible to use a write-through cache to speed up writes?**
+    * NO! For the same reasons as above. Cache failure/delayed writes will lead to inconsistency which we cannot tolerate
+
+* 
+
 ### Design Instagram, Twitter, Facebook, Reddit
 
 ### Design Dropbox / Google Drive
