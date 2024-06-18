@@ -3485,7 +3485,7 @@ Refer to functional requirements!
 #### Step 5: High-Level Design
 
 <p align="center">
-  <img src="images/Design Netflix / YouTube.png">
+  <img src="images/Design Netflix-YouTube.png">
   <br/>
   <i>High-Level System Architecture</i>
 </p>
@@ -3531,9 +3531,38 @@ Refer to functional requirements!
         * The message broker that manages the complete information on a video file will likely be a Kafka instance, simply due to the fault-tolerance guarantees it gives us
 
 <p align="center">
-  <img src="images/Design Netflix-YouTube; Video Uploading Architecture.png">
+  <img src="images/Design Netflix-YouTube; Video Uploading Architecture.png" width=600>
   <br/>
   <i>Video Uploading Architecture</i>
+</p>
+
+* **How do we deal with popular videos?**
+    * We will want to put a CDN in front of user requests
+    * A Pull CDN would simply cache the popular video on request
+    * A push-based CDN is also an option, however, it would require a more complex architecture to keep track of popular users and conditionally upload to a CDN
+ 
+<p align="center">
+  <img src="images/Design Netflix-YouTube; Popular Video Uploading Architecture.png" width=600>
+  <br/>
+  <i>Popular Video Uploading Architecture</i>
+</p>
+
+* **How would we support search functionality? What are the main considerations?**
+    * We can construct an inverted index using ElasticSearch
+    * It will be ideal if, for a given search term, we can keep all the video metadata for its postings on the same node to avoid aggregation
+    * Whether this is possible will depend on the popularity of the search term as well as how much data we store for a posting in the index:
+        * We could denormalize video data, storing all video information in the index
+            * This makes searches more network efficient, as we can use the search results to immediately play the video
+            * This will also make writes/edits more expensive, as we will need to update both the inverted index and our DBs
+            * However, this is tolerable if it makes our read latency lower
+        * Keep things storage efficient and only store the Video ID
+            * This will allow us to keep more term information on the same node but will require more network round trips for retrieving video metadata
+        * Popular search terms will probably need to be partitioned further to fit them across more nodes
+
+<p align="center">
+  <img src="images/Design Netflix-YouTube; Search Index.png" width=600>
+  <br/>
+  <i>Search Index Implementation: ElasticSearch subscribes to our message broker</i>
 </p>
 
 ### Design Typeahead Suggestion / Google Search Bar
