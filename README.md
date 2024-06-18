@@ -3177,6 +3177,63 @@ getLongURL(TinyURL)
 
 ### Design Dropbox / Google Drive
 
+#### Step 1: Functional vs Non-Functional Requirements
+
+##### Functional Requirements
+
+1. Users can create and upload files
+2. Changes to files should be propagated to other users in real-time
+3. Access controls: files can be shared across 1 or more users
+4. Version Management: Users should have access to old versions of files
+
+##### Non-Functional Requirements
+
+1. 1 Billion Users
+2. Read-heavy, but we should think about write throughput as well
+3. Spikes can occur in the number of reads, which we will need to account for using a cache
+4. Consistency vs Availability: We need a balance of both - we will want to minimise write conflicts
+5. Latency vs Throughput: Writes need to be near instantaneous, but we can tolerate a few seconds of latency on reads. We will also need to support high write throughput 
+
+#### Step 2: Data Model
+
+User ID | Document ID | Created At 
+
+Document ID | Chunk ID | S3 Link
+
+#### Step 3: Back-of-the-envelope estimations
+
+QPS:
+1 Billion Users * ~100 requests per day = 100 Billion RPD
+100 Billion  / ~100000 seconds in a day = 1,000,000 QPS
+
+Storage Requirements:
+Avg size of data stored is ~100kB
+If we had say 1 trillion documents, we would need 1 Trillion * 100Kb = 100 TB of storage space
+
+#### Step 4: APIs
+
+getFile(FileID)
+
+createFile(UserID, timestamp, payload)
+
+editFile(UserID, FileID, timestamp, payload)
+
+checkAccesss(UserID, FileID)
+
+getFileVersions(FileID)
+
+#### Step 5: High-Level Architecture
+
+<p align="center">
+  <img src="images/Design Dropbox-Google Drive.png">
+  <br/>
+  <i>High-Level System Architecture</i>
+</p>
+
+#### Step 6: Key Technical Questions
+
+
+
 ### Design Facebook Messenger / WhatsApp
 
 ### Design Netflix / YouTube
