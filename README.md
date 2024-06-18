@@ -3284,6 +3284,9 @@ createComment(UserID, PostID, text, timestamp)
         * It involves using an Apache Flink consumer (or any stream processing consumer) to aggregate information on new posts and user-follow information
         * This aggregated information will be used to send the posts to the appropriate cache. The idea is that we can have an array of caches, each of which manages the posts for a range of users via consistent hashing, which users connect to
         * This minimises the number of places we need to send a post to and minimises the number of places the user has to poll data from. In addition, we eliminate costly network calls via the message broker
+        * _Depending on the use case, we will want to either:_
+            * Put a feed service in front of these caches to perform aggregation (our use case)
+            * Expose the caches directly, so that the user can poll these caches on their own
         * _Dealing with popular posts:_
             * Popular posts will need to be sent to many places at once
             * This means many (potentially millions) of outgoing requests
