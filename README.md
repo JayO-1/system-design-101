@@ -3401,8 +3401,9 @@ getFileVersions(FileID)
     * We want file changes to occur in real-time, meaning we need to design a pub-sub system for sending file changes to users immediately (assuming they are connected to our servers)
     * Some files will have many many accessors, while others won't. This means we need to think about the number of concurrent connections clients have to maintain, and the number of places we will need to publish to
     * This means we will want to partition our file servers - in an ideal world there will be one file server to a client
-    * Since some files will be immensely popular, we will likely want a hybrid approach, where some file servers only belong to a particular subset of users, while others are polled by _all_ users for updates
+    * Since some files will be immensely popular, we will likely want a hybrid approach, where some file servers only belong to a particular subset of users, while others are polled by many users for updates
         * File servers with few accessors can be sharded by User ID, while file servers for highly popular files can be sharded by File ID
+        * This is an implementation of the fan-out pattern, except we do not put an aggregator in front of the caches
 
 * **Based on the considerations listed above, what would our system architecture look like for publishing these changes to users?**
 
