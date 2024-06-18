@@ -3289,12 +3289,14 @@ createComment(UserID, PostID, text, timestamp)
             * This means many (potentially millions) of outgoing requests
             * Rather than push to a user-specific cache, we use a separate cache that is solely for popular posts
             * This means users can poll the popular post caches for updates, in addition to their user-specific caches
-            * We can identify if a post is popular in advance depending on the number of followers/verification status - this can be done via a network request, or we can again use change data capture
+            * We can identify if a post is popular in advance depending on the number of followers/verification status - this can be done via a network request, or we can again use change data capture on the user table
         * Edits and security permission updates will also go through this path
         * While the fan-out pattern is slow, it can be done asynchronously, and in the meantime, the user can simply query an old news feed
         * _What technology do we use for the caches?_
-            * We will typically use Kafka Queues
-            * Users will monitor these queues via long-polling/refreshing
+            * We will typically use **Kafka Queues**
+                * Users will monitor these queues via long-polling/refreshing
+            * Another option is to use **Redis**
+                * This will make reads very fast but causes us to lose the intrinsic ordering of Kafka
 
 <p align="center">
   <img src="images/Design Instagram, Twitter, Facebook, Reddit; News Feed.png" width=600>
