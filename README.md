@@ -3195,11 +3195,11 @@ getLongURL(TinyURL)
 
 #### Step 2: Data Model
 
-User -> Followers Table (Who does this user follow?):
-User ID | Follower ID
+User -> Following Table (Who does this user follow?):
+User ID | Following ID
 
-User -> Following Table (Who follows a given user?):
-Follower ID | User ID
+User -> Followers Table (Who follows a given user?):
+User ID | Follower ID
 
 - We need separate tables for both to ensure that getting the followers for a given user and getting the following for a given user is efficient
 - This is because with only one table, optimising for one makes the other worse!
@@ -3263,7 +3263,11 @@ createComment(UserID, PostID, text, timestamp)
 
 #### Step 5: High-Level Design
 
-
+<p align="center">
+  <img src="images/Design Instagram, Twitter, Facebook, Reddit.png" width=600>
+  <br/>
+  <i>High Level Design</i>
+</p>
 
 #### Step 6: Key Technical Considerations
 
