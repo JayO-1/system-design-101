@@ -3182,7 +3182,7 @@ getLongURL(TinyURL)
 ##### Functional Requirements
 
 1. Users can create and upload files
-2. Changes to files should be propagated to other users in real-time
+2. Changes to files should be propagated to other users (Not in real-time. This design focuses purely on file management)
 3. Access controls: files can be shared across 1 or more users
 4. Version Management: Users should have access to old versions of files
 
@@ -3196,9 +3196,17 @@ getLongURL(TinyURL)
 
 #### Step 2: Data Model
 
-User ID | Document ID | Created At 
+Permissions Table:
+User ID | File ID | Role 
 
-Document ID | Chunk ID | S3 Link
+- We need to manage who can access which file
+- We will likely use a MySQL DB for this to keep things simple - we don't need high write throughput on this DB, so this gives us consistency/transactions with ease
+
+Document Chunks Table:
+File ID | Chunk ID | Version | Hash | S3 Link
+
+- This allows us to partition the file, and only write/read a particular chunk rather than the whole file
+- We could also use a wide-column store as well, where each row is a File ID, and we have a column family for the chunks, allowing for quick sequential reads
 
 #### Step 3: Back-of-the-envelope estimations
 
@@ -3232,7 +3240,39 @@ getFileVersions(FileID)
 
 #### Step 6: Key Technical Questions
 
+* **When performing writes, there will be some degree of version control required on the chunks of the DB. How do we deal with write conflicts?**
+    * **Single-Leader replication:** We simply lock on the version number. This is relatively straightforward, however, it introduces issues with write throughput
+    * **Multi-leader/leaderless replication:** Here we have a variety of options for dealing with conflicts:
+        * _Last Write Wins:_ This is guaranteed to lead to lost writes, and synchronising time is difficult
+        * _Version Vectors:_ A viable option. In this case we would need to store write siblings (conflicting writes) and rely on the user to resolve them
+        * _CRDTs:_ This is fairly complex to increment, but would involve using a sequence-based CRDT for managing real-time file updates, as well as for updating files during anti-entropy
+            * This will only really work on text-based files, since we can't really generalise CRDTs for things like images and other unstructured data
+    * Thus, our best option will likely be to stick to single-leader replication, use something like a MySQL store to manage the versions. This keeps things simple, and can be scaled using partitioning
 
+* **What would the file upload process look like?**
+    * We would use client side logic to perform a diff between the local copy and the received copy, to determine the chunk that was updated
+    * The updated chunk would be uploaded to S3, then on our backend we would update the chunks DB with the new version
+    * If the update to the chunks DB fails, we could run into issues with unnecessary files in S3. This could be mitigated using a cron job
+
+* **What are some of the considerations for sending file changes to users?**
+    * We want file changes to occur in real-time, meaning we need to design a pub-sub system for sending file changes to users immediately (assuming they are connected to our servers)
+    * Some files will have many many accessors, while others won't. This means we need to think about the number of concurrent connections clients have to maintain, and the number of places we will need to publish to
+    * This means we will want to partition our file servers - in an ideal world there will be one file server to a client
+    * Since some files will be immensely popular, we will likely want a hybrid approach, where some file servers only belong to a particular subset of users, while others are polled by _all_ users for updates
+        * File servers with few accessors can be sharded by User ID, while file servers for highly popular files can be sharded by File ID
+
+* **Based on the considerations listed above, what would our system architecture look like for publishing these changes to users?**
+
+<p align="center">
+  <img src="images/Design Dropbox-Google Drive, File Routing.png">
+  <br/>
+  <i>File Routing Architecture</i>
+</p>
+
+* **What would the underlying technology for our file servers look like in the above architecture?**
+    * This depends. There is a consumer pattern here, since clients will need to subscribe to changes
+    * Therefore, a good option would be to make these file servers a Kafka cluster, where under the hood clients will perform HTTP long-polling
+        * Persistence ensures that clients that go down will still have access to missed messages
 
 ### Design Facebook Messenger / WhatsApp
 
