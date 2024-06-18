@@ -3264,7 +3264,7 @@ getFileVersions(FileID)
 * **Based on the considerations listed above, what would our system architecture look like for publishing these changes to users?**
 
 <p align="center">
-  <img src="images/Design Dropbox-Google Drive, File Routing.png">
+  <img src="images/Design Dropbox-Google Drive, File Routing.png" width=700>
   <br/>
   <i>File Routing Architecture</i>
 </p>
