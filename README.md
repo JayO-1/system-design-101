@@ -3096,13 +3096,13 @@ Thus, all a given server needs to validate a JWT is the secret key used to creat
 
 1. 100 Million Users
 2. Read-Heavy
-3. Spikes can occur in the number of reads, which we will need to account for
+3. Spikes can occur in the number of reads, which we will need to account for using a cache
 4. Consistency vs Availability: We need a balance of both - we can tolerate delays, but not inconsistency in what a tiny URL maps to
 5. Latency vs Throughput: Writes will be significantly lower than reads, and we can tolerate some delay in a tiny URL becoming active
 
 #### Step 2: Data Model
 
-User ID | Long URL | Tiny URL | Created At | S3 Link (PasteBin)
+User ID | Long URL | Tiny URL | Created At | Expires At | S3 Link (PasteBin)
 
 #### Step 3: Back-of-the-envelope estimations
 
@@ -3122,7 +3122,11 @@ getLongURL(TinyURL)
 
 #### Step 5: High-Level Architecture
 
-
+<p align="center">
+  <img src="images/Design TinyURL-PasteBin.png">
+  <br/>
+  <i>High-Level System Architecture</i>
+</p>
 
 #### Step 6: Key Technical Questions
 
@@ -3132,11 +3136,42 @@ getLongURL(TinyURL)
 
 * **Is it possible to use multi-leader/leaderless replication here to speed up writes?**
     * NO! We cannot tolerate inconsistency in the long url a short link leads to. We need to be able to globally lock the tiny URL to long URL mapping
+    * Thus, we will be using single-leader replication + sharding
 
-* **Is it possible to use a write-through cache to speed up writes?**
+* **Is it possible to use a write-through/write-behind cache to speed up writes?**
     * NO! For the same reasons as above. Cache failure/delayed writes will lead to inconsistency which we cannot tolerate
 
-* 
+* **Considering that we must use single-leader replication for our DB, concurrent writes to the same TinyURL could potentially go through if it hasn't been created yet. How do we deal with this?**
+    * **Predicate Locks:** We will need to lock on the TinyURL even if it doesn't exist
+        * This will involve the use of a predicate query to identify the row where the change applies e.g. SELECT * FROM urls WHERE shortURL = 'abcde12' 
+    * **Materialising Conflicts:** We generate every possible TinyURL so they are already present in the DB. This allows us to use the DBs in-built locking functionality
+        * Considering how short Tiny URLs are, there wouldn't be much memory overhead. Assuming we store 1 trillion Tiny URLs * 1 byte per char * 8 chars = 8TB which isn't that much
+ 
+* **What DB index would we want to use to solve this problem?**
+    * We are confined to B-trees, since not only do we want to optimise writes, but we are also storing a vast quantity of information - meaning a memory-based index may not be suitable
+
+* **How do we go about removing expired links?**
+    * We could use a simple batch cron job, where we periodically clean up the contents of our DB based on expiry time
+
+* **[PasteBin] Where do we store our pastes? Are there any special considerations here?**
+    * We would use some form of BLOB storage/HDFS
+    * We will need to ensure that writes to our BLOB storage + DB are guaranteed to go through atomically. We can facilitate this by writing in series as opposed to a two-phase commit
+        * If we are worried about unnecessary writes being stored in our BLOB storage, then we could simply use a cron job to periodically remove them
+        * We will also want to think about using a CDN. For this we have two options, use a pull CDN to update it on subsequent reads or write directly to the CDN on upload e.g. 1. CDN, 2. S3 Upload
+
+---
+
+* **How do we deal with concurrent updates to analytics data for a given row while avoiding conflicts?**
+    * We use a log-based message broker to aggregate click information, in conjunction with an appropriate stream-processing framework
+    * We typically have three main options:
+        * **HDFS + Spark:** We dump all the analytics data to a HDFS instance, and use Spark batch processing on it. Analytics updates will be fairly infrequent, so depends how often we want updates
+        * **Flink:** We use Apache Flink to process each click event individually. This may be too granular, and will impose a lot of load on our system due to the number of writes
+        * **Spark Streaming:** Spark also supports mini-batch streaming. This strikes a balance between batch processing and Flink's stream processing
+
+* **Considering that Spark Streaming only supports exactly-once message processing between the consumer and the message broker, how do we ensure that writes to the DB are also sent exactly once?**
+    * We will typically use **idempotency keys** in the DB
+    * Each row would have to maintain a key representing the last write received from a given consumer, however, this will lead to issues with scalability since a key will be required for every consumer
+    * We can improve upon this by partitioning the message broker and the consumers by tiny URLs. This ensures each row in the DB only needs to maintain a subset of idempotency keys, and minimises the amount of row-level locking
 
 ### Design Instagram, Twitter, Facebook, Reddit
 
