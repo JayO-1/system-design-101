@@ -3106,13 +3106,13 @@ User ID | Long URL | Tiny URL | Created At | Expires At | S3 Link (PasteBin)
 
 #### Step 3: Back-of-the-envelope estimations
 
-QPS:
-100 Million Users * ~5 requests per day = 500 Million RPD
-500 Million  / ~100000 seconds in a day = 5000 QPS
+QPS: <br />
+100 Million Users * ~5 requests per day = 500 Million RPD <br />
+500 Million  / ~100000 seconds in a day = 5000 QPS <br />
 
-Storage Requirements:
-Avg size of data stored is in Kb
-If we had say 1 trillion Tiny URLs, we would need 1 Trillion * 1Kb = 1 PB of storage space
+Storage Requirements: <br />
+Avg size of data stored is in Kb <br />
+If we had say 1 trillion Tiny URLs, we would need 1 Trillion * 1Kb = 1 PB of storage space <br />
 
 #### Step 4: APIs
 
@@ -3195,10 +3195,10 @@ getLongURL(TinyURL)
 
 #### Step 2: Data Model
 
-User -> Following Table (Who does this user follow?):
+User -> Following Table (Who does this user follow?): <br />
 User ID | Following ID
 
-User -> Followers Table (Who follows a given user?):
+User -> Followers Table (Who follows a given user?): <br />
 User ID | Follower ID
 
 - We need separate tables for both to ensure that getting the followers for a given user and getting the following for a given user is efficient
@@ -3216,23 +3216,23 @@ We can maintain these tables using either:
   <i>Managing the follower tables</i>
 </p>
 
-Posts Table:
+Posts Table: <br />
 User ID | Post ID | Timestamp | Image Link (Depending on the system) | Text/Link (Depends on how long we expect comments to be) | Privacy Setting
 
-Comments Table:
+Comments Table: <br />
 User ID | Comment ID | Text/Link (Depends on how long we expect comments to be) | Parent ID
 
 - The Parent ID allows us to manage the comment hierarchy
 
 #### Step 3: Back-of-the-envelope calculations
 
-Write QPS: 100 Million Users * 10 = 1 Billion RPD
+Write QPS: 100 Million Users * 10 = 1 Billion RPD <br />
 1 Billion / 100000 = 10000 QPS
 
-Read QPS: 100 Million Users * ~100 = 10 Billion RPD
+Read QPS: 100 Million Users * ~100 = 10 Billion RPD <br />
 10 Billion / 100000 = 100000 QPS
 
-Storage:
+Storage:<br />
 _The most storage-intensive tables will be posts and comments_<br />
 Avg number of followers = 100, while some verified users will have millions <br />
 
@@ -3240,7 +3240,7 @@ Avg Post/Comment Text Size = 100 Chars <br />
 1 byte/char  = 100 bytes per post/comment <br />
 Including metadata, we can raise this to 200 bytes per post/comment <br />
 
-1 Billion Posts * 200 Bytes * 365 days per year = 73TB/year
+1 Billion Posts * 200 Bytes * 365 days per year = 73TB/year <br />
 1 Million comments per post * 200 bytes = 200 MB per comment
 
 #### Step 4: APIs
@@ -3339,12 +3339,14 @@ createComment(UserID, PostID, text, timestamp)
 #### Step 2: Data Model
 
 Permissions Table:
+
 User ID | File ID | Role 
 
 - We need to manage who can access which file
 - We will likely use a MySQL DB for this to keep things simple - we don't need high write throughput on this DB, so this gives us consistency/transactions with ease
 
 Document Chunks Table:
+
 File ID | Chunk Order (ID) | Version | Hash | S3 Link
 
 - This allows us to partition the file, and only write/read a particular chunk rather than the whole file
@@ -3420,11 +3422,119 @@ getFileVersions(FileID)
 
 ### Design Facebook Messenger / WhatsApp
 
-
-
 ### Design Netflix / YouTube
 
+#### Step 1: Functional vs Non-Functional Requirements
 
+##### Functional Requirements
+
+1. Users can post videos
+2. Users can watch videos
+3. Users can comment on videos
+4. Users can search for videos by name
+
+##### Non-Functional Requirements
+
+1. 1 Billion Users
+2. Read-heavy
+3. There will be spikes in reads (viral video) so we will need to think about caching
+4. Availability is important - we don't care if it takes a while for videos to be available to everyone
+5. Low latency is a must, high write throughput is also ideal
+
+#### Step 2: Data Model
+
+Video Table:
+
+UserID | VideoID | Timestamp | VideoName | VideoDescription
+
+Video Chunks Table:
+
+VideoID | Encoding | Resolution | Chunk Order | Hash | URL
+
+* We upload and retrieve the video in _chunks_ while accounting for:
+    * **Encoding:** We want to ensure that we encode videos in different formats for different devices
+    * **Resolution:** We want to ensure that we store the file in different resolutions to support different network speeds
+* The hash facilitates idempotence, as it allows us to avoid storing a chunk if it already exists
+* Advantages to Chunking
+    * By uploading the video in chunks, we can parallelise uploads across multiple ports, depending on bandwidth
+    * This also lowers the barrier to starting a video, as we don't need to load the entire video
+    * We can choose which chunk we download next depending on current network capabilities
+
+Subscribers:
+
+UserID | SubscribedID
+
+* We can use change data capture on this table if we wish to track the number of subscribers a user has downstream
+
+Users:
+
+UserID | Email | Password Hash | ...
+
+Video Comments:
+
+VideoID | Timestamp | UserID | Text
+
+#### Step 3: Back-of-the-envelope estimations
+
+
+
+#### Step 4: APIs
+
+Refer to functional requirements!
+
+#### Step 5: High-Level Design
+
+<p align="center">
+  <img src="images/Design Netflix / YouTube.png">
+  <br/>
+  <i>High-Level System Architecture</i>
+</p>
+
+#### Step 6: Key Technical Considerations
+
+* **What DBs should we use for each of our tables?**
+    * Video, Subscribers, Users Tables:
+        * These are relatively lightweight, so a simple MySQL store should suffice
+        * With appropriate partitioning, we can maintain a fairly high degree of write-throughput, while keeping reads fast via read replicas
+        * We don't necessarily care if all of this information is slow to update, there is tolerable latency
+    * Comments Table:
+        * We will want to optimise reads, considering that comments will be read often
+        * The choice of DB will depend heavily on what kinds of comment functionality we support
+        * If users can reply and edit comments, then we will need to carefully think about our use of leaderless/multi-leader setups since it will be hard to fix write conflicts/support causal dependencies
+        * Causal dependencies could potentially be resolved using comment timestamps + client-side ordering, but even this is tricky to get right as we will need to ensure comments are all located on the same partition
+            * This could be resolved by partitioning on VideoID
+        * Thus, a wide-column store like Apache Cassandra will likely be preferable
+        * Another think to think about is maintaining comment hierarchy. This is easier in an SQL setup, but could also be achieved by adding a parent column family
+    * Video Chunks Table:
+        * We will typically store the raw chunk data in BLOB storage/distributed file storage like Amazon S3 or HDFS
+        * Thus, the Video Chunks table is simply keeping track of the metadata for video chunks:
+            * Due to the high storage requirements, again we could use a wide-column store like Apache Cassandra here
+                * We could define the VideoID as the cluster key, and the chunk order as the sort key
+                * This would allow us to quickly get all the chunks for a given video, and retrieve them in order
+            * Another option would be a MySQL DB, with single-leader replication
+                * This makes consistency easier but could be tricky to scale considering the volume of videos
+
+* **How would be design our video upload pipeline?**
+    * We will of course be relying on a message broker to manage video processing
+    * An in-memory message broker is ideal here since it will maximise throughput
+    * Something like RabbitMQ may not necessarily provide any guarantees that messages will be processed exactly once
+        * We will need to ensure that we implement a write-ahead log on disk + replication to ensure that each message is handled at least once
+        * Even if they are processed more than once, who cares! We can just avoid rewriting any chunks by checking our chunks DB
+    * There will be three main points to consider:
+        1. Raw file upload to S3 in chunks
+        2. Chunk metadata will need to be passed to the message broker. The consumer of this message broker processes the chunk (encoding + resolution)
+        3. We need to know when all the chunks for a video have been processed. This is because we cannot update the Chunk or Video DB prematurely (as this will cause videos that haven't finished upload to be shown as available)
+    * All of the above are accomplished using the architecture shown below. We add an additional message broker to monitor for when a chunk has finished processing and publish the complete information on a video file (total chunks) to another message broker
+        * We can use a Flink consumer to read from both of these message brokers
+        * This Flink consumer is responsible for updating both the Chunks DB and the Video DB when all the chunks for a video have been processed. This maintains atomicity in video processing
+            * Another option for this would be to update the chunks DB as soon as a chunk is processed, then worry about updating the Video DB using this consumer
+        * The message broker that manages the complete information on a video file will likely be a Kafka instance, simply due to the fault-tolerance guarantees it gives us
+
+<p align="center">
+  <img src="images/Design Netflix-YouTube; Video Uploading Architecture.png">
+  <br/>
+  <i>Video Uploading Architecture</i>
+</p>
 
 ### Design Typeahead Suggestion / Google Search Bar
 
