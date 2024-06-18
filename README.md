@@ -3175,6 +3175,141 @@ getLongURL(TinyURL)
 
 ### Design Instagram, Twitter, Facebook, Reddit
 
+#### Step 1: Functional vs Non-Functional Requirements
+
+##### Functional Requirements
+
+1. Users can quickly see who follows them
+2. We can quickly load posts for a given user
+3. Low-latency newsfeed
+4. Posts can have configurable privacy types
+5. Infinitely nested comments
+
+##### Non-Functional Requirements
+
+1. 100 Million Users
+2. Read-heavy
+3. Spikes in reads will require caching
+4. Consistency vs Availability -> Availability takes priority
+5. We want latency to be as low as possible, but throughput doesn't necessarily have to be that high
+
+#### Step 2: Data Model
+
+User -> Followers Table (Who does this user follow?):
+User ID | Follower ID
+
+User -> Following Table (Who follows a given user?):
+Follower ID | User ID
+
+- We need separate tables for both to ensure that getting the followers for a given user and getting the following for a given user is efficient
+- This is because with only one table, optimising for one makes the other worse!
+    - This is because we can only partition on one of the IDs, which makes queries for the other more inefficient
+    - Also, our index will only allow us to optimise queries for one of User ID and Follower ID
+
+We can maintain these tables using either:
+1. A distributed transaction across both
+2. Change data capture
+
+<p align="center">
+  <img src="images/Design Instagram, Twitter, Facebook, Reddit; Follower Tables.png" width=600>
+  <br/>
+  <i>Managing the follower tables</i>
+</p>
+
+Posts Table:
+User ID | Post ID | Timestamp | Image Link (Depending on the system) | Text/Link (Depends on how long we expect comments to be) | Privacy Setting
+
+Comments Table:
+User ID | Comment ID | Text/Link (Depends on how long we expect comments to be) | Parent ID
+
+- The parent ID allows us to manage the comment hierarchy
+
+#### Step 3: Back-of-the-envelope calculations
+
+Write QPS: 100 Million Users * 10 = 1 Billion RPD
+1 Billion / 100000 = 10000 QPS
+
+Read QPS: 100 Million Users * ~100 = 10 Billion RPD
+10 Billion / 100000 = 100000 QPS
+
+Storage:
+_The most storage-intensive tables will be posts and comments_<br />
+Avg number of followers = 100, while some verified users will have millions <br />
+
+Avg Post/Comment Text Size = 100 Chars <br /> 
+1 byte/char  = 100 bytes per post/comment <br />
+Including metadata, we can raise this to 200 bytes per post/comment <br />
+
+1 Billion Posts * 200 Bytes * 365 days per year = 73TB/year
+1 Million comments per post * 200 bytes = 200 MB per comment
+
+#### Step 4: APIs
+
+getFollowers(UserID)
+
+getFollowing(UserID)
+
+getComments(PostID, fromTimestamp, toTimestamp)
+
+getPosts(UserID)
+
+sendFollow(UserID, FollowedID)
+
+createPost(UserID, PostID, Image, Text, Privacy)
+
+getNewsFeed(UserID)
+
+createComment(UserID, PostID, text, timestamp)
+
+#### Step 5: High-Level Design
+
+
+
+#### Step 6: Key Technical Considerations
+
+* **What kind of DB could we use to manage follower data?**
+    * Considering that we don't care about write conflicts, we can simply use a NoSQL store to maximise write-throughput
+    * A solid option would be Cassandra since we can use the User ID to define the cluster key and the Follower ID to define the sort key
+    * This makes deletions fast since we can find the follower information for a given user easily and we can remove follower information quickly using sequential access in conjunction with the sort key
+
+* **How do we go about creating a News Feed?**
+    * A _naive approach_ would involve the use of an aggregator to retrieve all of the posts made by accounts the user follows
+    * This is very costly in terms of network calls and will be very slow. Ideally, we should do this async
+    * A common architectural pattern for sending data to many users is the **fan-out pattern**
+        * This is an architectural pattern used in scenarios where we need to 'fan-out' messages to many users at once
+        * It involves using an Apache Flink consumer (or any stream processing consumer) to aggregate information on new posts and user-follow information
+        * This aggregated information will be used to send the posts to the appropriate cache. The idea is that we can have an array of caches, each of which manages the posts for a range of users via consistent hashing, which users connect to
+        * This minimises the number of places we need to send a post to and minimises the number of places the user has to poll data from. In addition, we eliminate costly network calls via the message broker
+        * _Dealing with popular posts:_
+            * Popular posts will need to be sent to many places at once
+            * This means many (potentially millions) of outgoing requests
+            * Rather than push to a user-specific cache, we use a separate cache that is solely for popular posts
+            * This means users can poll the popular post caches for updates, in addition to their user-specific caches
+            * We can identify if a post is popular in advance depending on the number of followers/verification status - this can be done via a network request, or we can again use change data capture
+        * Edits and security permission updates will also go through this path
+        * While the fan-out pattern is slow, it can be done asynchronously, and in the meantime, the user can simply query an old news feed
+        * _What technology do we use for the caches?_
+            * We will typically use Kafka Queues
+            * Users will monitor these queues via long-polling/refreshing
+
+<p align="center">
+  <img src="images/Design Instagram, Twitter, Facebook, Reddit; News Feed.png" width=600>
+  <br/>
+  <i>News Feed (Fan-Out Pattern)</i>
+</p>
+
+<p align="center">
+  <img src="images/Design Instagram, Twitter, Facebook, Reddit; News Feed (Popular Posts).png" width=600>
+  <br/>
+  <i>News Feed - Popular Posts</i>
+</p>
+
+* **What database would we want to use to store posts/comments?**
+    * Considering the storage requirements, a wide-column store like Cassandra makes a lot of sense
+    * We can use the UserID as the cluster key, and the timestamp as the sort key. This makes time-based queries lightning-fast!
+
+* 
+
 ### Design Dropbox / Google Drive
 
 #### Step 1: Functional vs Non-Functional Requirements
@@ -3203,9 +3338,10 @@ User ID | File ID | Role
 - We will likely use a MySQL DB for this to keep things simple - we don't need high write throughput on this DB, so this gives us consistency/transactions with ease
 
 Document Chunks Table:
-File ID | Chunk ID | Version | Hash | S3 Link
+File ID | Chunk Order (ID) | Version | Hash | S3 Link
 
 - This allows us to partition the file, and only write/read a particular chunk rather than the whole file
+- This makes both loading and uploading files easier - depending on bandwidth chunks can be uploaded in parallel. Uploads thus consist of uploading in chunks rather than the whole file
 - We could also use a wide-column store as well, where each row is a File ID, and we have a column family for the chunks, allowing for quick sequential reads
 
 #### Step 3: Back-of-the-envelope estimations
@@ -3250,7 +3386,7 @@ getFileVersions(FileID)
     * Thus, our best option will likely be to stick to single-leader replication, use something like a MySQL store to manage the versions. This keeps things simple, and can be scaled using partitioning
 
 * **What would the file upload process look like?**
-    * We would use client side logic to perform a diff between the local copy and the received copy, to determine the chunk that was updated
+    * We would use client-side logic to perform a diff between the local copy and the received copy, to determine the chunk that was updated
     * The updated chunk would be uploaded to S3, then on our backend we would update the chunks DB with the new version
     * If the update to the chunks DB fails, we could run into issues with unnecessary files in S3. This could be mitigated using a cron job
 
@@ -3276,7 +3412,11 @@ getFileVersions(FileID)
 
 ### Design Facebook Messenger / WhatsApp
 
+
+
 ### Design Netflix / YouTube
+
+
 
 ### Design Typeahead Suggestion / Google Search Bar
 
