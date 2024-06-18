@@ -3222,7 +3222,7 @@ User ID | Post ID | Timestamp | Image Link (Depending on the system) | Text/Link
 Comments Table:
 User ID | Comment ID | Text/Link (Depends on how long we expect comments to be) | Parent ID
 
-- The parent ID allows us to manage the comment hierarchy
+- The Parent ID allows us to manage the comment hierarchy
 
 #### Step 3: Back-of-the-envelope calculations
 
@@ -3264,7 +3264,7 @@ createComment(UserID, PostID, text, timestamp)
 #### Step 5: High-Level Design
 
 <p align="center">
-  <img src="images/Design Instagram, Twitter, Facebook, Reddit.png" width=600>
+  <img src="images/Design Instagram, Twitter, Facebook, Reddit.png">
   <br/>
   <i>High Level Design</i>
 </p>
@@ -3311,8 +3311,6 @@ createComment(UserID, PostID, text, timestamp)
 * **What database would we want to use to store posts/comments?**
     * Considering the storage requirements, a wide-column store like Cassandra makes a lot of sense
     * We can use the UserID as the cluster key, and the timestamp as the sort key. This makes time-based queries lightning-fast!
-
-* 
 
 ### Design Dropbox / Google Drive
 
