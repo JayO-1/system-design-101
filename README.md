@@ -3422,6 +3422,101 @@ getFileVersions(FileID)
 
 ### Design Facebook Messenger / WhatsApp
 
+#### Step 1: Functional vs Non-Functional Requirements
+
+##### Functional Requirements
+
+1. Support group chats with up to 10 users
+2. Sending + receiving messages in real-time
+3. Persist messages so that users can access them from other devices
+
+##### Non-Functional Requirements
+
+1. 1 Billion Users
+2. Write-Heavy
+3. Need to handle bursts in writes during certain events, like Christmas and New Years
+4. Consistency vs Availability -> Availability is higher priority. We need to maintain the ordering between messages and avoid dropping messages though
+5. Low latency, high throughput
+
+#### Step 2: Data Model
+
+Chat Table: <br />
+UserID | ChatID
+
+- By indexing and partitioning on the UserID, we ensure that reads are fast and that all the information for a given user is on the same node
+- A key consideration here in a multi-leader setup is write conflicts on a users chat membership. How do you ensure that a user stays removed/added with multiple writers?
+    - An easy way to solve this would be to use a set CRDT
+    - You could also just use a single-leader setup to ensure consistency. This should work, considering that we don't expect the chats table to be put under heavy load. MySQL makes sense here
+
+Users Table: <br />
+UserID | Email | Password Hash
+
+- Same kinds of considerations as the above. We don't expect this table to be queried often, so can use MySQL
+
+Messages Table: <br />
+ChatID (partition key) | Timestamp (sort key) | Message | metadata | UUID (Generated on receipt of the message - useful for idempotency)
+
+- Ordering can be maintained on the front-end using the timestamp
+- Writes are super important, so we will probably want to use something like Apache Cassandra
+    - It will give us fast writes via its LSM Tree-based index, and quorum writes
+    - In the case we want to optimise reads, we may want to think about HBase, as it uses a B-Tree index
+    - However, it uses single-leader replication!
+
+#### Step 3: Back-of-the-envelope estimations
+
+Storage Requirements: <br />
+1 Billion Users * 100 Messages per day * ~100 bytes / message = 10TB per day <br />
+10TB per day * 365 days = 3650TB per year = 3.65PB per year
+
+#### Step 4: APIs
+
+
+
+#### Step 5: High-Level Design
+
+<p align="center">
+  <img src="images/Design Facebook Messenger-WhatsApp.png">
+  <br/>
+  <i>Design Facebook Messenger-WhatsApp</i>
+</p>
+
+#### Step 6: Key Technical Considerations
+
+* **Discuss message delivery. How do we facilitate both message persistence, as well as sending messages to the client?**
+    * We can publish messages to a message broker, and use an Apache Flink consumer to read these messages and persist them/send them to the user
+    * We run into issues with dealing with duplicate messages being sent to our database since Flink only guarantees exactly once message processing between the message broker and the consumer
+        * We can mitigate this using an idempotency key in our DB, attached to a given message when it is received by the message service
+        * This means that if a message is processed again, we can simply check whether a message with the same idempotency key is present in the DB. If it is, we have the option to either replace it or skip the insert
+
+<p align="center">
+  <img src="images/Design Facebook Messenger-WhatsApp; Message Delivery.png" width=600>
+  <br/>
+  <i>Message Delivery</i>
+</p>
+
+* **Expand a bit more on message routing. What are some of the main considerations?**
+    * We want to minimise the number of places we need to push messages to and minimise the number of open connections the client needs to maintain
+    * We can achieve this by using the **fan-out pattern**. This is where we use many downstream caches to reduce the number of servers the client needs to know about
+    * The client can simply maintain a WebSocket connection with a single server, and listen for updates
+    * If the client isn't connected when its time to publish an event, we could simply add another message broker which the client can read from on startup
+    * _How do we know which users are associated with a ChatID?_
+        * We can use change data capture on the Chat DB
+        * This means our Flink consumer will have two incoming data sources - messages, and chats!
+
+<p align="center">
+  <img src="images/Design Facebook Messenger-WhatsApp; Message Routing.png" width=600>
+  <br/>
+  <i>Message Routing</i>
+</p>
+
+* **How do we know which server a user is connected to?**
+    * We would probably use something like consistent hashing
+    * The consistent hashing data would be maintained by a coordination service like **ZooKeeper**
+    * The load balancer would simply listen to the Zookeeper instance and can be horizontally scaled by adding more load balancers
+    * We would probably also want each of the chat services to send regular heartbeats to ZooKeeper. If they go down, ZooKeeper needs to update the hashing ring
+    * _If a server goes down, many clients may be redirected to a different server simultaneously. This is referred to as the thundering herd problem. How do we avoid this?_
+        * We can simply make clients attempt reconnection at random intervals/use exponential backoff
+
 ### Design Netflix / YouTube
 
 #### Step 1: Functional vs Non-Functional Requirements
@@ -3477,7 +3572,8 @@ VideoID | Timestamp | UserID | Text
 #### Step 3: Back-of-the-envelope estimations
 
 Storage Requirements: <br />
-1 Million Videos per day * ~100MB Video Size * 365 days = 36.5PB per year
+1 Million Videos per day * ~100MB Video Size = 100,000,000 MB = 100,000GB = 100TB per day <br />
+100TB * 365 days = 36,500TB per year = 36.5PB
 
 #### Step 4: APIs
 
