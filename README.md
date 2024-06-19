@@ -3476,7 +3476,8 @@ VideoID | Timestamp | UserID | Text
 
 #### Step 3: Back-of-the-envelope estimations
 
-
+Storage Requirements: <br />
+1 Million Videos per day * ~100MB Video Size * 365 days = 36.5PB per year
 
 #### Step 4: APIs
 
