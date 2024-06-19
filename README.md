@@ -3523,7 +3523,7 @@ Refer to functional requirements!
     * There will be three main points to consider:
         1. Raw file upload to S3 in chunks
         2. Chunk metadata will need to be passed to the message broker. The consumer of this message broker processes the chunk (encoding + resolution)
-        3. We need to know when all the chunks for a video have been processed. This is because we cannot update the Chunk or Video DB prematurely (as this will cause videos that haven't finished upload to be shown as available)
+        3. We need to know when all the chunks for a video have been processed. This is because we cannot update the Video DB prematurely (as this will cause videos that haven't finished uploading to be shown as available)
     * All of the above are accomplished using the architecture shown below. We add an additional message broker to monitor for when a chunk has finished processing and publish the complete information on a video file (total chunks) to another message broker
         * We can use a Flink consumer to read from both of these message brokers
         * This Flink consumer is responsible for updating both the Chunks DB and the Video DB when all the chunks for a video have been processed. This maintains atomicity in video processing
@@ -3556,7 +3556,7 @@ Refer to functional requirements!
         * We could denormalize video data, storing all video information in the index
             * This makes searches more network efficient, as we can use the search results to immediately play the video
             * This will also make writes/edits more expensive, as we will need to update both the inverted index and our DBs. The size of a given posting will also reduce the number of terms we can store on a given node
-            * However, this is tolerable if it makes our read latency lower
+            * However, this is tolerable if it makes our read latency lower. Read latency is more important here, so we'll go with this option
         * Popular search terms will probably need to be partitioned further to fit them across more nodes
 
 <p align="center">
