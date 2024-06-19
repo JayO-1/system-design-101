@@ -3074,6 +3074,13 @@ Thus, all a given server needs to validate a JWT is the secret key used to creat
   <i>JSON Web Token Visualised</i>
 </p>
 
+Key points to consider:
+* When using JWTs, we will typically provide a refresh token to the client that can be used to revalidate the client in intervals
+* When using JWTs for authentication, it is important to think about how we would go about blocking users when using a JWT-based authentication flow
+    * If we wish to block a client, we would mark them as blocked in our users table
+    * This means that whenever the client goes to refresh their JWT, we block them
+    * The downside of this is that the client will retain access until the JWT expires
+
 ### Source(s) and further reading
 
 * [Web Dev Simplified: JWTs](https://www.youtube.com/watch?v=7Q17ubqLfaM)
