@@ -3463,7 +3463,7 @@ UserID | Email | Password Hash
 Messages Table: <br />
 ChatID (partition key) | Timestamp (sort key) | Message | metadata | UUID (Generated on receipt of the message - useful for idempotency)
 
-- Ordering can be maintained on the front-end using the timestamp
+- Ordering can be maintained on the front end using the timestamp
 - Writes are super important, so we will probably want to use something like Apache Cassandra
     - It will give us fast writes via its LSM Tree-based index, and quorum writes
     - In the case we want to optimise reads, we may want to think about HBase, as it uses a B-Tree index
@@ -3477,7 +3477,7 @@ Storage Requirements: <br />
 
 #### Step 4: APIs
 
-
+Refer to the functional requirements!
 
 #### Step 5: High-Level Design
 
@@ -3505,7 +3505,8 @@ Storage Requirements: <br />
     * We want to minimise the number of places we need to push messages to and minimise the number of open connections the client needs to maintain
     * We can achieve this by using the **fan-out pattern**. This is where we use many downstream caches to reduce the number of servers the client needs to know about
     * The client can simply maintain a WebSocket connection with a single server, and listen for updates
-    * If the client isn't connected when its time to publish an event, we could simply add another message broker which the client can read from on startup
+    * On startup, the load balancer in front of the chat service is what allows the client to be routed to the appropriate chat server for opening the connection
+    * If the client isn't connected when it is time to publish an event, we could simply add another message broker which the client can read from on startup
     * _How do we know which users are associated with a ChatID?_
         * We can use change data capture on the Chat DB
         * This means our Flink consumer will have two incoming data sources - messages, and chats!
