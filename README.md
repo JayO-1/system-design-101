@@ -189,7 +189,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Representational state transfer (REST)](#representational-state-transfer-rest)
 * [Security](#security)
 * [Common System Design Interview Questions](#common-system-design-interview-questions)
-    * [Design  / PasteBin](#design---pastebin)
+    * [Design TinyURL / PasteBin](#design-tinyurl--pastebin)
     * [Design Instagram, Twitter, Facebook, Reddit](#design-instagram-twitter-facebook-reddit)
     * [Design Dropbox / Google Drive](#design-dropbox--google-drive)
     * [Design Facebook Messenger / WhatsApp](#design-facebook-messenger--whatsapp)
@@ -3090,7 +3090,7 @@ Key points to consider:
 
 ## Common System Design Interview Questions
 
-### Design  / PasteBin
+### Design TinyURL / PasteBin
 
 #### Step 1: Functional vs Non-Functional Requirements
 
