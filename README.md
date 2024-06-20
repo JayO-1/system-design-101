@@ -3130,7 +3130,7 @@ getLongURL()
 #### Step 5: High-Level Architecture
 
 <p align="center">
-  <img src="images/Design -PasteBin.png">
+  <img src="images/Design TinyURL-PasteBin.png">
   <br/>
   <i>High-Level System Architecture</i>
 </p>
