@@ -189,7 +189,7 @@ Review the [Contributing Guidelines](CONTRIBUTING.md).
     * [Representational state transfer (REST)](#representational-state-transfer-rest)
 * [Security](#security)
 * [Common System Design Interview Questions](#common-system-design-interview-questions)
-    * [Design TinyURl / PasteBin](#design-tinyurl--pastebin)
+    * [Design  / PasteBin](#design---pastebin)
     * [Design Instagram, Twitter, Facebook, Reddit](#design-instagram-twitter-facebook-reddit)
     * [Design Dropbox / Google Drive](#design-dropbox--google-drive)
     * [Design Facebook Messenger / WhatsApp](#design-facebook-messenger--whatsapp)
@@ -3090,7 +3090,7 @@ Key points to consider:
 
 ## Common System Design Interview Questions
 
-### Design TinyURL / PasteBin
+### Design  / PasteBin
 
 #### Step 1: Functional vs Non-Functional Requirements
 
@@ -3123,14 +3123,14 @@ If we had say 1 trillion Tiny URLs, we would need 1 Trillion * 1Kb = 1 PB of sto
 
 #### Step 4: APIs
 
-createTinyURL(UserID, LongURL, timestamp, payload (pastebin))
+create(UserID, LongURL, timestamp, payload (pastebin))
 
-getLongURL(TinyURL)
+getLongURL()
 
 #### Step 5: High-Level Architecture
 
 <p align="center">
-  <img src="images/Design TinyURL-PasteBin.png">
+  <img src="images/Design -PasteBin.png">
   <br/>
   <i>High-Level System Architecture</i>
 </p>
@@ -3148,10 +3148,10 @@ getLongURL(TinyURL)
 * **Is it possible to use a write-through/write-behind cache to speed up writes?**
     * NO! For the same reasons as above. Cache failure/delayed writes will lead to inconsistency which we cannot tolerate
 
-* **Considering that we must use single-leader replication for our DB, concurrent writes to the same TinyURL could potentially go through if it hasn't been created yet. How do we deal with this?**
-    * **Predicate Locks:** We will need to lock on the TinyURL even if it doesn't exist
+* **Considering that we must use single-leader replication for our DB, concurrent writes to the same  could potentially go through if it hasn't been created yet. How do we deal with this?**
+    * **Predicate Locks:** We will need to lock on the  even if it doesn't exist
         * This will involve the use of a predicate query to identify the row where the change applies e.g. SELECT * FROM urls WHERE shortURL = 'abcde12' 
-    * **Materialising Conflicts:** We generate every possible TinyURL so they are already present in the DB. This allows us to use the DBs in-built locking functionality
+    * **Materialising Conflicts:** We generate every possible  so they are already present in the DB. This allows us to use the DBs in-built locking functionality
         * Considering how short Tiny URLs are, there wouldn't be much memory overhead. Assuming we store 1 trillion Tiny URLs * 1 byte per char * 8 chars = 8TB which isn't that much
  
 * **What DB index would we want to use to solve this problem?**
@@ -3680,6 +3680,130 @@ Refer to functional requirements!
 
 ### Design Uber / Lyft
 
+#### Step 1: Functional vs Non-Functional Requirements
+
+##### Functional Requirements
+
+1. Request a ride between two locations
+2. See drivers in your area upon request, drivers can also see you
+3. Calculate the expected amount of distance and the time the ride will take
+4. Compute the exact route that you are taking (Bonus, very difficult to cook this up in an interview)
+
+##### Non-Functional Requirements
+
+1. 1 Billion Users
+2. Write-Heavy (must maintain the real-time location of drivers and customers)
+3. Spikes in usage in certain areas and at certain times
+4. Consistency vs Availability -> Not relevant since this is predominantly a real-time system
+5. Latency vs Throughput -> Low latency, high throughput
+
+#### Step 2: Data Model
+
+In-Memory Storage for current location: <br />
+UserID | Lat | Lon
+DriverID | Lat | Lon
+
+- This is because we want reads and writes to be extremely fast
+- This can be done easily by simply maintaining this information on the server
+
+Trips Table: <br />
+TripID | Start Lat | Start Lon | End Lat | End Lon | Timestamp | UserID | RiderID | Metadata...
+
+Users Table: <br />
+UserID | Password Hash | Metadata...
+
+#### Step 3: Back-of-the-envelope estimations
+
+~30 Million Rides happening at a given time <br />
+If we want to track locations of rider and driver, ~60 Million records to maintain at a given time <br />
+60 Million * (64 bytes for lat + 64 bytes for long + 64 bytes for id) = 1.1 * 10^10 bytes = 1.1 * 10^7 Kb = 1.1 * 10^4 MB = ~1GB
+
+Storing ~30 Million rides per day <br />
+
+
+#### Step 4: APIs
+
+
+
+#### Step 5: High-Level Design
+
+
+
+#### Step 6: Key Technical Considerations
+
+* **Outline the steps for finding a ride. What are some of the technical considerations?**
+    * Step 1: Find all drivers within 1 mile radius
+        * We need a geospatial index!
+    * Step 2: Keep user locations up to date using WebSockets
+    * Step 3: How do we ensure that we distribute the load efficiently?
+        * We need to partition on geohash. This will ensure that riders and drivers are on the same geohash
+        * We will likely need to sub-partition a given geohash depending on how densely populated the area is
+        * This can be done by using a sub-partition that is based on UserID
+    * Step 4: How do we ensure that we keep track of a rider/driver when they move between different geohash areas?
+        * Up to this point, our current flow is to maintain a connection between a rider or driver and the appropriate geohash server
+        * If they move between areas, then when a client pings the old server, that server can drop the connection and force the user to fetch a new server via the load balancer
+        * The thundering herd problem is up for consideration here, but not a big deal since moving between geohashes is not a common event
+    * Step 5: Apply a matching algorithm to join riders with drivers
+        * Possible algorithms:
+            * closest?
+            * fan-out?
+            * highest-rating wins? (requires keeping track of review data in the geo index)
+        * There are also possible race conditions, considering that both the rider and the driver must accept a trip - we need to be able to coordinate a double acceptance
+            * Option 1: Materialize the conflict in a DB, adding a row with a null driver
+                * Driver now has to claim the lock when claiming a ride
+            * Option 2: Grab a predicate lock on all rows with the given TripID
+                * Will be slow. Can optimise by adding an index on TripID
+            * Both of the above can be done fairly easily using a MySQL database. Partitioning will enable this to scale
+            * For long-term storage we will likely need to use change data capture to gradually flush trip information to large-scale storage like HDFS
+            * This is because we only need MySQL for its locking capabilities
+    * Step 6 (Bonus): Route Recreation -> How do we keep track of the route that a rider has taken to get to a location
+        * In practice, Uber models the probability of a given sequence of map points based on a sequence of GPS readings using a HMM:
+            * HMMs allow us to model the probability of a given sequence, using both emission probabilities and transition probabilities
+            * **Emission Probability:** The probability of being at a map point given the GPS reading received
+            * **Transition Probability:** The probability of moving to one map point from another map point
+            * The **Viterbi algorithm** is used to find the sequence with the highest probability
+            * The tricky part about implementing this in a distributed system, is that we need to keep track of the sequence of GPS signals across geohashes
+                * We would need to partition our HMM nodes using geohashing and ensure that each HMMs partition has some overlap with other partitions
+                * We will put a queue in front of both of these HMM nodes to manage incoming requests. These HMM nodes will be stateful consumers, who need to keep track of the computations done for previous locations
+                * By simply keeping track of the previous location and the current location in our state updates, when an HMM receives a notification from an overlapping geohash it knows which HMM needs it
+                * In this case, a state message can be published to a queue for the HMM of the subsequent geohash
+
+<p align="center">
+  <img src="images/Design Uber-Lyft; Emission Probabilities.png" width=600>
+  <br/>
+  <i>Emission Probabilities</i>
+</p>
+
+<p align="center">
+  <img src="images/Design Uber-Lyft; Transition Probabilities.png" width=600>
+  <br/>
+  <i>Transition Probabilities</i>
+</p>
+
+<p align="center">
+  <img src="images/Design Uber-Lyft; Maintaining HMM State.png" width=600>
+  <br/>
+  <i>We need to maintain state as the rider crosses between geohashes</i>
+</p>
+
+<p align="center">
+  <img src="images/Design Uber-Lyft; HMM Partitioning 1.png" width=600>
+  <br/>
+  <i>HMM Partitioning (1)</i>
+</p>
+
+<p align="center">
+  <img src="images/Design Uber-Lyft; HMM Partitioning 2.png" width=600>
+  <br/>
+  <i>HMM Partitioning (2)</i>
+</p>
+
+<p align="center">
+  <img src="images/Design Uber-Lyft; HMM Route Calculation Visualised.png" width=600>
+  <br/>
+  <i>HMM Route Calculation Visualised</i>
+</p>
+
 ### Design Ticketmaster / StubHub
 
 ### Design Google Docs / Real-time Text Editor
@@ -3801,7 +3925,7 @@ Handy metrics based on numbers above:
 | Design a key-value store like Redis | [slideshare.net](http://www.slideshare.net/dvirsky/introduction-to-redis) |
 | Design a cache system like Memcached | [slideshare.net](http://www.slideshare.net/oemebamo/introduction-to-memcached) |
 | Design a recommendation system like Amazon's | [hulu.com](https://web.archive.org/web/20170406065247/http://tech.hulu.com/blog/2011/09/19/recommendation-system.html)<br/>[ijcai13.org](http://ijcai13.org/files/tutorial_slides/td3.pdf) |
-| Design a tinyurl system like Bitly | [n00tc0d3r.blogspot.com](http://n00tc0d3r.blogspot.com/) |
+| Design a  system like Bitly | [n00tc0d3r.blogspot.com](http://n00tc0d3r.blogspot.com/) |
 | Design a chat app like WhatsApp | [highscalability.com](http://highscalability.com/blog/2014/2/26/the-whatsapp-architecture-facebook-bought-for-19-billion.html)
 | Design a picture sharing system like Instagram | [highscalability.com](http://highscalability.com/flickr-architecture)<br/>[highscalability.com](http://highscalability.com/blog/2011/12/6/instagram-architecture-14-million-users-terabytes-of-photos.html) |
 | Design the Facebook news feed function | [quora.com](http://www.quora.com/What-are-best-practices-for-building-something-like-a-News-Feed)<br/>[quora.com](http://www.quora.com/Activity-Streams/What-are-the-scaling-issues-to-keep-in-mind-while-developing-a-social-network-feed)<br/>[slideshare.net](http://www.slideshare.net/danmckinley/etsy-activity-feeds-architecture) |
