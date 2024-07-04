@@ -1532,6 +1532,7 @@ In theory, SSI is better than two-phase locking, but this will depend on the fre
 * [Jordan Has No Life: SQL vs PostgreSQL](https://www.youtube.com/watch?v=x6-RN-_i5Xs&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=33)
 * [Jordan Has No Life: Intro to ACID Database Transactions](https://www.youtube.com/watch?v=oGmxzUBCYtY&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=7)
 * [Jordan Has No Life: Read Committed Isolation](https://www.youtube.com/watch?v=oS60pr8H1e0&list=PLjTveVh7FakLdTmm42TMxbN8PvVn5g4KJ&index=8)
+* [Write-Ahead Logs in DBs](https://notes.eatonphil.com/2024-07-01-a-write-ahead-log-is-not-a-universal-part-of-durability.html)
 
 ### NoSQL
 
