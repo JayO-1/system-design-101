@@ -906,11 +906,11 @@ However, the main drawback is that since each VM has its own OS, and a Hyperviso
 
 Containers aim to improve upon the resource intensiveness of VMs, by removing the need for a virtual OS from the VM.
 
-Instead, only application code, dependencies, environment variables, configuration settings, etc. are wrapped into a single bundle, making containers lightweight and easily scaled.
+Instead, only application code, dependencies, environment variables, configuration settings, etc. are wrapped into a single bundle, making containers making containers lightweight and easily scaled. 
 
-A manifest file is used to describe the properties of this bundle. With Docker, this is referred to as a Docker file, while in Cloud Foundry a manifest.yaml is used.
+A manifest file is used to describe the properties of this bundle when it is being built. With Docker, this is referred to as a Docker file, while in Cloud Foundry a manifest.yaml is used.
 
-You can then share this bundle (called a container image) with other developers who need to run your application. It makes deploying and horizontally scaling your code significantly easier.
+You can then share this bundle (called a container image) with other developers who need to run your application. These bundles run on a shared kernel, making deploying and horizontally scaling your code significantly easier.
 
 <p align="center">
   <img width="350" src="images/containers.png">
@@ -1007,6 +1007,7 @@ To change that, we can simply specify in the manifest file for a given service t
 
 * [IBM: Containerization Explained](https://www.youtube.com/watch?v=0qotVMX-J5s)
 * [IBM: Kubernetes](https://www.youtube.com/watch?v=aSrqRSk43lY)
+* [Fireship: 100+ Docker Concepts](https://www.youtube.com/watch?v=rIrNIzy6U_g)
 * [Intro to architecting systems for scale](http://lethain.com/introduction-to-architecting-systems-for-scale)
 * [Crack the system design interview](http://www.puncsky.com/blog/2016-02-13-crack-the-system-design-interview)
 * [Service oriented architecture](https://en.wikipedia.org/wiki/Service-oriented_architecture)
