@@ -4064,6 +4064,7 @@ Handy metrics based on numbers above:
 Looking to add a blog?  To avoid duplicating work, consider adding your company blog to the following repo:
 
 * [kilimchoi/engineering-blogs](https://github.com/kilimchoi/engineering-blogs)
+* [evidentlyai/ml-system-design](https://www.evidentlyai.com/ml-system-design)
 
 ## Under development
 
@@ -4093,8 +4094,6 @@ Special thanks to:
 ## Contact info
 
 Feel free to contact me to discuss any issues, questions, or comments.
-
-My contact info can be found on my [GitHub page](https://github.com/donnemartin).
 
 ## License
 
