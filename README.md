@@ -906,7 +906,7 @@ However, the main drawback is that since each VM has its own OS, and a Hyperviso
 
 Containers aim to improve upon the resource intensiveness of VMs, by removing the need for a virtual OS from the VM.
 
-Instead, only application code, dependencies, environment variables, configuration settings, etc. are wrapped into a single bundle, making containers making containers lightweight and easily scaled. 
+Instead, only application code, dependencies, environment variables, configuration settings, etc. are wrapped into a single bundle, making containers lightweight and easily scaled. 
 
 A manifest file is used to describe the properties of this bundle when it is being built. With Docker, this is referred to as a Docker file, while in Cloud Foundry a manifest.yaml is used.
 
